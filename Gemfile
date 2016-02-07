@@ -7,6 +7,9 @@ gem 'sinatra'
 gem 'warden'
 
 group :development, :test do
+  gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt
+  gem 'guard'
+  gem 'guard-rack', :git => 'http://github.com/dblock/guard-rack'
   gem 'rspec'
   gem 'rubocop'
   gem 'simplecov'
