@@ -15,5 +15,7 @@ rescue
   abort "Failed to initialize: #{ex}"
 end
 
+require_relative 'db'
+
 require 'cyclid/models'
 require 'cyclid/controllers'
