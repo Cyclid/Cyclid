@@ -22,7 +22,8 @@ module Cyclid
 
         organization = Organization.new(payload)
         organization.save!
-      rescue
+      rescue ActiveRecord::ActiveRecordError => ex
+        Cyclid.logger.debug ex.message
         halt 400
       end
     end
