@@ -27,6 +27,9 @@ rescue LoadError
   end
 end
 
+require 'sinatra/activerecord/rake'
+require_relative 'lib/db.rb'
+
 task :doc do
   Rake::Task['yard'].invoke
   YARD::CLI::Stats.run('--list-undoc')

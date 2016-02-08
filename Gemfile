@@ -6,6 +6,7 @@ gem 'require_all'
 gem 'sinatra'
 gem 'warden'
 gem 'activerecord'
+gem 'sinatra-activerecord'
 
 group :development, :test do
   gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt

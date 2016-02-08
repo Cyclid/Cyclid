@@ -4,10 +4,29 @@ require 'oj'
 module Cyclid
   # Controller for all Organization related API endpoints
   class OrganizationController < Sinatra::Base
-    get '/organization' do
+    get '/organizations' do
       content_type :json
 
-      return Oj.dump([{name: 'Test organization'},{name: 'S.H.I.E.L.D'}])
+      organizations = Organization.all
+
+      return organizations.to_json 
+    end
+
+    post '/organizations' do
+
+      # Parse the JSON from the request
+      begin
+        request.body.rewind
+        payload = Oj.load request.body.read
+      rescue
+        halt 400
+      end
+
+      Cyclid.logger.debug payload
+
+      halt 400 unless payload.key? 'name'
+
+      organization = Organization.create(payload)
     end
   end
 

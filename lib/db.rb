@@ -1,7 +1,7 @@
 require 'active_record'
 
 begin
-  ActiveRecord::Base.logger = Cyclid.logger
+  #ActiveRecord::Base.logger = Cyclid.logger
 
   ActiveRecord::Base.establish_connection(
     adapter: 'sqlite3',
