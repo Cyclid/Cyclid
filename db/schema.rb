@@ -14,7 +14,8 @@
 ActiveRecord::Schema.define(version: 20160208175128) do
 
   create_table "organizations", force: :cascade do |t|
-    t.string "name"
+    t.string "name",        null: false
+    t.string "owner_email", null: false
   end
 
 end

@@ -17,9 +17,14 @@ module Cyclid
 
       Cyclid.logger.debug payload
 
-      halt 400 unless payload.key? 'name'
+      begin
+        halt 409 if Organization.exists?(payload)
 
-      organization = Organization.create(payload)
+        organization = Organization.new(payload)
+        organization.save!
+      rescue
+        halt 400
+      end
     end
   end
 
