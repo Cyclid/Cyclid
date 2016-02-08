@@ -3,7 +3,7 @@ require 'oj'
 # Top level module for all of the core Cyclid code.
 module Cyclid
   # Controller for all Organization related API endpoints
-  class OrganizationController < Sinatra::Base
+  class OrganizationController < ControllerBase
     get '/organizations' do
       content_type :json
 
@@ -13,14 +13,7 @@ module Cyclid
     end
 
     post '/organizations' do
-
-      # Parse the JSON from the request
-      begin
-        request.body.rewind
-        payload = Oj.load request.body.read
-      rescue
-        halt 400
-      end
+      payload = json_request_body
 
       Cyclid.logger.debug payload
 
