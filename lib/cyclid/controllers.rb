@@ -30,11 +30,10 @@ require_rel 'controllers/*.rb'
 # Top level module for the core Cyclid code.
 module Cyclid
   # Sintra application for the REST API
-  class API < Sinatra::Base
+  class API < Sinatra::Application
     # Set up the Sinatra configuration
     configure do
       enable :logging
-      enable :sessions
     end
 
     # Register all of the controllers with Sinatra
