@@ -7,6 +7,7 @@ gem 'sinatra'
 gem 'warden'
 gem 'activerecord'
 gem 'sinatra-activerecord'
+gem 'bcrypt'
 
 group :development, :test do
   gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt

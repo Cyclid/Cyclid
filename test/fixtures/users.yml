@@ -1,4 +1,5 @@
 test:
   username: test
   email: test@example.com
-  api_token: aatesttoken55
+  password: $2a$10$VuxJ9qCodE6e493ogJRjbeOaUZqOCFuHqO5SIQa5Q9dC8cU.UUFHK
+  secret: aasecret55

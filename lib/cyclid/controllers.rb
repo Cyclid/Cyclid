@@ -47,7 +47,7 @@ module Cyclid
 
       # Call the Warden authenticate! method
       def authenticate!
-        env['warden'].authenticate!(:api_token)
+        env['warden'].authenticate! #(:api_token)
       end
 
       # Authenticate the user, then ensure that the user is an admin
@@ -67,13 +67,13 @@ module Cyclid
       end
     end
 
-    # Configure Warden to authenticate via. API tokens
+    # Configure Warden to authenticate
     use Warden::Manager do |config|
       config.serialize_into_session{ |user| user.id }
       config.serialize_from_session{ |id| User.find_by_id(id) }
 
       config.scope_defaults :default,
-                            strategies: [:api_token],
+                            strategies: [:basic, :api_token],
                             action: '/unauthenticated'
 
       config.failure_app = self
@@ -83,6 +83,35 @@ module Cyclid
       env['REQUEST_METHOD'] = 'POST'
     end
 
+    # Authenticate via. HTTP Basic auth.
+    Warden::Strategies.add(:basic) do
+      def valid?
+        request.env['HTTP_AUTHORIZATION'].is_a? String
+      end
+
+      def authenticate!
+        begin
+          authorization = request.env['HTTP_AUTHORIZATION']
+          digest = authorization.match(%r{^Basic (.*)$}).captures.first
+
+          user_pass = Base64.decode64(digest)
+          username, password = user_pass.split(':')
+        rescue
+          fail! 'invalid digest'
+        end
+
+        user = User.find_by(username: username)
+        if user.nil?
+          fail! 'invalid username'
+        elsif BCrypt::Password.new(user.password).is_password? password
+          success! user
+        else
+          fail! 'invalid API token'
+        end
+      end
+    end
+
+    # Authenticate via. an API token
     Warden::Strategies.add(:api_token) do
       def valid?
         request.env['HTTP_AUTH_USER'].is_a? String and request.env['HTTP_AUTH_TOKEN'].is_a? String
@@ -92,7 +121,7 @@ module Cyclid
         user = User.find_by(username: request.env['HTTP_AUTH_USER'])
         if user.nil?
           fail! 'invalid username'
-        elsif user.api_token == request.env['HTTP_AUTH_TOKEN']
+        elsif user.secret == request.env['HTTP_AUTH_TOKEN']
           success! user
         else
           fail! 'invalid API token'

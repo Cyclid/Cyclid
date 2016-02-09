@@ -33,6 +33,7 @@ GEM
     arel (6.0.3)
     ast (2.2.0)
     awesome_print (1.6.1)
+    bcrypt (3.1.10)
     builder (3.2.2)
     coderay (1.1.0)
     diff-lcs (1.2.5)
@@ -130,6 +131,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   awesome_print
+  bcrypt
   ffi!
   guard
   guard-rack!
