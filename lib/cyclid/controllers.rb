@@ -1,10 +1,16 @@
 require 'sinatra'
+require 'warden'
 
 # Top level module for the core Cyclid code.
 module Cyclid
   # Base class for all API Controllers
   class ControllerBase < Sinatra::Base
     include Cyclid::Errors::HTTPErrors
+
+    # The API always returns JSON
+    before do
+      content_type :json
+    end
 
     helpers do
       # Safely parse & validate the request body as JSON
@@ -38,6 +44,68 @@ module Cyclid
       def halt_with_json_response(error, id, description)
         halt error, json_response(id, description)
       end
+
+      # Call the Warden authenticate! method
+      def authenticate!
+        env['warden'].authenticate!(:api_token)
+      end
+
+      # Authenticate the user, then ensure that the user is an admin
+      def authorized!
+        authenticate!
+
+        user = env['warden'].user
+        unless user.admin # rubocop:disable Style/GuardClause
+          Cyclid.logger.info "unauthorized: #{user.username}"
+          halt_with_json_response(401, AUTH_FAILURE, 'unauthorized')
+        end
+      end
+
+      # Current User object from the session
+      def current_user
+        env['warden'].user
+      end
+    end
+
+    # Configure Warden to authenticate via. API tokens
+    use Warden::Manager do |config|
+      config.serialize_into_session{ |user| user.id }
+      config.serialize_from_session{ |id| User.find_by_id(id) }
+
+      config.scope_defaults :default,
+                            strategies: [:api_token],
+                            action: '/unauthenticated'
+
+      config.failure_app = self
+    end
+
+    Warden::Manager.before_failure do |env, _opts|
+      env['REQUEST_METHOD'] = 'POST'
+    end
+
+    Warden::Strategies.add(:api_token) do
+      def valid?
+        request.env['HTTP_AUTH_USER'].is_a? String and request.env['HTTP_AUTH_TOKEN'].is_a? String
+      end
+
+      def authenticate!
+        user = User.find_by(username: request.env['HTTP_AUTH_USER'])
+        if user.nil?
+          fail! 'invalid username'
+        elsif user.api_token == request.env['HTTP_AUTH_TOKEN']
+          success! user
+        else
+          fail! 'invalid API token'
+        end
+      end
+    end
+
+    post '/unauthenticated' do
+      content_type :json
+      # Stop Warden from calling this endpoint again in an endless loop when
+      # it sees the 401 response
+      env['warden'].custom_failure!
+      halt_with_json_response(401, AUTH_FAILURE, 'invalid username or password')
     end
   end
 end

@@ -11,11 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160208175128) do
+ActiveRecord::Schema.define(version: 20160209092652) do
 
   create_table "organizations", force: :cascade do |t|
     t.string "name",        null: false
     t.string "owner_email", null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username",  null: false
+    t.string "email",     null: false
+    t.string "api_token"
   end
 
 end
