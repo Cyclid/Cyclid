@@ -18,13 +18,18 @@ module Cyclid
       Cyclid.logger.debug payload
 
       begin
-        halt 409 if Organization.exists?(payload)
+        halt_with_json_response(409, \
+          DUPLICATE, \
+          'An organization with that name already exists') \
+        if Organization.exists?(name: payload['name'])
 
         organization = Organization.new(payload)
         organization.save!
-      rescue ActiveRecord::ActiveRecordError => ex
+      rescue ActiveRecord::ActiveRecordError, \
+             ActiveRecord::UnknownAttributeError => ex
+
         Cyclid.logger.debug ex.message
-        halt 400
+        halt_with_json_response(400, INVALID_JSON, ex.message)
       end
     end
   end

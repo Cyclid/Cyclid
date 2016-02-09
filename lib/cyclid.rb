@@ -5,17 +5,20 @@ require 'logger'
 module Cyclid
   class << self
     attr_accessor :controllers, :logger
-  end
-end
 
-Cyclid.controllers = []
-begin
-  Cyclid.logger = Logger.new(STDERR)
-rescue
-  abort "Failed to initialize: #{ex}"
+    Cyclid.controllers = []
+
+    begin
+      Cyclid.logger = Logger.new(STDERR)
+    rescue Exception => ex
+      abort "Failed to initialize: #{ex}"
+    end
+
+  end
 end
 
 require_relative 'db'
 
+require 'cyclid/errors'
 require 'cyclid/models'
 require 'cyclid/controllers'
