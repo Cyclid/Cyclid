@@ -47,7 +47,7 @@ module Cyclid
 
       # Call the Warden authenticate! method
       def authenticate!
-        env['warden'].authenticate! #(:api_token)
+        env['warden'].authenticate!
       end
 
       # Authenticate the user, then ensure that the user is an admin
@@ -86,7 +86,8 @@ module Cyclid
     # Authenticate via. HTTP Basic auth.
     Warden::Strategies.add(:basic) do
       def valid?
-        request.env['HTTP_AUTHORIZATION'].is_a? String
+        request.env['HTTP_AUTHORIZATION'].is_a? String and \
+          request.env['HTTP_AUTHORIZATION'] =~ %r{^Basic .*$}
       end
 
       def authenticate!
