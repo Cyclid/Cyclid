@@ -21,4 +21,5 @@ require_relative 'db'
 
 require 'cyclid/errors'
 require 'cyclid/models'
+require 'cyclid/hmac'
 require 'cyclid/controllers'
