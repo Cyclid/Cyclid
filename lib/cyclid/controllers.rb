@@ -140,7 +140,7 @@ module Cyclid
             Cyclid.logger.debug "user=#{user.username} method=#{method} path=#{path} date=#{date} HMAC=#{hmac}"
 
             signer = Cyclid::HMAC::Signer.new
-            if signer.validate_signature(hmac, {secret: 'derp', method: method, path: path, date: date})
+            if signer.validate_signature(hmac, {secret: user.secret, method: method, path: path, date: date})
               success! user
             else
               fail! 'invalid user'

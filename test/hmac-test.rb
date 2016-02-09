@@ -6,7 +6,7 @@ require 'cyclid/hmac'
 require 'net/http'
 require 'uri'
 
-secret = 'derp'
+secret = 'aasecret55'
 uri = URI('http://localhost:9292/organizations')
 
 signer = Cyclid::HMAC::Signer.new
