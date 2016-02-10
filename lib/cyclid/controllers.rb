@@ -10,43 +10,46 @@ require_relative 'sinatra/auth_helpers'
 
 # Top level module for the core Cyclid code.
 module Cyclid
-  # Base class for all API Controllers
-  class ControllerBase < Sinatra::Base
-    include Cyclid::Errors::HTTPErrors
+  # Module for the Cyclid API
+  module API
+    # Base class for all API Controllers
+    class ControllerBase < Sinatra::Base
+      include Errors::HTTPErrors
 
-    # The API always returns JSON
-    before do
-      content_type :json
-    end
+      # The API always returns JSON
+      before do
+        content_type :json
+      end
 
-    helpers APIHelpers, AuthHelpers
+      helpers APIHelpers, AuthHelpers
 
-    # Configure Warden to authenticate
-    use Warden::Manager do |config|
-      config.serialize_into_session{ |user| user.id }
-      config.serialize_from_session{ |id| User.find_by_id(id) }
+      # Configure Warden to authenticate
+      use Warden::Manager do |config|
+        config.serialize_into_session{ |user| user.id }
+        config.serialize_from_session{ |id| User.find_by_id(id) }
 
-      config.scope_defaults :default,
-                            strategies: [:basic, :hmac, :api_token],
-                            action: '/unauthenticated'
+        config.scope_defaults :default,
+                              strategies: [:basic, :hmac, :api_token],
+                              action: '/unauthenticated'
 
-      config.failure_app = self
-    end
+        config.failure_app = self
+      end
 
-    Warden::Manager.before_failure do |env, _opts|
-      env['REQUEST_METHOD'] = 'POST'
-    end
+      Warden::Manager.before_failure do |env, _opts|
+        env['REQUEST_METHOD'] = 'POST'
+      end
 
-    include Cyclid::Strategies::Basic
-    include Cyclid::Strategies::HMAC
-    include Cyclid::Strategies::APIToken
+      include Strategies::Basic
+      include Strategies::HMAC
+      include Strategies::APIToken
 
-    post '/unauthenticated' do
-      content_type :json
-      # Stop Warden from calling this endpoint again in an endless loop when
-      # it sees the 401 response
-      env['warden'].custom_failure!
-      halt_with_json_response(401, AUTH_FAILURE, 'invalid username or password')
+      post '/unauthenticated' do
+        content_type :json
+        # Stop Warden from calling this endpoint again in an endless loop when
+        # it sees the 401 response
+        env['warden'].custom_failure!
+        halt_with_json_response(401, AUTH_FAILURE, 'invalid username or password')
+      end
     end
   end
 end
@@ -56,17 +59,20 @@ require_rel 'controllers/*.rb'
 
 # Top level module for the core Cyclid code.
 module Cyclid
+  # Module for the Cyclid API
+  module API
   # Sintra application for the REST API
-  class API < Sinatra::Application
-    # Set up the Sinatra configuration
-    configure do
-      enable :logging
-    end
+    class App < Sinatra::Application
+      # Set up the Sinatra configuration
+      configure do
+        enable :logging
+      end
 
-    # Register all of the controllers with Sinatra
-    Cyclid.controllers.each do |controller|
-      Cyclid.logger.debug "Using Sinatra controller #{controller}"
-      use controller
+      # Register all of the controllers with Sinatra
+      Cyclid.controllers.each do |controller|
+        Cyclid.logger.debug "Using Sinatra controller #{controller}"
+        use controller
+      end
     end
   end
 end

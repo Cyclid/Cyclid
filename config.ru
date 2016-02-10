@@ -6,4 +6,4 @@
 require 'sinatra'
 require File.dirname(__FILE__) + '/init'
 
-run Cyclid::API 
+run Cyclid::API::App
