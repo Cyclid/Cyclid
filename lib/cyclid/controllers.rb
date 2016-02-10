@@ -115,40 +115,43 @@ module Cyclid
     # Authenticate via. HMAC
     Warden::Strategies.add(:hmac) do
       def valid?
-        request.env['HTTP_AUTH_USER'].is_a? String and \
-          request.env['HTTP_AUTHORIZATION'].is_a? String and \
+        request.env['HTTP_AUTHORIZATION'].is_a? String and \
           request.env['HTTP_AUTHORIZATION'] =~ %r{^HMAC .*$}
       end
 
       def authenticate!
-        user = User.find_by(username: request.env['HTTP_AUTH_USER'])
+        begin
+          authorization = request.env['HTTP_AUTHORIZATION']
+          username, hmac = authorization.match(%r{^HMAC (.*):(.*)$}).captures
+
+          # The nonce may be empty; that isn't an error and the signature
+          # will validate with a Nil nonce
+          nonce = request.env['HTTP_X_HMAC_NONCE']
+        rescue
+          fail! 'invalid HMAC'
+        end
+
+        user = User.find_by(username: username)
         if user.nil?
           fail! 'invalid user'
-        else
-          begin
-            authorization = request.env['HTTP_AUTHORIZATION']
-            hmac = authorization.match(%r{^HMAC (.*)$}).captures.first
-          rescue
-            fail! 'invalid HMAC'
+        end
+
+        begin
+          method = request.env['REQUEST_METHOD']
+          path = request.env['PATH_INFO']
+          date = request.env['HTTP_DATE']
+
+          Cyclid.logger.debug "user=#{user.username} method=#{method} path=#{path} date=#{date} HMAC=#{hmac} nonce=#{nonce}"
+
+          signer = Cyclid::HMAC::Signer.new
+          if signer.validate_signature(hmac, {secret: user.secret, method: method, path: path, date: date, nonce: nonce})
+            success! user
+          else
+            fail! 'invalid user'
           end
-
-          begin
-            method = request.env['REQUEST_METHOD']
-            path = request.env['PATH_INFO']
-            date = request.env['HTTP_DATE']
-
-            Cyclid.logger.debug "user=#{user.username} method=#{method} path=#{path} date=#{date} HMAC=#{hmac}"
-
-            signer = Cyclid::HMAC::Signer.new
-            if signer.validate_signature(hmac, {secret: user.secret, method: method, path: path, date: date})
-              success! user
-            else
-              fail! 'invalid user'
-            end
-          rescue Exception => ex
-            Cyclid.logger.debug "failure during HMAC authentication: #{ex}"
-            fail! 'invalid headers'
-          end
+        rescue Exception => ex
+          Cyclid.logger.debug "failure during HMAC authentication: #{ex}"
+          fail! 'invalid headers'
         end
       end
     end
@@ -156,24 +159,27 @@ module Cyclid
     # Authenticate via. an API token
     Warden::Strategies.add(:api_token) do
       def valid?
-        request.env['HTTP_AUTH_USER'].is_a? String and \
-          request.env['HTTP_AUTHORIZATION'].is_a? String and \
+        request.env['HTTP_AUTHORIZATION'].is_a? String and \
           request.env['HTTP_AUTHORIZATION'] =~ %r{^Token .*$}
       end
 
       def authenticate!
-        user = User.find_by(username: request.env['HTTP_AUTH_USER'])
+        begin
+          authorization = request.env['HTTP_AUTHORIZATION']
+          username, token = authorization.match(%r{^Token (.*):(.*)$}).captures
+        rescue
+          fail! 'invalid API token'
+        end
+
+        user = User.find_by(username: username)
         if user.nil?
           fail! 'invalid user'
         else
-            authorization = request.env['HTTP_AUTHORIZATION']
-            token = authorization.match(%r{^Token (.*)$}).captures.first
-
-            if user.secret == token
-              success! user
-            else
-              fail! 'invalid user'
-            end
+          if user.secret == token
+            success! user
+          else
+            fail! 'invalid user'
+          end
         end
       end
     end
