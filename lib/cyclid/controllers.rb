@@ -5,7 +5,8 @@ require_relative 'sinatra/warden/strategies/basic'
 require_relative 'sinatra/warden/strategies/hmac'
 require_relative 'sinatra/warden/strategies/api_token'
 
-require_relative 'sinatra/helpers'
+require_relative 'sinatra/api_helpers'
+require_relative 'sinatra/auth_helpers'
 
 # Top level module for the core Cyclid code.
 module Cyclid
@@ -18,7 +19,7 @@ module Cyclid
       content_type :json
     end
 
-    helpers Helpers
+    helpers APIHelpers, AuthHelpers
 
     # Configure Warden to authenticate
     use Warden::Manager do |config|
