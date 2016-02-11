@@ -1,3 +1,5 @@
+require 'oj'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -28,7 +30,7 @@ module Cyclid
 
       # Return a RESTful JSON response
       def json_response(id, description)
-        Oj.dump(id: id, description: description)
+        Oj.dump({'id' => id, 'description' => description})
       end
     end
   end
