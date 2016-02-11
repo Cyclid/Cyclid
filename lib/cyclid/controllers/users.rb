@@ -4,6 +4,12 @@ module Cyclid
   module API
     # Controller for all User related API endpoints
     class UserController < ControllerBase
+      def sanitize_user(user)
+        user.delete_if do |key, _value|
+          key == 'password' || key == 'secret'
+        end
+      end
+
       get '/users' do
         authenticate!
 
@@ -13,12 +19,21 @@ module Cyclid
 
         # Remove any sensitive data
         users.map! do |user|
-          user.delete_if do |key, _value|
-            key == 'password' || key == 'secret'
-          end
+          sanitize_user(user)
         end
 
         return users.to_json
+      end
+
+      get '/users/:username' do
+        authenticate!
+
+        user = User.find_by(username: params[:username])
+        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+          if user.nil?
+
+        sanitize_user(user.serializable_hash)
+        return user.to_json
       end
     end
 
