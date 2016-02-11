@@ -1,7 +1,12 @@
 require 'active_record'
+require 'logger'
 
 begin
-  #ActiveRecord::Base.logger = Cyclid.logger
+  if defined? Cyclid
+    ActiveRecord::Base.logger = Cyclid.logger
+  else
+    ActiveRecord::Base.logger = Logger.new(STDERR)
+  end
 
   ActiveRecord::Base.establish_connection(
     adapter: 'sqlite3',
