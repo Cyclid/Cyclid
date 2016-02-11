@@ -7,8 +7,22 @@ module Cyclid
       get '/organizations' do
         authenticate!
 
-        organizations = Organization.all
-        return organizations.to_json
+        orgs = Organization.all
+        return orgs.to_json
+      end
+
+      get '/organizations/:name' do
+        authenticate!
+
+        org = Organization.find_by(name: params[:name])
+        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+          if org.nil?
+
+        # Convert to a Hash and inject the Users data
+        org_hash = org.serializable_hash
+        org_hash['users'] = org.users.map{ |user| user.username }
+
+        return org_hash.to_json
       end
 
       post '/organizations' do
@@ -23,8 +37,16 @@ module Cyclid
             'An organization with that name already exists') \
           if Organization.exists?(name: payload['name'])
 
-          organization = Organization.new(payload)
-          organization.save!
+          org = Organization.new
+          org['name'] = payload['name']
+          org['owner_email'] = payload['owner_email']
+
+          # Add each provided user to the Organization
+          org.users = payload['users'].map do |username|
+            User.find_by(username: username)
+          end
+
+          org.save!
         rescue ActiveRecord::ActiveRecordError, \
                ActiveRecord::UnknownAttributeError => ex
 

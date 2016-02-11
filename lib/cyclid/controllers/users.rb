@@ -32,8 +32,15 @@ module Cyclid
         halt_with_json_response(404, INVALID_USER,'user does not exist') \
           if user.nil?
 
-        user = sanitize_user(user.serializable_hash)
-        return user.to_json
+        Cyclid.logger.debug user.organizations
+
+        # Convert to a Hash and inject the Organization data
+        user_hash = user.serializable_hash
+        user_hash['organizations'] = user.organizations.map{ |org| org.name }
+
+        user_hash = sanitize_user(user_hash)
+
+        return user_hash.to_json
       end
 
       post '/users' do
@@ -54,6 +61,19 @@ module Cyclid
           user.password = payload['password'] if payload.key? 'password'
           user.secret = payload['secret'] if payload.key? 'secret'
           user.new_password = payload['new_password'] if payload.key? 'new_password'
+
+          # Add the provided Organizations
+          user.organizations = payload['organizations'].map do |name|
+            org = Organization.find_by(name: name)
+
+            halt_with_json_response(404, \
+              INVALID_ORG, \
+              "organization #{organization} does not exist") \
+            if org.nil?
+
+            org
+          end
+
           user.save!
         rescue ActiveRecord::ActiveRecordError, \
                ActiveRecord::UnknownAttributeError => ex

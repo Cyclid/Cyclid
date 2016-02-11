@@ -19,6 +19,8 @@ module Cyclid
 
       validates_uniqueness_of :username
 
+      has_and_belongs_to_many :organizations
+
       attr_accessor :new_password
 
       before_save :hash_new_password, :if => :password_changed?
