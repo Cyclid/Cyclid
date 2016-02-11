@@ -61,6 +61,8 @@ module Cyclid
           Cyclid.logger.debug ex.message
           halt_with_json_response(400, INVALID_JSON, ex.message)
         end
+
+        return json_response(NO_ERROR, "user #{payload['username']} created")
       end
 
       put '/users/:username' do
@@ -83,6 +85,8 @@ module Cyclid
           Cyclid.logger.debug ex.message
           halt_with_json_response(400, INVALID_JSON, ex.message)
         end
+
+        return json_response(NO_ERROR, "user #{payload['username']} modified")
       end
 
       delete '/users/:username' do
@@ -98,6 +102,8 @@ module Cyclid
           Cyclid.logger.debug ex.message
           halt_with_json_response(400, INVALID_JSON, ex.message)
         end
+
+        return json_response(NO_ERROR, "user #{params['username']} deleted")
       end
     end
 

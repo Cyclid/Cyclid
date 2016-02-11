@@ -31,6 +31,8 @@ module Cyclid
           Cyclid.logger.debug ex.message
           halt_with_json_response(400, INVALID_JSON, ex.message)
         end
+
+        return json_response(NO_ERROR, "organization #{payload['name']} created")
       end
     end
 
