@@ -1,6 +1,3 @@
-require 'oj'
-require 'warden'
-
 # Top level module for all of the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
