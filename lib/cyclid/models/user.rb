@@ -8,6 +8,12 @@ module Cyclid
     class User < ActiveRecord::Base
       Cyclid.logger.debug('In the User model')
 
+      class << self
+        def all_as_hash
+          all.to_a.map(&:serializable_hash)
+        end
+      end
+
       validates :username, presence: true
       validates :email, presence: true
 
