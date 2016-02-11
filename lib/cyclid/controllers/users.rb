@@ -35,6 +35,70 @@ module Cyclid
         user = sanitize_user(user.serializable_hash)
         return user.to_json
       end
+
+      post '/users' do
+        authenticate!
+
+        payload = json_request_body
+        Cyclid.logger.debug payload
+
+        begin
+          halt_with_json_response(409, \
+            DUPLICATE, \
+            'a user with that name already exists') \
+          if User.exists?(username: payload['username'])
+
+          user = User.new
+          user.username = payload['username']
+          user.email = payload['email']
+          user.password = payload['password'] if payload.key? 'password'
+          user.secret = payload['secret'] if payload.key? 'secret'
+          user.new_password = payload['new_password'] if payload.key? 'new_password'
+          user.save!
+        rescue ActiveRecord::ActiveRecordError, \
+               ActiveRecord::UnknownAttributeError => ex
+
+          Cyclid.logger.debug ex.message
+          halt_with_json_response(400, INVALID_JSON, ex.message)
+        end
+      end
+
+      put '/users/:username' do
+        authenticate!
+
+        payload = json_request_body
+        Cyclid.logger.debug payload
+
+        user = User.find_by(username: params[:username])
+        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+          if user.nil?
+
+        begin
+          user.email = payload['email'] if payload.key? 'username'
+          user.password = payload['password'] if payload.key? 'password'
+          user.secret = payload['secret'] if payload.key? 'secret'
+          user.new_password = payload['new_password'] if payload.key? 'new_password'
+          user.save!
+        rescue ActiveRecord::ActiveRecordError => ex
+          Cyclid.logger.debug ex.message
+          halt_with_json_response(400, INVALID_JSON, ex.message)
+        end
+      end
+
+      delete '/users/:username' do
+        authenticate!
+
+        user = User.find_by(username: params[:username])
+        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+          if user.nil?
+
+        begin
+          user.delete
+        rescue ActiveRecord::ActiveRecordError => ex
+          Cyclid.logger.debug ex.message
+          halt_with_json_response(400, INVALID_JSON, ex.message)
+        end
+      end
     end
 
     # Register this controller
