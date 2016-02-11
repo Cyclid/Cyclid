@@ -32,7 +32,7 @@ module Cyclid
         halt_with_json_response(404, INVALID_USER,'user does not exist') \
           if user.nil?
 
-        sanitize_user(user.serializable_hash)
+        user = sanitize_user(user.serializable_hash)
         return user.to_json
       end
     end
