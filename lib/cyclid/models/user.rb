@@ -20,7 +20,10 @@ module Cyclid
       validates_uniqueness_of :username
 
       has_and_belongs_to_many :organizations
+      has_many :userpermissions
 
+      # Allow an unencryped password to be passed in via. new_password and
+      # ensure it is encrypted into password when the record is saved
       attr_accessor :new_password
 
       before_save :hash_new_password, :if => :password_changed?

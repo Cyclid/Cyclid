@@ -51,7 +51,7 @@ module Cyclid
       end
 
       get '/organizations/:name' do
-        authorized_for!(params[:name], 'GET')
+        authorized_for!(params[:name], Operations::READ)
 
         org = Organization.find_by(name: params[:name])
         halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
@@ -65,7 +65,7 @@ module Cyclid
       end
 
       put '/organizations/:name' do
-        authenticate!
+        authorized_for!(params[:name], Operations::WRITE)
 
         payload = json_request_body
         Cyclid.logger.debug payload
@@ -102,6 +102,31 @@ module Cyclid
         end
 
         return json_response(NO_ERROR, "organization #{params['name']} updated")
+      end
+
+      get '/organizations/:name/members/:username' do
+        authorized_for!(params[:name], Operations::READ)
+
+        org = Organization.find_by(name: params[:name])
+        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+          if org.nil?
+
+        user = org.users.find_by(username: params[:username])
+        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+          if user.nil?
+
+        Cyclid.logger.debug "Got user #{user.username} for organization #{org.name}"
+
+        begin
+          perms = user.userpermissions.find(org.id)
+
+          Cyclid.logger.debug "Got #{perms} for user"
+        rescue ActiveRecord::ActiveRecordError, \
+               ActiveRecord::UnknownAttributeError => ex
+
+          Cyclid.logger.debug ex.message
+          halt_with_json_response(500, INTERNAL_ERROR, ex.message)
+        end
       end
     end
 

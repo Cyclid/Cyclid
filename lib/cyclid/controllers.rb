@@ -15,6 +15,7 @@ module Cyclid
     # Base class for all API Controllers
     class ControllerBase < Sinatra::Base
       include Errors::HTTPErrors
+      include Operations
 
       # The API always returns JSON
       before do

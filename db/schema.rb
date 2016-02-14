@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160211172351) do
+ActiveRecord::Schema.define(version: 20160214105837) do
 
   create_table "organizations", force: :cascade do |t|
     t.string "name",        null: false
@@ -25,6 +25,17 @@ ActiveRecord::Schema.define(version: 20160211172351) do
 
   add_index "organizations_users", ["organization_id"], name: "index_organizations_users_on_organization_id"
   add_index "organizations_users", ["user_id"], name: "index_organizations_users_on_user_id"
+
+  create_table "userpermissions", force: :cascade do |t|
+    t.boolean "admin",           default: false, null: false
+    t.boolean "write",           default: false, null: false
+    t.boolean "read",            default: false, null: false
+    t.integer "user_id"
+    t.integer "organization_id"
+  end
+
+  add_index "userpermissions", ["organization_id"], name: "index_userpermissions_on_organization_id"
+  add_index "userpermissions", ["user_id"], name: "index_userpermissions_on_user_id"
 
   create_table "users", force: :cascade do |t|
     t.string "username", null: false
