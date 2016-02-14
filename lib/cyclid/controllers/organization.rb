@@ -51,7 +51,7 @@ module Cyclid
       end
 
       get '/organizations/:name' do
-        authenticate!
+        authorized_for!(params[:name], 'GET')
 
         org = Organization.find_by(name: params[:name])
         halt_with_json_response(404, INVALID_ORG,'organization does not exist') \

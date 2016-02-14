@@ -14,15 +14,29 @@ module Cyclid
         env['warden'].authenticate!
       end
 
-      # Authenticate the user, then ensure that the user is an admin
-      def authorized!
+      # Authenticate the user, then ensure that the user is authorized for
+      # the given organization and operation
+      def authorized_for!(org_name, operation)
         authenticate!
 
-        user = env['warden'].user
-        unless user.admin # rubocop:disable Style/GuardClause
-          Cyclid.logger.info "unauthorized: #{user.username}"
-          halt_with_json_response(401, AUTH_FAILURE, 'unauthorized')
+        user = current_user
+
+        # XXX: Return immediately if the user is a SuperAdmin
+
+        begin
+          organization = user.organizations.find_by(name: org_name)
+          Cyclid.logger.debug "organization: #{organization.name}"
+          halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized') \
+            if organization.nil?
+        rescue Exception => ex # XXX: Use a more specific rescue
+          Cyclid.logger.info "authorization failed: #{ex}"
+          halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized')
         end
+
+        # XXX: Check what Roles are applied to the user for this Org & match
+        # against operation
+
+        Cyclid.logger.debug "#{user.username} authorized for #{operation} on #{org_name}"
       end
 
       # Current User object from the session
