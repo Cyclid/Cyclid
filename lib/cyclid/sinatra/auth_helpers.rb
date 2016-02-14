@@ -31,13 +31,14 @@ module Cyclid
 
         user = current_user
 
-        # XXX: Return immediately if the user is a SuperAdmin
+        # Return immediately if the user is a SuperAdmin
+        return true if is_super_admin?(user)
 
         begin
           organization = user.organizations.find_by(name: org_name)
-          Cyclid.logger.debug "organization: #{organization.name}"
           halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized') \
             if organization.nil?
+          Cyclid.logger.debug "organization: #{organization.name}"
 
           # Check what Permissions are applied to the user for this Org & match
           # against operation
@@ -53,6 +54,16 @@ module Cyclid
         rescue Exception => ex # XXX: Use a more specific rescue
           Cyclid.logger.info "authorization failed: #{ex}"
           halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized')
+        end
+      end
+
+      # Check if the given user is a Super Admin; any user that belongs to the
+      # 'cyclid' organization is a super admin
+      def is_super_admin?(user)
+        begin
+          return user.organizations.find_by(name: 'cyclid').nil? ? false : true
+        rescue Exception => ex
+          halt_with_json_response(500, Errors::HTTPErrors::AUTH_FAILURE, ex.to_s)
         end
       end
 
