@@ -2,10 +2,10 @@ require 'active_record'
 require 'logger'
 
 begin
-  if defined? Cyclid
-    ActiveRecord::Base.logger = Cyclid.logger
-  else
-    ActiveRecord::Base.logger = Logger.new(STDERR)
+  ActiveRecord::Base.logger = if defined? Cyclid
+                                Cyclid.logger
+                              else
+                                Logger.new(STDERR)
   end
 
   ActiveRecord::Base.establish_connection(

@@ -12,8 +12,8 @@ module Cyclid
       validates_uniqueness_of :name
 
       has_and_belongs_to_many :users,
-        after_add: :add_user_org_perm,
-        after_remove: :remove_user_org_perm
+                              after_add: :add_user_org_perm,
+                              after_remove: :remove_user_org_perm
 
       has_many :userpermissions
 

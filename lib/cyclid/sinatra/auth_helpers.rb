@@ -5,11 +5,11 @@ module Cyclid
     # Some constants to identify types of API operation
     module Operations
       # Read operations
-      READ=1
+      READ = 1
       # Write (Create, Update, Delete) operations
-      WRITE=2
+      WRITE = 2
       # Administrator operations
-      ADMIN=3
+      ADMIN = 3
     end
 
     # Sinatra Warden AuthN/AuthZ helpers

@@ -26,7 +26,7 @@ module Cyclid
       # ensure it is encrypted into password when the record is saved
       attr_accessor :new_password
 
-      before_save :hash_new_password, :if => :password_changed?
+      before_save :hash_new_password, if: :password_changed?
 
       def password_changed?
         !@new_password.blank?

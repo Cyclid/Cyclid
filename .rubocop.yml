@@ -1,0 +1,19 @@
+AllCops:
+  Exclude:
+    - 'db/**/*'
+    - 'vendor/**/*'
+
+LineLength:
+  Max: 100
+Style/RedundantReturn:
+  Enabled: false
+Style/SpaceBeforeBlockBraces:
+  Enabled: false
+Style/AndOr:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false

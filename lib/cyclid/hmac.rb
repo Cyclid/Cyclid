@@ -1,3 +1,5 @@
+# rubocop:disable LineLength
+#
 # Copyright (c) 2011 Florian Gilcher <florian.gilcher@asquera.de>, Felix Gilcher <felix.gilcher@asquera.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -31,15 +33,15 @@ module Cyclid
       attr_accessor :secret, :algorithm, :default_opts
 
       DEFAULT_OPTS = {
-        :auth_scheme => "HMAC",
-        :auth_param => "auth",
-        :auth_header => "Authorization",
-        :auth_header_format => "%{auth_scheme} %{signature}",
-        :query_based => false,
-        :use_alternate_date_header => false,
-        :extra_auth_params => {},
-        :ignore_params => []
-      }
+        auth_scheme: 'HMAC',
+        auth_param: 'auth',
+        auth_header: 'Authorization',
+        auth_header_format: '%{auth_scheme} %{signature}',
+        query_based: false,
+        use_alternate_date_header: false,
+        extra_auth_params: {},
+        ignore_params: []
+      }.freeze
 
       # create a new HMAC instance
       #
@@ -57,10 +59,10 @@ module Cyclid
       # @option default_opts [Hash]               :extra_auth_params ({}) Additional parameters to inject in the auth parameter
       # @option default_opts [Array<Symbol>]      :ignore_params ([]) Params to ignore for signing
       #
-      def initialize(algorithm = "sha1", default_opts = {})
+      def initialize(algorithm = 'sha1', default_opts = {})
         self.algorithm = algorithm
-        default_opts[:nonce_header] ||="X-%{scheme}-Nonce" % {:scheme => (default_opts[:auth_scheme] || "HMAC")}
-        default_opts[:alternate_date_header] ||= "X-%{scheme}-Date" % {:scheme => (default_opts[:auth_scheme] || "HMAC")}
+        default_opts[:nonce_header] ||= 'X-%{scheme}-Nonce' % { scheme: (default_opts[:auth_scheme] || 'HMAC') }
+        default_opts[:alternate_date_header] ||= 'X-%{scheme}-Date' % { scheme: (default_opts[:auth_scheme] || 'HMAC') }
         self.default_opts = DEFAULT_OPTS.merge(default_opts)
       end
 
@@ -148,14 +150,14 @@ module Cyclid
       #
       # @return [String] the canonical representation
       def canonical_representation(params)
-        rep = ""
+        rep = ''
 
         rep << "#{params[:method].upcase}\n"
         rep << "date:#{params[:date]}\n"
         rep << "nonce:#{params[:nonce]}\n"
 
         (params[:headers] || {}).sort.each do |pair|
-          name,value = *pair
+          name, value = *pair
           rep << "#{name.downcase}:#{value}\n"
         end
 
@@ -163,13 +165,13 @@ module Cyclid
 
         p = (params[:query] || {}).dup
 
-        if !p.empty?
+        unless p.empty?
           query = p.sort.map do |key, value|
-            "%{key}=%{value}" % {
-              :key => Rack::Utils.unescape(key.to_s),
-              :value => Rack::Utils.unescape(value.to_s)
+            '%{key}=%{value}' % {
+              key: Rack::Utils.unescape(key.to_s),
+              value: Rack::Utils.unescape(value.to_s)
             }
-          end.join("&")
+          end.join('&')
           rep << "?#{query}"
         end
 
@@ -207,36 +209,34 @@ module Cyclid
         date = opts[:date] || Time.now.gmtime
         date = date.gmtime.strftime('%a, %d %b %Y %T GMT') if date.respond_to? :strftime
 
-        method = opts[:method] ? opts[:method].to_s.upcase : "GET"
+        method = opts[:method] ? opts[:method].to_s.upcase : 'GET'
 
         query_values = Rack::Utils.parse_nested_query(uri.query)
 
         if query_values
-          query_values.delete_if do |k,v|
+          query_values.delete_if do |k, _v|
             opts[:ignore_params].one? { |param| (k == param) || (k == param.to_s) }
           end
         end
 
-        signature = generate_signature(:secret => secret, :method => method, :path => uri.path, :date => date, :nonce => opts[:nonce], :query => query_values, :headers => opts[:headers], :ignore_params => opts[:ignore_params])
+        signature = generate_signature(secret: secret, method: method, path: uri.path, date: date, nonce: opts[:nonce], query: query_values, headers: opts[:headers], ignore_params: opts[:ignore_params])
 
         if opts[:query_based]
-          auth_params = opts[:extra_auth_params].merge({
-            "date" => date,
-            "signature" => signature
-          })
+          auth_params = opts[:extra_auth_params].merge('date' => date,
+                                                       'signature' => signature)
           auth_params[:nonce] = opts[:nonce] unless opts[:nonce].nil?
 
           query_values ||= {}
           query_values[opts[:auth_param]] = auth_params
           uri.query = Rack::Utils.build_nested_query(query_values)
         else
-          headers[opts[:auth_header]]   = opts[:auth_header_format] % opts.merge({:signature => signature})
+          headers[opts[:auth_header]]   = opts[:auth_header_format] % opts.merge(signature: signature)
           headers[opts[:nonce_header]]  = opts[:nonce] unless opts[:nonce].nil?
 
           if opts[:use_alternate_date_header]
             headers[opts[:alternate_date_header]] = date
           else
-            headers["Date"] = date
+            headers['Date'] = date
           end
         end
 
@@ -244,19 +244,19 @@ module Cyclid
       end
 
       private
-      
+
       # compares two hashes in a manner that's invulnerable to timing sidechannel attacks (see issue #16)
       # by comparing them characterwise up to the end in all cases, no matter where the mismatch happens
       # short circuits if the length does not match since this does not allow timing sidechannel attacks.
       def compare_hashes(presented, computed)
-        if computed.length == presented.length then
-          computed.chars.zip(presented.chars).map {|x,y| x == y}.all?
+        if computed.length == presented.length
+          computed.chars.zip(presented.chars).map { |x, y| x == y }.all?
         else
           false
         end
       end
 
-      #parse url if url parameter is string do nothing if parameter is URI
+      # parse url if url parameter is string do nothing if parameter is URI
       def parse_url(url)
         return url if url.is_a?(URI)
         URI.parse(url)

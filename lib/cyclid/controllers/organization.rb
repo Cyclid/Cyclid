@@ -19,8 +19,8 @@ module Cyclid
 
         begin
           halt_with_json_response(409, \
-            DUPLICATE, \
-            'An organization with that name already exists') \
+                                  DUPLICATE, \
+                                  'An organization with that name already exists') \
           if Organization.exists?(name: payload['name'])
 
           org = Organization.new
@@ -32,8 +32,8 @@ module Cyclid
             user = User.find_by(username: username)
 
             halt_with_json_response(404, \
-              INVALID_USER, \
-              "user #{user} does not exist") \
+                                    INVALID_USER, \
+                                    "user #{user} does not exist") \
             if user.nil?
 
             user
@@ -54,12 +54,12 @@ module Cyclid
         authorized_for!(params[:name], Operations::READ)
 
         org = Organization.find_by(name: params[:name])
-        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+        halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
           if org.nil?
 
         # Convert to a Hash and inject the Users data
         org_hash = org.serializable_hash
-        org_hash['users'] = org.users.map{ |user| user.username }
+        org_hash['users'] = org.users.map(&:username)
 
         return org_hash.to_json
       end
@@ -71,7 +71,7 @@ module Cyclid
         Cyclid.logger.debug payload
 
         org = Organization.find_by(name: params[:name])
-        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+        halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
           if org.nil?
 
         begin
@@ -85,8 +85,8 @@ module Cyclid
               user = User.find_by(username: username)
 
               halt_with_json_response(404, \
-                INVALID_USER, \
-                "user #{username} does not exist") \
+                                      INVALID_USER, \
+                                      "user #{username} does not exist") \
               if user.nil?
 
               user
@@ -108,11 +108,11 @@ module Cyclid
         authorized_for!(params[:name], Operations::READ)
 
         org = Organization.find_by(name: params[:name])
-        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+        halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
           if org.nil?
 
         user = org.users.find_by(username: params[:username])
-        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+        halt_with_json_response(404, INVALID_USER, 'user does not exist') \
           if user.nil?
 
         begin
@@ -146,21 +146,21 @@ module Cyclid
         Cyclid.logger.debug payload
 
         org = Organization.find_by(name: params[:name])
-        halt_with_json_response(404, INVALID_ORG,'organization does not exist') \
+        halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
           if org.nil?
 
         user = org.users.find_by(username: params[:username])
-        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+        halt_with_json_response(404, INVALID_USER, 'user does not exist') \
           if user.nil?
 
         begin
           perms = user.userpermissions.find_by(organization: org)
 
-          payload_perms = payload['permissions'] if payload.has_key? 'permissions'
+          payload_perms = payload['permissions'] if payload.key? 'permissions'
           unless payload_perms.nil?
-            perms.admin = payload_perms['admin'] if payload_perms.has_key? 'admin'
-            perms.write = payload_perms['write'] if payload_perms.has_key? 'write'
-            perms.read = payload_perms['read'] if payload_perms.has_key? 'read'
+            perms.admin = payload_perms['admin'] if payload_perms.key? 'admin'
+            perms.write = payload_perms['write'] if payload_perms.key? 'write'
+            perms.read = payload_perms['read'] if payload_perms.key? 'read'
 
             Cyclid.logger.debug perms.serializable_hash
 
@@ -173,7 +173,6 @@ module Cyclid
           halt_with_json_response(500, INTERNAL_ERROR, ex.message)
         end
       end
-
     end
 
     # Register this controller

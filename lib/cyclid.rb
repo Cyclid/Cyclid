@@ -13,7 +13,6 @@ module Cyclid
     rescue Exception => ex
       abort "Failed to initialize: #{ex}"
     end
-
   end
 end
 

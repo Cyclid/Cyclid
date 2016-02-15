@@ -12,7 +12,7 @@ module Cyclid
 
     begin
       Cyclid.logger = Logger.new(STDERR)
-     rescue Exception => ex
+    rescue Exception => ex
       abort "Failed to initialize: #{ex}"
     end
   end
@@ -23,7 +23,7 @@ require 'cyclid/models'
 
 include Cyclid::API
 
-ADMINS_ORG='admins'
+ADMINS_ORG = 'admins'.freeze
 
 def create_users
   user = User.new

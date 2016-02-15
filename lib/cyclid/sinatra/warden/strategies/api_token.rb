@@ -12,13 +12,13 @@ module Cyclid
         Warden::Strategies.add(:api_token) do
           def valid?
             request.env['HTTP_AUTHORIZATION'].is_a? String and \
-              request.env['HTTP_AUTHORIZATION'] =~ %r{^Token .*$}
+              request.env['HTTP_AUTHORIZATION'] =~ /^Token .*$/
           end
 
           def authenticate!
             begin
               authorization = request.env['HTTP_AUTHORIZATION']
-              username, token = authorization.match(%r{^Token (.*):(.*)$}).captures
+              username, token = authorization.match(/^Token (.*):(.*)$/).captures
             rescue
               fail! 'invalid API token'
             end

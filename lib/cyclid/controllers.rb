@@ -26,7 +26,7 @@ module Cyclid
 
       # Configure Warden to authenticate
       use Warden::Manager do |config|
-        config.serialize_into_session{ |user| user.id }
+        config.serialize_into_session(&:id)
         config.serialize_from_session{ |id| User.find_by_id(id) }
 
         config.scope_defaults :default,
@@ -62,7 +62,7 @@ require_rel 'controllers/*.rb'
 module Cyclid
   # Module for the Cyclid API
   module API
-  # Sintra application for the REST API
+    # Sintra application for the REST API
     class App < Sinatra::Application
       # Set up the Sinatra configuration
       configure do

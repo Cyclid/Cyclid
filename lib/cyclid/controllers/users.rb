@@ -33,8 +33,8 @@ module Cyclid
 
         begin
           halt_with_json_response(409, \
-            DUPLICATE, \
-            'a user with that name already exists') \
+                                  DUPLICATE, \
+                                  'a user with that name already exists') \
           if User.exists?(username: payload['username'])
 
           user = User.new
@@ -58,14 +58,14 @@ module Cyclid
         authorized_as!(params[:username], Operations::READ)
 
         user = User.find_by(username: params[:username])
-        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+        halt_with_json_response(404, INVALID_USER, 'user does not exist') \
           if user.nil?
 
         Cyclid.logger.debug user.organizations
 
         # Convert to a Hash and inject the Organization data
         user_hash = user.serializable_hash
-        user_hash['organizations'] = user.organizations.map{ |org| org.name }
+        user_hash['organizations'] = user.organizations.map(&:name)
 
         user_hash = sanitize_user(user_hash)
 
@@ -79,7 +79,7 @@ module Cyclid
         Cyclid.logger.debug payload
 
         user = User.find_by(username: params[:username])
-        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+        halt_with_json_response(404, INVALID_USER, 'user does not exist') \
           if user.nil?
 
         begin
@@ -100,7 +100,7 @@ module Cyclid
         authorized_as!(params[:username], Operations::ADMIN)
 
         user = User.find_by(username: params[:username])
-        halt_with_json_response(404, INVALID_USER,'user does not exist') \
+        halt_with_json_response(404, INVALID_USER, 'user does not exist') \
           if user.nil?
 
         begin

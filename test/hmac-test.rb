@@ -32,7 +32,7 @@ OptionParser.new do |opts|
     options[:port] = p.to_i
   end
 
-  opts.on('-d', '--debug', 'Enable verbose debug output') do |d|
+  opts.on('-d', '--debug', 'Enable verbose debug output') do |_d|
     options[:log_level] = Logger::DEBUG
   end
 end.parse!
@@ -53,12 +53,12 @@ uri = URI::HTTP.build(host: options[:host],
 
 signer = Cyclid::HMAC::Signer.new
 
-nonce = SecureRandom.hex()
+nonce = SecureRandom.hex
 headers = signer.sign_request(uri.path,
                               options[:secret],
-                                {auth_header_format: '%{auth_scheme} %{username}:%{signature}',
-                                 username: options[:username],
-                                 nonce: nonce})
+                              auth_header_format: '%{auth_scheme} %{username}:%{signature}',
+                              username: options[:username],
+                              nonce: nonce)
 logger.debug headers.inspect
 
 req = Net::HTTP::Get.new(uri)

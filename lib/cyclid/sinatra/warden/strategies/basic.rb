@@ -13,13 +13,13 @@ module Cyclid
         Warden::Strategies.add(:basic) do
           def valid?
             request.env['HTTP_AUTHORIZATION'].is_a? String and \
-              request.env['HTTP_AUTHORIZATION'] =~ %r{^Basic .*$}
+              request.env['HTTP_AUTHORIZATION'] =~ /^Basic .*$/
           end
 
           def authenticate!
             begin
               authorization = request.env['HTTP_AUTHORIZATION']
-              digest = authorization.match(%r{^Basic (.*)$}).captures.first
+              digest = authorization.match(/^Basic (.*)$/).captures.first
 
               user_pass = Base64.decode64(digest)
               username, password = user_pass.split(':')

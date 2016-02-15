@@ -19,18 +19,18 @@ module Cyclid
 
         # Sanity check the JSON
         halt_with_json_response(400, \
-          Errors::HTTPErrors::INVALID_JSON, \
-          'request body can not be empty') if json.nil?
+                                Errors::HTTPErrors::INVALID_JSON, \
+                                'request body can not be empty') if json.nil?
         halt_with_json_response(400, \
-          Errors::HTTPErrors::INVALID_JSON, \
-          'request body is invalid') unless json.is_a?(Hash)
+                                Errors::HTTPErrors::INVALID_JSON, \
+                                'request body is invalid') unless json.is_a?(Hash)
 
         return json
       end
 
       # Return a RESTful JSON response
       def json_response(id, description)
-        Oj.dump({'id' => id, 'description' => description})
+        Oj.dump('id' => id, 'description' => description)
       end
     end
   end
