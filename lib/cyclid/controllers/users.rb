@@ -11,7 +11,7 @@ module Cyclid
       end
 
       get '/users' do
-        authenticate!
+        authorized_admin!(Operations::READ)
 
         # Retrieve the user data in a form we can more easily manipulate so
         # that we can sanitize it
@@ -26,7 +26,7 @@ module Cyclid
       end
 
       post '/users' do
-        authenticate!
+        authorized_admin!(Operations::ADMIN)
 
         payload = json_request_body
         Cyclid.logger.debug payload
@@ -55,7 +55,7 @@ module Cyclid
       end
 
       get '/users/:username' do
-        authenticate!
+        authorized_as!(params[:username], Operations::READ)
 
         user = User.find_by(username: params[:username])
         halt_with_json_response(404, INVALID_USER,'user does not exist') \
@@ -73,7 +73,7 @@ module Cyclid
       end
 
       put '/users/:username' do
-        authenticate!
+        authorized_as!(params[:username], Operations::WRITE)
 
         payload = json_request_body
         Cyclid.logger.debug payload
@@ -97,7 +97,7 @@ module Cyclid
       end
 
       delete '/users/:username' do
-        authenticate!
+        authorized_as!(params[:username], Operations::ADMIN)
 
         user = User.find_by(username: params[:username])
         halt_with_json_response(404, INVALID_USER,'user does not exist') \

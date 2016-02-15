@@ -5,14 +5,14 @@ module Cyclid
     # Controller for all Organization related API endpoints
     class OrganizationController < ControllerBase
       get '/organizations' do
-        authenticate!
+        authorized_admin!(Operations::READ)
 
         orgs = Organization.all
         return orgs.to_json
       end
 
       post '/organizations' do
-        authenticate!
+        authorized_admin!(Operations::ADMIN)
 
         payload = json_request_body
         Cyclid.logger.debug payload
@@ -118,7 +118,8 @@ module Cyclid
         Cyclid.logger.debug "Got user #{user.username} for organization #{org.name}"
 
         begin
-          perms = user.userpermissions.find(org.id)
+          Cyclid.logger.debug "#{user.username} perms: #{user.userpermissions.to_a}"
+          perms = user.userpermissions.find_by(organization: org)
 
           Cyclid.logger.debug "Got #{perms} for user"
         rescue ActiveRecord::ActiveRecordError, \
