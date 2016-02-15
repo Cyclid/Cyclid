@@ -2,3 +2,5 @@
 vendor
 .bundle
 test.db
+.yardoc
+doc
