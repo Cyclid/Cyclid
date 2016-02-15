@@ -32,7 +32,7 @@ module Cyclid
         user = current_user
 
         # Promote the organization to 'admins' if the user is a SuperAdmin
-        org_name = 'admins' if is_super_admin?(user)
+        org_name = 'admins' if super_admin?(user)
 
         begin
           organization = user.organizations.find_by(name: org_name)
@@ -53,7 +53,7 @@ module Cyclid
           Cyclid.logger.info "user #{user.username} is not authorized for operation #{operation}"
 
           halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized')
-        rescue Exception => ex # XXX: Use a more specific rescue
+        rescue StandardError => ex # XXX: Use a more specific rescue
           Cyclid.logger.info "authorization failed: #{ex}"
           halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized')
         end
@@ -76,7 +76,7 @@ module Cyclid
         return true if user.username == username
 
         # Super Admins may be authorized, depending on the operation
-        if is_super_admin?(user)
+        if super_admin?(user)
           begin
             organization = user.organizations.find_by(name: 'admins')
             permissions = user.userpermissions.find_by(organization: organization)
@@ -86,7 +86,7 @@ module Cyclid
             return true if permissions.admin
             return true if operation == Operations::WRITE && permissions.write
             return true if operation == Operations::READ && (permissions.write || permissions.read)
-          rescue Exception => ex # XXX: Use a more specific rescue
+          rescue StandardError => ex # XXX: Use a more specific rescue
             Cyclid.logger.info "authorization failed: #{ex}"
             halt_with_json_response(401, Errors::HTTPErrors::AUTH_FAILURE, 'unauthorized')
           end
@@ -98,7 +98,7 @@ module Cyclid
 
       # Check if the given user is a Super Admin; any user that belongs to the
       # 'admins' organization is a super admin
-      def is_super_admin?(user)
+      def super_admin?(user)
         user.organizations.exists?(name: 'admins')
       end
 
