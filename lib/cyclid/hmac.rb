@@ -25,6 +25,7 @@ require 'openssl'
 require 'rack/utils'
 
 module Cyclid
+  # Container for the HMAC authentication code
   module HMAC
     # Helper class that provides signing capabilites for the hmac strategies.
     #
@@ -32,6 +33,7 @@ module Cyclid
     class Signer
       attr_accessor :secret, :algorithm, :default_opts
 
+      # HMAC defaults
       DEFAULT_OPTS = {
         auth_scheme: 'HMAC',
         auth_param: 'auth',

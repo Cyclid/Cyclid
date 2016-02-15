@@ -4,6 +4,11 @@ module Cyclid
   module API
     # Controller for all Organization related API endpoints
     class OrganizationController < ControllerBase
+      # @macro [attach] sinatra.get
+      #   @overload get "$1"
+      # @method get_organizationss
+      # @return [String] JSON represention of all the organizations.
+      # Get all of the organizations.
       get '/organizations' do
         authorized_admin!(Operations::READ)
 
@@ -11,6 +16,10 @@ module Cyclid
         return orgs.to_json
       end
 
+      # @macro [attach] sinatra.post
+      #   @overload post "$1"
+      # @method post_organizations
+      # Create a new organization.
       post '/organizations' do
         authorized_admin!(Operations::ADMIN)
 
@@ -50,6 +59,10 @@ module Cyclid
         return json_response(NO_ERROR, "organization #{payload['name']} created")
       end
 
+      # @method get_organizations_organization
+      # @param [String] name Name of the organization.
+      # @return [String] JSON represention of the requested organization.
+      # Get a specific organization.
       get '/organizations/:name' do
         authorized_for!(params[:name], Operations::READ)
 
@@ -64,6 +77,9 @@ module Cyclid
         return org_hash.to_json
       end
 
+      # @method put("/organizations/:name")
+      # @param [String] name Name of the organization.
+      # Modify a specific organization.
       put '/organizations/:name' do
         authorized_for!(params[:name], Operations::WRITE)
 
@@ -104,6 +120,11 @@ module Cyclid
         return json_response(NO_ERROR, "organization #{params['name']} updated")
       end
 
+      # @method get_organizations_organization_members_member
+      # @param [String] name Name of the organization.
+      # @param [String] username Username of the member.
+      # @return [String] JSON represention of the requested member.
+      # Get the details of the specified user within the organization.
       get '/organizations/:name/members/:username' do
         authorized_for!(params[:name], Operations::READ)
 
@@ -139,6 +160,10 @@ module Cyclid
         end
       end
 
+      # @method put("/organizations/:name/members/:username")
+      # @param [String] name Name of the organization.
+      # @param [String] username Username of the member.
+      # Modify the specified user within the organization.
       put '/organizations/:name/members/:username' do
         authorized_for!(params[:name], Operations::WRITE)
 

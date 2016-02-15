@@ -4,12 +4,11 @@ module Cyclid
   module API
     # Controller for all User related API endpoints
     class UserController < ControllerBase
-      def sanitize_user(user)
-        user.delete_if do |key, _value|
-          key == 'password' || key == 'secret'
-        end
-      end
-
+      # @macro [attach] sinatra.get
+      #   @overload get "$1"
+      # @method get_users
+      # @return [String] JSON represention of all of all the users.
+      # Get all of the users across all organizations.
       get '/users' do
         authorized_admin!(Operations::READ)
 
@@ -25,6 +24,10 @@ module Cyclid
         return users.to_json
       end
 
+      # @macro [attach] sinatra.post
+      #   @overload post "$1"
+      # @method post_users
+      # Create a new user.
       post '/users' do
         authorized_admin!(Operations::ADMIN)
 
@@ -54,6 +57,10 @@ module Cyclid
         return json_response(NO_ERROR, "user #{payload['username']} created")
       end
 
+      # @method get_users_user
+      # @param [String] username Username of the user.
+      # @return [String] JSON represention of the requested users.
+      # Get a specific user.
       get '/users/:username' do
         authorized_as!(params[:username], Operations::READ)
 
@@ -72,6 +79,9 @@ module Cyclid
         return user_hash.to_json
       end
 
+      # @method put("/users/:username")
+      # @param [String] username Username of the user.
+      # Modify a specific user.
       put '/users/:username' do
         authorized_as!(params[:username], Operations::WRITE)
 
@@ -96,6 +106,9 @@ module Cyclid
         return json_response(NO_ERROR, "user #{payload['username']} modified")
       end
 
+      # @method delete("/users/:username")
+      # @param [String] username Username of the user.
+      # Delete a specific user.
       delete '/users/:username' do
         authorized_as!(params[:username], Operations::ADMIN)
 
@@ -111,6 +124,15 @@ module Cyclid
         end
 
         return json_response(NO_ERROR, "user #{params['username']} deleted")
+      end
+
+      private
+
+      # Remove sensitive data from the users data
+      def sanitize_user(user)
+        user.delete_if do |key, _value|
+          key == 'password' || key == 'secret'
+        end
       end
     end
 
