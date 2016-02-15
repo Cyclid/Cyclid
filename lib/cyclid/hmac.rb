@@ -1,4 +1,4 @@
-# rubocop:disable LineLength
+# rubocop:disable Metrics/LineLength, Style/FormatString
 #
 # Copyright (c) 2011 Florian Gilcher <florian.gilcher@asquera.de>, Felix Gilcher <felix.gilcher@asquera.de>
 #
