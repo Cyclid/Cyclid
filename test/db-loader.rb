@@ -23,6 +23,8 @@ require 'cyclid/models'
 
 include Cyclid::API
 
+ADMINS_ORG='admins'
+
 def create_users
   user = User.new
   user.username = 'admin'
@@ -41,8 +43,8 @@ end
 
 def create_organizations
   org = Organization.new
-  org.name = 'cyclid'
-  org.owner_email = 'cyclid@example.com'
+  org.name = ADMINS_ORG
+  org.owner_email = 'admins@example.com'
   org.users << User.find_by(username: 'admin')
 
   org = Organization.new
@@ -51,9 +53,21 @@ def create_organizations
   org.users << User.find_by(username: 'test')
 end
 
-def update_super_admin
+def update_user_perms
+  # 'admin' user is a Super Admin
   user = User.find_by(username: 'admin')
-  organization = user.organizations.find_by(name: 'cyclid')
+  organization = user.organizations.find_by(name: ADMINS_ORG)
+  permissions = user.userpermissions.find_by(organization: organization)
+  Cyclid.logger.debug permissions
+
+  permissions.admin = true
+  permissions.write = true
+  permissions.read = true
+  permissions.save!
+
+  # 'test' user is an admin for the 'test' org
+  user = User.find_by(username: 'test')
+  organization = user.organizations.find_by(name: 'test')
   permissions = user.userpermissions.find_by(organization: organization)
   Cyclid.logger.debug permissions
 
@@ -66,4 +80,4 @@ end
 create_users
 create_organizations
 
-update_super_admin
+update_user_perms

@@ -31,8 +31,8 @@ module Cyclid
 
         user = current_user
 
-        # Return immediately if the user is a SuperAdmin
-        return true if is_super_admin?(user)
+        # Promote the organization to 'admins' if the user is a SuperAdmin
+        org_name = 'admins' if is_super_admin?(user)
 
         begin
           organization = user.organizations.find_by(name: org_name)
@@ -58,13 +58,9 @@ module Cyclid
       end
 
       # Check if the given user is a Super Admin; any user that belongs to the
-      # 'cyclid' organization is a super admin
+      # 'admins' organization is a super admin
       def is_super_admin?(user)
-        begin
-          return user.organizations.find_by(name: 'cyclid').nil? ? false : true
-        rescue Exception => ex
-          halt_with_json_response(500, Errors::HTTPErrors::AUTH_FAILURE, ex.to_s)
-        end
+        user.organizations.exists?(name: 'admins')
       end
 
       # Current User object from the session
