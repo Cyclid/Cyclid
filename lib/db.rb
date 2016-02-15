@@ -6,12 +6,12 @@ begin
                                 Cyclid.logger
                               else
                                 Logger.new(STDERR)
-  end
+                              end
 
   ActiveRecord::Base.establish_connection(
     adapter: 'sqlite3',
     database: 'test.db'
   )
-rescue Exception => ex
+rescue StandardError => ex
   abort "Failed to initialize ActiveRecord: #{ex}"
 end

@@ -12,7 +12,7 @@ module Cyclid
 
     begin
       Cyclid.logger = Logger.new(STDERR)
-    rescue Exception => ex
+    rescue StandardError => ex
       abort "Failed to initialize: #{ex}"
     end
   end

@@ -26,12 +26,10 @@ module Cyclid
             user = User.find_by(username: username)
             if user.nil?
               fail! 'invalid user'
+            elsif user.secret == token
+              success! user
             else
-              if user.secret == token
-                success! user
-              else
-                fail! 'invalid user'
-              end
+              fail! 'invalid user'
             end
           end
         end

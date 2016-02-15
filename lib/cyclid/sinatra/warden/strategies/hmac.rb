@@ -35,15 +35,21 @@ module Cyclid
               path = request.env['PATH_INFO']
               date = request.env['HTTP_DATE']
 
-              Cyclid.logger.debug "user=#{user.username} method=#{method} path=#{path} date=#{date} HMAC=#{hmac} nonce=#{nonce}"
+              Cyclid.logger.debug "user=#{user.username} method=#{method} path=#{path} \
+                date=#{date} HMAC=#{hmac} nonce=#{nonce}"
 
               signer = Cyclid::HMAC::Signer.new
-              if signer.validate_signature(hmac, secret: user.secret, method: method, path: path, date: date, nonce: nonce)
+              if signer.validate_signature(hmac,
+                                           secret: user.secret,
+                                           method: method,
+                                           path: path,
+                                           date: date,
+                                           nonce: nonce)
                 success! user
               else
                 fail! 'invalid user'
               end
-            rescue Exception => ex
+            rescue StandardError => ex
               Cyclid.logger.debug "failure during HMAC authentication: #{ex}"
               fail! 'invalid headers'
             end
