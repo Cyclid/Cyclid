@@ -4,3 +4,6 @@ vendor
 test.db
 .yardoc
 doc
+
+# OS artifacts
+.DS_Store
