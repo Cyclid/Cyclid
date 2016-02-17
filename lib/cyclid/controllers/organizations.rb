@@ -17,6 +17,10 @@ module Cyclid
           namespace '/members' do
             register Organizations::Members
           end
+
+          namespace '/stages' do
+            register Organizations::Stages
+          end
         end
       end
     end
