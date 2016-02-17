@@ -1,4 +1,5 @@
-require 'sinatra'
+require 'sinatra/base'
+require 'sinatra/namespace'
 require 'warden'
 
 require_relative 'sinatra/warden/strategies/basic'
@@ -15,14 +16,16 @@ module Cyclid
     # Base class for all API Controllers
     class ControllerBase < Sinatra::Base
       include Errors::HTTPErrors
-      include Operations
+
+      register Operations
+      register Sinatra::Namespace
+
+      helpers APIHelpers, AuthHelpers
 
       # The API always returns JSON
       before do
         content_type :json
       end
-
-      helpers APIHelpers, AuthHelpers
 
       # Configure Warden to authenticate
       use Warden::Manager do |config|
@@ -40,9 +43,9 @@ module Cyclid
         env['REQUEST_METHOD'] = 'POST'
       end
 
-      include Strategies::Basic
-      include Strategies::HMAC
-      include Strategies::APIToken
+      register Strategies::Basic
+      register Strategies::HMAC
+      register Strategies::APIToken
 
       post '/unauthenticated' do
         content_type :json
@@ -63,7 +66,7 @@ module Cyclid
   # Module for the Cyclid API
   module API
     # Sintra application for the REST API
-    class App < Sinatra::Application
+    class App < Sinatra::Base
       # Set up the Sinatra configuration
       configure do
         enable :logging
