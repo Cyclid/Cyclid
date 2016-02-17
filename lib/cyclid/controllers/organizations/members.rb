@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for Organization members
       module Members
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @method get_organizations_organization_members_member
           # @param [String] name Name of the organization.
           # @param [String] username Username of the member.

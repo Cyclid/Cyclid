@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for the Organization collection
       module Collection
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @macro [attach] sinatra.get
           #   @overload get "$1"
           # @method get_organizationss

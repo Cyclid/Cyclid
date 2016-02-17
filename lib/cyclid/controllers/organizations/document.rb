@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for a single Organization document
       module Document
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @method get_organizations_organization
           # @param [String] name Name of the organization.
           # @return [String] JSON represention of the requested organization.
