@@ -27,7 +27,7 @@ module Cyclid
 
               # Santize each action in this stage
               actions = stage.actions.map do |action|
-                action_hash = sanitize_action(action.serializable_hash)
+                sanitize_action(action.serializable_hash)
               end
               stage_hash['actions'] = actions
 
@@ -61,7 +61,7 @@ module Cyclid
               stage.version = payload['version'] if payload.key? 'version'
               stage.organization = org
 
-              # Create the actions
+              # Create the actions & store their serialized form
               stage.actions << create_actions(payload['actions'])
 
               stage.save!
@@ -74,12 +74,21 @@ module Cyclid
           end
 
           app.helpers do
+            # Create the serialized actions
+            #
+            # For each definition in the payload, inspect it and create the
+            # appropriate object for that action; that class is then serialized
+            # into JSON and stored in the Action in the database, and can then
+            # be unserialized back in to the desired object when it's needed
+            # without the database having to be aware of every single
+            # permutation of possible actions and arguments to them.
             def create_actions(stage_actions)
               sequence = 1
               stage_actions.map do |stage_action|
                 action = Action.new
                 action.sequence = sequence
 
+                # Discover the base class for the action
                 action_object = if stage_action.key? 'command'
                   Cyclid.logger.debug "command action at sequence #{sequence}"
                   # XXX Create the appropriate Command object
@@ -89,6 +98,8 @@ module Cyclid
                 else
                   Cyclid.logger.debug "unknown action type at sequence #{sequence}: #{stage_action}"
                 end
+
+                # Serialize the object into the Action and store it in the database.
                 action.action = Oj.dump(action_object)
                 action.save!
 
