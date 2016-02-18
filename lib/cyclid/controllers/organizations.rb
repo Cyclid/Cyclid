@@ -13,6 +13,13 @@ module Cyclid
             key == 'organization_id'
           end
         end
+
+        # Clean up action data
+        def sanitize_action(action)
+          action.delete_if do |key, _value|
+            key == 'stage_id'
+          end
+        end
       end
 
       register Sinatra::Namespace

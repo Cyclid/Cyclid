@@ -17,13 +17,21 @@ module Cyclid
           app.get do
             authorized_for!(params[:name], Operations::READ)
 
-            # Retrieve the stage data in a form we can more easily manipulate so
-            # that we can sanitize it
-            stages = Stage.all_as_hash
+            org = Organization.find_by(name: params[:name])
+            halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+              if org.nil?
 
-            # Clean it up
-            stages.map! do |stage|
-              sanitize_stage(stage)
+            # Convert each Stage to a hash & sanitize it
+            stages = org.stages.all.map do |stage|
+              stage_hash = sanitize_stage(stage.serializable_hash)
+
+              # Santize each action in this stage
+              actions = stage.actions.map do |action|
+                action_hash = sanitize_action(action.serializable_hash)
+              end
+              stage_hash['actions'] = actions
+
+              stage_hash
             end
 
             return stages.to_json
@@ -43,6 +51,9 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
+            halt_with_json_response(400, INVALID_JSON, 'stage does not define any actions') \
+              unless payload.key? 'actions'
+
             begin
               stage = Stage.new
 
@@ -50,7 +61,8 @@ module Cyclid
               stage.version = payload['version'] if payload.key? 'version'
               stage.organization = org
 
-              # XXX: Create & seralize the actions
+              # Create the actions
+              stage.actions << create_actions(payload['actions'])
 
               stage.save!
             rescue ActiveRecord::ActiveRecordError, \
@@ -58,6 +70,32 @@ module Cyclid
 
               Cyclid.logger.debug ex.message
               halt_with_json_response(400, INVALID_JSON, ex.message)
+            end
+          end
+
+          app.helpers do
+            def create_actions(stage_actions)
+              sequence = 1
+              stage_actions.map do |stage_action|
+                action = Action.new
+                action.sequence = sequence
+
+                action_object = if stage_action.key? 'command'
+                  Cyclid.logger.debug "command action at sequence #{sequence}"
+                  # XXX Create the appropriate Command object
+                elsif stage_action.key? 'plugin'
+                  Cyclid.logger.debug "plugin action at sequence #{sequence}"
+                  # XXX Create the appropriate Plugin object
+                else
+                  Cyclid.logger.debug "unknown action type at sequence #{sequence}: #{stage_action}"
+                end
+                action.action = Oj.dump(action_object)
+                action.save!
+
+                sequence += 1
+
+                action
+              end
             end
           end
         end
