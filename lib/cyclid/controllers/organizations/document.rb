@@ -33,7 +33,7 @@ module Cyclid
           app.put do
             authorized_for!(params[:name], Operations::WRITE)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             org = Organization.find_by(name: params[:name])

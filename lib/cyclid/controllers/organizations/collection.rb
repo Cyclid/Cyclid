@@ -28,7 +28,7 @@ module Cyclid
           app.post do
             authorized_admin!(Operations::ADMIN)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             begin
