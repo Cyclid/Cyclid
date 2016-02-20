@@ -20,6 +20,8 @@ module Cyclid
         INVALID_USER = 10
         # Organization does not exist
         INVALID_ORG = 11
+        # Stage does not exist
+        INVALID_STAGE = 12
       end
     end
 

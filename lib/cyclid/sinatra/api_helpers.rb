@@ -18,7 +18,7 @@ module Cyclid
 
             data = Oj.load request.body.read
           elsif request.content_type == 'application/x-yaml' or \
-            request.content_type == 'text/x-yaml'
+                request.content_type == 'text/x-yaml'
 
             data = YAML.load request.body.read
           else
