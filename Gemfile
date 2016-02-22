@@ -9,6 +9,7 @@ gem 'warden'
 gem 'activerecord'
 gem 'sinatra-activerecord'
 gem 'bcrypt'
+gem 'net-ssh'
 
 group :development, :test do
   gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt
