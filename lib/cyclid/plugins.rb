@@ -13,7 +13,7 @@ module Cyclid
 
           def register_plugin(name)
             @name=name
-            Cyclid.plugins << self
+            Cyclid.plugins.register(self)
           end
         end
       end
