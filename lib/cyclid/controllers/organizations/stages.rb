@@ -6,7 +6,6 @@ module Cyclid
     module Organizations
       # API endpoints for Organization Stages
       module Stages
-
         def self.registered(app)
           include Errors::HTTPErrors
 
@@ -181,7 +180,6 @@ module Cyclid
             end
           end
         end
-
       end
     end
   end

@@ -11,7 +11,7 @@ module Cyclid
       class Ssh < Transport
         attr_reader :exit_code, :exit_signal
 
-        def initialize(args={})
+        def initialize(args = {})
           args.symbolize_keys!
 
           # Hostname, username & a log target are required
@@ -27,43 +27,43 @@ module Cyclid
           @session = Net::SSH.start(args[:host], args[:user], password: password)
         end
 
-        def export_env(env={})
+        def export_env(env = {})
           @env = env
         end
 
-        def exec(cmd, path=nil)
+        def exec(cmd, path = nil)
           command = build_command(cmd, path, @env)
           Cyclid.logger.debug "command=#{command}"
 
-          channel = @session.open_channel do |channel|
-            channel.on_open_failed do |ch, code, desc|
+          @session.open_channel do |channel|
+            channel.on_open_failed do |_ch, _code, desc|
               # XXX raise
               abort "failed to open channel: #{desc}"
             end
 
             # STDOUT
-            channel.on_data do |ch, data|
+            channel.on_data do |_ch, data|
               # Send to Log Buffer
               @log.write data
             end
 
             # STDERR
-            channel.on_extended_data do |ch, type, data|
+            channel.on_extended_data do |_ch, _type, data|
               # Send to Log Buffer
               @log.write data
             end
 
             # Capture return value from commands
-            channel.on_request 'exit-status' do |ch, data|
+            channel.on_request 'exit-status' do |_ch, data|
               @exit_code = data.read_long
             end
 
             # Capture a command exiting with a signal
-            channel.on_request 'exit-signal' do |ch, data|
+            channel.on_request 'exit-signal' do |_ch, data|
               @exit_signal = data.read_long
             end
 
-            channel.exec command do |ch, success|
+            channel.exec command do |_ch, _success|
             end
           end
 
@@ -85,7 +85,7 @@ module Cyclid
           exec 'exit'
         end
 
-        def build_command(cmd, path=nil, env={})
+        def build_command(cmd, path = nil, env = {})
           command = []
           if env
             vars = env.map do |k, value|
@@ -96,10 +96,7 @@ module Cyclid
             command << vars.join(';')
           end
 
-          if path
-            command << "cd #{path}"
-          end
-
+          command << "cd #{path}" if path
           command << cmd
           command.join(';')
         end
@@ -107,7 +104,6 @@ module Cyclid
         # Register this plugin
         register_plugin 'ssh'
       end
-
     end
   end
 end

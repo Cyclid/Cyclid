@@ -4,6 +4,8 @@ module Cyclid
   module API
     # Module for Cyclid Plugins
     module Plugins
+      # Intelligent system-wide registry of available plugins with helper
+      # methods to find them again
       class Registry
         def initialize
           @plugins = []

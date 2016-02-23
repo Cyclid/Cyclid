@@ -6,7 +6,7 @@ module Cyclid
     module Plugins
       # Base class for Transport plugins
       class Transport < Base
-        def initialize(args={})
+        def initialize(args = {})
         end
       end
     end

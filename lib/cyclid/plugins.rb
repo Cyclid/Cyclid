@@ -13,7 +13,7 @@ module Cyclid
           attr_reader :name
 
           def register_plugin(name)
-            @name=name
+            @name = name
             Cyclid.plugins.register(self)
           end
         end
@@ -21,5 +21,5 @@ module Cyclid
     end
   end
 end
- 
+
 require_rel 'plugins/*.rb'

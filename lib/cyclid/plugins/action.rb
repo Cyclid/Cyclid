@@ -6,19 +6,19 @@ module Cyclid
     module Plugins
       # Base class for Action plugins
       class Action < Base
-        def initialize(args={})
+        def initialize(args = {})
         end
 
-        def prepare(args={})
+        def prepare(args = {})
           @transport = args[:transport]
           @ctx = args[:ctx]
         end
 
-        def perform
+        def perform(log)
         end
       end
     end
   end
 end
- 
+
 require_rel 'action/*.rb'
