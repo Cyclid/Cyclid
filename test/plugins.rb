@@ -39,17 +39,11 @@ ssh = transport.new(host: ARGV[0], user: ARGV[1], password: ARGV[2], log: log_bu
 command = Cyclid.plugins.find('command', Cyclid::API::Plugins::Action)
 plugin = command.new(cmd: 'ls -l', path: '/var/log')
 
-if false
-  dumped = Oj.dump(plugin)
-  Cyclid.logger.debug "dumped object: #{dumped}"
+plugin.prepare(transport: ssh, ctx: {})
+plugin.perform(log_buffer)
 
-  loaded = Oj.load(dumped)
-  Cyclid.logger.debug "loaded object: #{loaded.inspect}"
-else
-  loaded = plugin
-end
-
-loaded.prepare(transport: ssh, ctx: {})
-loaded.perform(log_buffer)
+plugin = command.new(cmd: 'ls -z', path: '/var/log')
+plugin.prepare(transport: ssh, ctx: {})
+plugin.perform(log_buffer)
 
 ssh.close

@@ -9,7 +9,6 @@ module Cyclid
     module Plugins
       # SSH based transport
       class Ssh < Transport
-        #def initialize(host, user, log: nil, password: nil)
         def initialize(args={})
           args.symbolize_keys!
 
@@ -45,6 +44,18 @@ module Cyclid
             channel.on_extended_data do |ch, type, data|
               # Send to Log Buffer
               @log.write data
+            end
+
+            # Capture return value from commands
+            channel.on_request 'exit-status' do |ch, data|
+              @exit_code = data.read_long
+              Cyclid.logger.debug "exit_code=#{@exit_code}"
+            end
+
+            # Capture a command exiting with a signal
+            channel.on_request 'exit-signal' do |ch, data|
+              @exit_signal = data.read_long
+              Cyclid.logger.debug "exit_signal=#{@exit_signal}"
             end
           end
         end
