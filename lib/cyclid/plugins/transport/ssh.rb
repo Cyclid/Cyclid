@@ -27,11 +27,6 @@ module Cyclid
           @session = Net::SSH.start(args[:host], args[:user], password: password)
         end
 
-        # Store the current set of environment variables
-        def export_env(env = {})
-          @env = env
-        end
-
         # Execute a command via. SSH
         def exec(cmd, path = nil)
           command = build_command(cmd, path, @env)

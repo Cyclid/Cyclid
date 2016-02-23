@@ -8,6 +8,17 @@ module Cyclid
       class Transport < Base
         def initialize(args = {})
         end
+
+        def export_env(env = {})
+          @env = env
+        end
+
+        def exec(cmd, path = nil)
+          false
+        end
+
+        def close
+        end
       end
     end
   end
