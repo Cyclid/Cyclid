@@ -11,11 +11,13 @@ module Cyclid
           @plugins = []
         end
 
+        # Add a plugin to the registry
         def register(plugin)
           # XXX Perform sanity checks
           @plugins << plugin
         end
 
+        # Find a plugin from the registry
         def find(name, type)
           @plugins.each do |plugin|
             return plugin if plugin.name == name && plugin.superclass == type

@@ -12,6 +12,7 @@ module Cyclid
         class << self
           attr_reader :name
 
+          # Add the (derived) plugin to the plugin registry
           def register_plugin(name)
             @name = name
             Cyclid.plugins.register(self)

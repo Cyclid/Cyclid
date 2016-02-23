@@ -9,6 +9,7 @@ module Cyclid
         @websocket = websocket
       end
 
+      # Append data to the log and send it on to any configured consumers
       def write(data)
         # XXX Append to log
         # XXX Write to web socket

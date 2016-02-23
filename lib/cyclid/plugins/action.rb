@@ -9,11 +9,15 @@ module Cyclid
         def initialize(args = {})
         end
 
+        # Provide any additional run-time data, such as the transport &
+        # context, that the plugin will require for perform() but didn't get
+        # during initialize.
         def prepare(args = {})
           @transport = args[:transport]
           @ctx = args[:ctx]
         end
 
+        # Run the Action.
         def perform(log)
         end
       end
