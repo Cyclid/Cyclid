@@ -9,6 +9,8 @@ module Cyclid
     module Plugins
       # SSH based transport
       class Ssh < Transport
+        attr_reader :exit_code, :exit_signal
+
         def initialize(args={})
           args.symbolize_keys!
 
@@ -21,14 +23,19 @@ module Cyclid
 
           @log = args[:log]
 
-          # Create an SSH channel and connect the callbacks to the log target
+          # Create an SSH channel
           @session = Net::SSH.start(args[:host], args[:user], password: password)
-          @channel = @session.open_channel do |channel|
-            channel.send_channel_request 'shell' do |ch, success|
-              # XXX raise
-              abort 'failed to open shell' unless success
-            end
+        end
 
+        def export_env(env={})
+          @env = env
+        end
+
+        def exec(cmd, path=nil)
+          command = build_command(cmd, path, @env)
+          Cyclid.logger.debug "command=#{command}"
+
+          channel = @session.open_channel do |channel|
             channel.on_open_failed do |ch, code, desc|
               # XXX raise
               abort "failed to open channel: #{desc}"
@@ -49,41 +56,52 @@ module Cyclid
             # Capture return value from commands
             channel.on_request 'exit-status' do |ch, data|
               @exit_code = data.read_long
-              Cyclid.logger.debug "exit_code=#{@exit_code}"
             end
 
             # Capture a command exiting with a signal
             channel.on_request 'exit-signal' do |ch, data|
               @exit_signal = data.read_long
-              Cyclid.logger.debug "exit_signal=#{@exit_signal}"
+            end
+
+            channel.exec command do |ch, success|
             end
           end
-        end
 
-        def export_env(env={})
-          env.each do |key, value|
-            key.upcase!
-            key.gsub!(/\s/, '_')
-            exec "export #{key}=\"#{value}\""
-          end
-        end
+          # Run the SSH even loop; this blocks until the command has completed
+          @session.loop
 
-        def exec(cmd)
-          @channel.send_data("#{cmd}\n")
+          @exit_code == 0 && @exit_signal.nil? ? true : false
         end
 
         def close
           logout
 
-          @channel.wait
-          @channel.close
           @session.close
         end
 
         private
 
         def logout
-          exec 'logout'
+          exec 'exit'
+        end
+
+        def build_command(cmd, path=nil, env={})
+          command = []
+          if env
+            vars = env.map do |k, value|
+              key = k.upcase
+              key.gsub!(/\s/, '_')
+              "export #{key}=\"#{value}\""
+            end
+            command << vars.join(';')
+          end
+
+          if path
+            command << "cd #{path}"
+          end
+
+          command << cmd
+          command.join(';')
         end
 
         # Register this plugin

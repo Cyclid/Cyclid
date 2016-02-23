@@ -41,9 +41,10 @@ module Cyclid
         # plugins which run locally can write their own data to it. 
         def perform(log)
           @transport.export_env @env unless @env.nil?
-          @transport.exec "cd #{@path}" unless @path.nil?
 
-          @transport.exec "#{@cmd} #{@args.join(' ')}"
+          success = @transport.exec("#{@cmd} #{@args.join(' ')}", @path)
+
+          [success, @transport.exit_code]
         end
 
         # Register this plugin

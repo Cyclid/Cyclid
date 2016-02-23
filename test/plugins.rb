@@ -37,13 +37,19 @@ transport = Cyclid.plugins.find('ssh', Cyclid::API::Plugins::Transport)
 ssh = transport.new(host: ARGV[0], user: ARGV[1], password: ARGV[2], log: log_buffer)
 
 command = Cyclid.plugins.find('command', Cyclid::API::Plugins::Action)
-plugin = command.new(cmd: 'ls -l', path: '/var/log')
 
+plugin = command.new(cmd: 'ls -l', path: '/var/log')
 plugin.prepare(transport: ssh, ctx: {})
-plugin.perform(log_buffer)
+success, rc = plugin.perform(log_buffer)
+
+Cyclid.logger.info "action failed with exit status #{rc}" \
+  unless success
 
 plugin = command.new(cmd: 'ls -z', path: '/var/log')
 plugin.prepare(transport: ssh, ctx: {})
-plugin.perform(log_buffer)
+success, rc = plugin.perform(log_buffer)
+
+Cyclid.logger.info "action failed with exit status #{rc}" \
+  unless success
 
 ssh.close
