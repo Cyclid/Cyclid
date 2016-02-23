@@ -13,7 +13,7 @@ module Cyclid
           @env = env
         end
 
-        def exec(cmd, path = nil)
+        def exec(_cmd, _path = nil)
           false
         end
 
