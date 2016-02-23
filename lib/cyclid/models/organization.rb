@@ -16,6 +16,7 @@ module Cyclid
                               after_remove: :remove_user_org_perm
 
       has_many :userpermissions
+      has_many :stages
 
       # Ensure that a set of Userpermissions exist when a User is added to
       # this Organization
@@ -29,8 +30,6 @@ module Cyclid
         Cyclid.logger.debug "Destroying org. perm. for #{user.username}"
         user.userpermissions.delete(Userpermission.find_by(organization: self))
       end
-
-      has_many :userpermissions
     end
   end
 end

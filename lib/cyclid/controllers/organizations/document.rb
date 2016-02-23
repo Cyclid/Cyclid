@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for a single Organization document
       module Document
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @method get_organizations_organization
           # @param [String] name Name of the organization.
           # @return [String] JSON represention of the requested organization.
@@ -31,7 +33,7 @@ module Cyclid
           app.put do
             authorized_for!(params[:name], Operations::WRITE)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             org = Organization.find_by(name: params[:name])
@@ -71,4 +73,4 @@ module Cyclid
       end
     end
   end
-end 
+end

@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for the User collection
       module Collection
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @macro [attach] sinatra.get
           #   @overload get "$1"
           # @method get_users
@@ -34,7 +36,7 @@ module Cyclid
           app.post do
             authorized_admin!(Operations::ADMIN)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             begin

@@ -59,6 +59,7 @@ GEM
     minitest (5.8.4)
     multi_json (1.11.2)
     nenv (0.3.0)
+    net-ssh (3.0.2)
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -144,6 +145,7 @@ DEPENDENCIES
   ffi!
   guard
   guard-rack!
+  net-ssh
   oj
   rack-test
   rb-inotify (~> 0.9.7)

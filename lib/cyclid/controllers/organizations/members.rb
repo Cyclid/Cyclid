@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for Organization members
       module Members
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @method get_organizations_organization_members_member
           # @param [String] name Name of the organization.
           # @param [String] username Username of the member.
@@ -54,7 +56,7 @@ module Cyclid
           app.put '/:username' do
             authorized_for!(params[:name], Operations::WRITE)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             org = Organization.find_by(name: params[:name])

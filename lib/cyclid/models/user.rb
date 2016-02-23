@@ -9,7 +9,7 @@ module Cyclid
       Cyclid.logger.debug('In the User model')
 
       class << self
-        # Return the collection of Users has an array of Hashes (instead
+        # Return the collection of Users as an array of Hashes (instead
         # of User objects)
         def all_as_hash
           all.to_a.map(&:serializable_hash)

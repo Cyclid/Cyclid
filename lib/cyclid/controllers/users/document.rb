@@ -7,6 +7,8 @@ module Cyclid
       # API endpoints for a single Organization document
       module Document
         def self.registered(app)
+          include Errors::HTTPErrors
+
           # @method get_users_user
           # @param [String] username Username of the user.
           # @return [String] JSON represention of the requested users.
@@ -35,7 +37,7 @@ module Cyclid
           app.put do
             authorized_as!(params[:username], Operations::WRITE)
 
-            payload = json_request_body
+            payload = parse_request_body
             Cyclid.logger.debug payload
 
             user = User.find_by(username: params[:username])

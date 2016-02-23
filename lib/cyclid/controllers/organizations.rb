@@ -6,6 +6,22 @@ module Cyclid
   module API
     # Controller for all Organization related API endpoints
     class OrganizationController < ControllerBase
+      helpers do
+        # Clean up stage data
+        def sanitize_stage(stage)
+          stage.delete_if do |key, _value|
+            key == 'organization_id'
+          end
+        end
+
+        # Clean up step data
+        def sanitize_step(step)
+          step.delete_if do |key, _value|
+            key == 'stage_id'
+          end
+        end
+      end
+
       register Sinatra::Namespace
 
       namespace '/organizations' do
@@ -16,6 +32,10 @@ module Cyclid
 
           namespace '/members' do
             register Organizations::Members
+          end
+
+          namespace '/stages' do
+            register Organizations::Stages
           end
         end
       end
