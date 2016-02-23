@@ -6,6 +6,7 @@ module Cyclid
     module Organizations
       # API endpoints for Organization Stages
       module Stages
+
         def self.registered(app)
           include Errors::HTTPErrors
 
@@ -25,11 +26,11 @@ module Cyclid
             stages = org.stages.all.map do |stage|
               stage_hash = sanitize_stage(stage.serializable_hash)
 
-              # Santize each action in this stage
-              actions = stage.actions.map do |action|
-                sanitize_action(action.serializable_hash)
+              # Santize each step in this stage
+              steps = stage.steps.map do |step|
+                sanitize_step(step.serializable_hash)
               end
-              stage_hash['actions'] = actions
+              stage_hash['steps'] = steps
 
               stage_hash
             end
@@ -51,8 +52,8 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
-            halt_with_json_response(400, INVALID_JSON, 'stage does not define any actions') \
-              unless payload.key? 'actions'
+            halt_with_json_response(400, INVALID_JSON, 'stage does not define any steps') \
+              unless payload.key? 'steps'
 
             begin
               stage = Stage.new
@@ -61,8 +62,8 @@ module Cyclid
               stage.version = payload['version'] if payload.key? 'version'
               stage.organization = org
 
-              # Create the actions & store their serialized form
-              stage.actions << create_actions(payload['actions'])
+              # Create the steps & store their serialized form
+              stage.steps << create_steps(payload['steps'])
 
               stage.save!
             rescue ActiveRecord::ActiveRecordError, \
@@ -92,11 +93,11 @@ module Cyclid
             stages = org.stages.where(name: params[:stage]).map do |stage|
               stage_hash = sanitize_stage(stage.serializable_hash)
 
-              # Santize each action in this stage
-              actions = stage.actions.map do |action|
-                sanitize_action(action.serializable_hash)
+              # Santize each step in this stage
+              steps = stage.steps.map do |step|
+                sanitize_step(step.serializable_hash)
               end
-              stage_hash['actions'] = actions
+              stage_hash['steps'] = steps
 
               stage_hash
             end
@@ -128,58 +129,59 @@ module Cyclid
             # Sanitize the stage
             stage_hash = sanitize_stage(stage.serializable_hash)
 
-            # Santize each action in this stage
-            actions = stage.actions.map do |action|
-              sanitize_action(action.serializable_hash)
+            # Santize each step in this stage
+            steps = stage.steps.map do |step|
+              sanitize_step(step.serializable_hash)
             end
-            stage_hash['actions'] = actions
+            stage_hash['steps'] = steps
 
             return stage_hash.to_json
           end
 
           app.helpers do
-            register Helpers
+            include Helpers
           end
         end
 
         # Helpers for Stages
         module Helpers
-          # Create the serialized actions
+          include Errors::HTTPErrors
+
+          # Create the serialized steps
           #
           # For each definition in the payload, inspect it and create the
           # appropriate object for that action; that class is then serialized
-          # into JSON and stored in the Action in the database, and can then
+          # into JSON and stored in the Step in the database, and can then
           # be unserialized back in to the desired object when it's needed
           # without the database having to be aware of every single
           # permutation of possible actions and arguments to them.
-          def create_actions(stage_actions)
+          def create_steps(stage_steps)
             sequence = 1
-            stage_actions.map do |stage_action|
-              action = Action.new
-              action.sequence = sequence
+            stage_steps.map do |stage_step|
+              step = Step.new
+              step.sequence = sequence
 
-              # Discover the base class for the action
-              action_object = if stage_action.key? 'command'
-                                Cyclid.logger.debug "command action at sequence #{sequence}"
-                                # XXX Create the appropriate Command object
-                              elsif stage_action.key? 'plugin'
-                                Cyclid.logger.debug "plugin action at sequence #{sequence}"
-                                # XXX Create the appropriate Plugin object
-                              else
-                                Cyclid.logger.debug \
-                                  "unknown action type at sequence #{sequence}: #{stage_action}"
-                              end
+              begin
+                action_name = stage_step['action']
+                plugin = Cyclid.plugins.find(action_name, Cyclid::API::Plugins::Action)
 
-              # Serialize the object into the Action and store it in the database.
-              action.action = Oj.dump(action_object)
-              action.save!
+                step_action = plugin.new(stage_step)
+              rescue StandardError => ex
+                # XXX Rescue an internal exception
+                halt_with_json_response(404, INVALID_ACTION, ex.message)
+              end
+
+              # Serialize the object into the Step and store it in the database.
+              step.action = Oj.dump(step_action)
+              step.save!
 
               sequence += 1
 
-              action
+              step
             end
           end
         end
+
       end
     end
   end

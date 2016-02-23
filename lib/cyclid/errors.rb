@@ -22,6 +22,8 @@ module Cyclid
         INVALID_ORG = 11
         # Stage does not exist
         INVALID_STAGE = 12
+        # No plugin found for the given action
+        INVALID_ACTION = 13
       end
     end
 

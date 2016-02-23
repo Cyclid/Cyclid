@@ -1,4 +1,5 @@
 require 'require_all'
+require 'active_support/core_ext'
 
 # Top level module for the core Cyclid code.
 module Cyclid

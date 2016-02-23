@@ -2,9 +2,9 @@
 module Cyclid
   # Module for the Cyclid API
   module API
-    # Model for Actions
-    class Action < ActiveRecord::Base
-      Cyclid.logger.debug('In the Action model')
+    # Model for Steps
+    class Step < ActiveRecord::Base
+      Cyclid.logger.debug('In the Step model')
 
       validates :sequence, presence: true
 

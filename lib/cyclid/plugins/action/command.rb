@@ -10,18 +10,29 @@ module Cyclid
         Cyclid.logger.debug 'in the Command plugin'
 
         def initialize(args={})
-          return false unless args.include? :command
+          args.symbolize_keys!
 
-          cmd_args = args[:command].split
-          @command = cmd_args.shift
-          @args = cmd_args
+          # At a bear minimum there has to be a command to execute.
+          return false unless args.include? :cmd
 
-          Cyclid.logger.debug "command: '#{@command}' args: #{@args}"
+          # The command & arguments can either be passed seperately, with the
+          # args as an array, or as a single string which we then split into
+          # a command & array of args.
+          if args.include? :args
+            @cmd = args[:cmd]
+            @args = args[:args]
+          else
+            cmd_args = args[:cmd].split
+            @cmd = cmd_args.shift
+            @args = cmd_args
+          end
+
+          Cyclid.logger.debug "cmd: '#{@cmd}' args: #{@args}"
 
           @env = args[:env] if args.include? :env
-          @cwd = args[:cwd] if args.include? :cwd
+          @path = args[:path] if args.include? :path
 
-          super
+          #super
         end
 
         # Note that we don't need to explicitly use the log for transport
@@ -30,9 +41,9 @@ module Cyclid
         # plugins which run locally can write their own data to it. 
         def perform(log)
           @transport.export_env @env unless @env.nil?
-          @transport.exec "cd #{@cwd}" unless @cwd.nil?
+          @transport.exec "cd #{@path}" unless @path.nil?
 
-          @transport.exec "#{@command} #{@args.join(' ')}"
+          @transport.exec "#{@cmd} #{@args.join(' ')}"
         end
 
         # Register this plugin

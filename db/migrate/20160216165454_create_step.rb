@@ -1,6 +1,6 @@
-class CreateAction < ActiveRecord::Migration
+class CreateStep < ActiveRecord::Migration
   def change
-    create_table :actions do |t|
+    create_table :steps do |t|
       t.integer :sequence, null: false
       t.text :action
 

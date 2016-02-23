@@ -21,7 +21,7 @@ module Cyclid
       validates_format_of :version, with: /\A\d+.\d+.\d+.?\d*\z/
 
       belongs_to :organization
-      has_many :actions
+      has_many :steps
     end
   end
 end

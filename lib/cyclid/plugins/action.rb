@@ -7,6 +7,9 @@ module Cyclid
       # Base class for Action plugins
       class Action < Base
         def initialize(args={})
+        end
+
+        def prepare(args={})
           @transport = args[:transport]
           @ctx = args[:ctx]
         end

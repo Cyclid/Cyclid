@@ -13,14 +13,6 @@
 
 ActiveRecord::Schema.define(version: 20160216165454) do
 
-  create_table "actions", force: :cascade do |t|
-    t.integer "sequence", null: false
-    t.text    "action"
-    t.integer "stage_id"
-  end
-
-  add_index "actions", ["stage_id"], name: "index_actions_on_stage_id"
-
   create_table "organizations", force: :cascade do |t|
     t.string "name",        null: false
     t.string "owner_email", null: false
@@ -41,6 +33,14 @@ ActiveRecord::Schema.define(version: 20160216165454) do
   end
 
   add_index "stages", ["organization_id"], name: "index_stages_on_organization_id"
+
+  create_table "steps", force: :cascade do |t|
+    t.integer "sequence", null: false
+    t.text    "action"
+    t.integer "stage_id"
+  end
+
+  add_index "steps", ["stage_id"], name: "index_steps_on_stage_id"
 
   create_table "userpermissions", force: :cascade do |t|
     t.boolean "admin",           default: false, null: false
