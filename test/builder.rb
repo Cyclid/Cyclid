@@ -79,3 +79,7 @@ mist.release(ssh, build_host)
 
 # Close the transport
 ssh.close
+
+# Dump the log
+puts "========="
+puts log_buffer.log
