@@ -46,6 +46,9 @@ module Cyclid
             @notifier.status = FAILED
             @notifier.ended = Time.now.to_s
 
+            builder.release(@transport, build_host) if build_host
+            @transport.close if @transport
+
             raise # XXX Raise an internal exception
           end
         end
@@ -96,6 +99,10 @@ module Cyclid
             @notifier.status = SUCCEEDED
             success = true
           end
+
+          # We no longer require the build host & transport
+          builder.release(@transport, build_host)
+          @transport.close
 
           return success
         end
