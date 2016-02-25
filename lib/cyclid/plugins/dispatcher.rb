@@ -24,3 +24,5 @@ module Cyclid
     end
   end
 end 
+
+require_rel 'dispatcher/*.rb'

@@ -19,7 +19,7 @@ module Cyclid
             Cyclid.logger.debug payload
 
             halt_with_json_response(400, INVALID_JOB, 'invalid job definition') \
-              unless payload.key? 'job'
+              unless payload.key? 'sequence'
 
             org = Organization.find_by(name: params[:name])
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
@@ -29,10 +29,12 @@ module Cyclid
               job = ::Cyclid::API::Job::JobView.new(payload, org)
               Cyclid.logger.debug job.to_hash
 
-              
+              job_id = Cyclid.dispatcher.dispatch(job)
             rescue StandardError => ex
               Cyclid.logger.debug ex
             end
+
+            return {job_id: job_id}.to_json
           end
         end
       end

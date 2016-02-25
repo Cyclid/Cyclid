@@ -8,6 +8,10 @@ module Cyclid
       class Local < Dispatcher
 
         def dispatch(job)
+          Cyclid.logger.debug "dispatching job: #{job}"
+          # XXX Create a new JobRecord
+          # XXX Create a SideKiq worker and pass in the job
+          return 0 # JobRecord.id
         end
 
         def status(job_id)
@@ -15,6 +19,9 @@ module Cyclid
 
         def log_read(job_id)
         end
+
+        # Register this plugin
+        register_plugin 'local'
       end
     end
   end

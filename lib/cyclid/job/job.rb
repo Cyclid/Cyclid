@@ -55,7 +55,7 @@ module Cyclid
           # stages (how would we find it?) or we need to load it from the
           # database, create a JobStage from it, and add it to the list of
           # stages
-          job[:job].each do |job_stage|
+          job[:sequence].each do |job_stage|
             job_stage.symbolize_keys!
 
             raise ArgumentError 'invalid stage definition' \
