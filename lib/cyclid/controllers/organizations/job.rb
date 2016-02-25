@@ -34,12 +34,19 @@ module Cyclid
               job_record.status = NEW
               job_record.save!
 
-              job_id = Cyclid.dispatcher.dispatch(job, job_record)
-
               org.job_records << job_record
               current_user.job_records << job_record
+
+              job_id = Cyclid.dispatcher.dispatch(job, job_record)
             rescue StandardError => ex
-              Cyclid.logger.debug ex
+              Cyclid.logger.error "job failed: #{ex}"
+
+              # We couldn't dispatch the job; record the failure
+              job_record.status = FAILED
+              job_record.ended = Time.now.to.s
+              job_record.save!
+
+              halt_with_json_response(500, INVALID_JOB, 'job failed')
             end
 
             return {job_id: job_id}.to_json

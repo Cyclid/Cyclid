@@ -53,7 +53,8 @@ module Cyclid
     # Intelligent buffer which can be passed to plugins which need to collate
     # output data from different commands during a job
     class LogBuffer
-      def initialize(websocket)
+      def initialize(job_record = nil, websocket = nil)
+        @job_record = job_record
         @websocket = websocket
         @buffer = StringFIFO.new
       end
@@ -63,9 +64,17 @@ module Cyclid
         # Append the new data to log
         @buffer.write data
 
-        # XXX Write to web socket
-        # @websocket.write data
+        # Update the Job Record, if there is one
+        if @job_record
+          # XXX: This will destroy the database. Find a better method.
+          @job_record.log = @buffer.string
+          @job_record.save!
+        end
 
+        # Write to web socket
+        @websocket.write data if @websocket
+
+        # Dump the data for debug purposes
         Cyclid.logger.debug data
       end
 

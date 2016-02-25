@@ -9,57 +9,51 @@ module Cyclid
         include Constants::JobStatus
 
         def initialize(job_definition, job_id)
+          # Obtain the JobRecord so that it can be attached to the LogBuffer
+          # and updated as the job runs
+          # XXX A remote worker won't have access to JobRecords (they'll update
+          # the API application via. messages) so this is entirely invalid!
           @job_record = JobRecord.find(job_id)
 
           # Un-serialize the job
-          @job = Oj.load(job_definition, symbol_keys: true)
-          Cyclid.logger.debug "job=#{@job.inspect}"
+          begin
+            @job = Oj.load(job_definition, symbol_keys: true)
+            Cyclid.logger.debug "job=#{@job.inspect}"
 
-          environment = @job[:environment]
-
-          # Create a LogBuffer
-          @log_buffer = LogBuffer.new(nil)
-
-          # Create a Builder
-          @job_record.status = WAITING
-          @job_record.save!
-
-          # XXX Do we need a Builder per. Runner, or can we have a single
-          # global Builder and let the get() method do all the hard work for
-          # each Builder?
-          builder = Cyclid.plugins.find('mist', Cyclid::API::Plugins::Builder)
-          mist = builder.new(os: environment[:os])
-
-          raise "Couldn't create a builder with environment #{environment}" \
-            unless mist
-
-          Cyclid.logger.debug "got a builder: #{mist.inspect}"
-
-          # Request a BuilderHost
-          build_host = mist.get
-          Cyclid.logger.debug "got a build host: #{build_host.inspect}"
-
-          # Try to match a transport that the host supports, to a transport we know how
-          # to create; transports should be listed in the order they're preferred.
-          transport = nil
-          build_host.transports.each do |t|
-            Cyclid.logger.debug "Trying transport '#{t}'.."
-            transport = Cyclid.plugins.find(t, Cyclid::API::Plugins::Transport)
+            environment = @job[:environment]
+          rescue StandardError => ex
+            Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}"
+            raise 'job failed'
           end
 
-          raise "Couldn't find a valid transport from #{build_host.transports}" \
-            unless transport
+          begin
+            # Create a LogBuffer
+            @log_buffer = LogBuffer.new(@job_record)
 
-          Cyclid.logger.debug 'got a valid transport'
+            # We're off!
+            @job_record.status = WAITING
+            @job_record.save!
 
-          # Create a Transport & connect it to the build host
-          host, username, password = build_host.connect_info
-          Cyclid.logger.debug "host: #{host} username: #{username} password: #{password}"
+            # Create a Builder
+            builder = get_builder(environment)
 
-          @ssh = transport.new(host: host, user: username, password: password, log: @log_buffer)
+            # Obtain a host to run the job on
+            build_host = get_build_host(builder)
 
-          # Prepare the BuildHost
-          mist.prepare(@ssh, build_host, environment)
+            # Connect a transport to it
+            @transport = get_transport(build_host, @log_buffer)
+
+            # Prepare the host
+            builder.prepare(@transport, build_host, environment)
+          rescue StandardError => ex
+            Cyclid.logger.error "job runner failed: #{ex}"
+
+            @job_record.status = FAILED
+            @job_record.ended = Time.now.to_s
+            @job_record.save!
+
+            raise # XXX Raise an internal exception
+          end
         end
 
         def run
@@ -90,12 +84,8 @@ module Cyclid
               # Run the action
               # XXX We need a proper job context! Should be a hash created
               # initialize (& updated by run?)
-              action.prepare(transport: @ssh, ctx: {})
+              action.prepare(transport: @transport, ctx: {})
               success, rc = action.perform(@log_buffer)
-
-              # XXX: This will destroy the database
-              @job_record.log = @log_buffer.log
-              @job_record.save!
 
               # XXX This is wrong; if the Step has failed, the Stage has
               # failed, and we should run the on_failure Stage
@@ -113,6 +103,58 @@ module Cyclid
 
           return true
         end
+
+        private
+
+        def get_builder(environment)
+          # XXX Do we need a Builder per. Runner, or can we have a single
+          # global Builder and let the get() method do all the hard work for
+          # each Builder?
+          builder_plugin = Cyclid.plugins.find('mist', Cyclid::API::Plugins::Builder)
+          raise "couldn't find a builder plugin" unless builder_plugin
+
+          builder = builder_plugin.new(os: environment[:os])
+          raise "couldn't create a builder with environment #{environment}" \
+            unless builder
+
+          Cyclid.logger.debug "got a builder: #{builder.inspect}"
+
+          return builder
+        end
+
+        def get_build_host(builder)
+          # Request a BuildHost
+          build_host = builder.get
+          raise "couldn't obtain a build host" unless build_host
+
+          return build_host
+        end
+
+        def get_transport(build_host, log_buffer)
+          # Create a Transport & connect it to the build host
+          host, username, password = build_host.connect_info
+          Cyclid.logger.debug "host: #{host} username: #{username} password: #{password}"
+
+          # Try to match a transport that the host supports, to a transport we know how
+          # to create; transports should be listed in the order they're preferred.
+          transport_plugin = nil
+          build_host.transports.each do |t|
+            Cyclid.logger.debug "trying transport '#{t}'.."
+            transport_plugin = Cyclid.plugins.find(t, Cyclid::API::Plugins::Transport)
+          end
+
+          raise "couldn't find a valid transport from #{build_host.transports}" \
+            unless transport_plugin
+
+          Cyclid.logger.debug 'got a valid transport'
+
+          # Connect the transport to the build host
+          transport = transport_plugin.new(host: host, user: username, password: password, log: log_buffer)
+          raise "failed to connect the transport" unless transport
+
+          return transport
+        end
+
       end
     end
   end

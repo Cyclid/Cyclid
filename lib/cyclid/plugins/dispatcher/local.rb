@@ -17,9 +17,15 @@ module Cyclid
 
           # XXX Create a SideKiq worker and pass in the job
           # XXX Testing; just create a Runner
-          runner = Cyclid::API::Job::Runner.new(job.to_hash.to_json, record.id)
-          runner.run
+          begin
+            runner = Cyclid::API::Job::Runner.new(job.to_hash.to_json, record.id)
+            runner.run
+          rescue StandardError => ex
+            Cyclid.logger.error "job runner failed: #{ex}"
+            raise ex
+          end
 
+          # The JobRecord ID is as good a job identifier as anything
           return record.id
         end
 
