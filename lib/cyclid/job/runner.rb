@@ -8,12 +8,10 @@ module Cyclid
       class Runner
         include Constants::JobStatus
 
-        def initialize(job_definition, job_id)
-          # Obtain the JobRecord so that it can be attached to the LogBuffer
-          # and updated as the job runs
-          # XXX A remote worker won't have access to JobRecords (they'll update
-          # the API application via. messages) so this is entirely invalid!
-          @job_record = JobRecord.find(job_id)
+        def initialize(job_id, job_definition, notifier)
+          # The notifier for updating the job status & writing to the log
+          # buffer
+          @notifier = notifier
 
           # Un-serialize the job
           begin
@@ -27,12 +25,8 @@ module Cyclid
           end
 
           begin
-            # Create a LogBuffer
-            @log_buffer = LogBuffer.new(@job_record)
-
             # We're off!
-            @job_record.status = WAITING
-            @job_record.save!
+            @notifier.status = WAITING
 
             # Create a Builder
             builder = get_builder(environment)
@@ -40,25 +34,25 @@ module Cyclid
             # Obtain a host to run the job on
             build_host = get_build_host(builder)
 
-            # Connect a transport to it
-            @transport = get_transport(build_host, @log_buffer)
+            # Connect a transport to it; the notifier is a proxy to the log
+            # buffer
+            @transport = get_transport(build_host, @notifier)
 
             # Prepare the host
             builder.prepare(@transport, build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
-            @job_record.status = FAILED
-            @job_record.ended = Time.now.to_s
-            @job_record.save!
+            @notifier.status = FAILED
+            @notifier.ended = Time.now.to_s
 
             raise # XXX Raise an internal exception
           end
         end
 
         def run
-          @job_record.status = STARTED
-          @job_record.save!
+          status = STARTED
+          @notifier.status = status
 
           # Run the Job stage actions
           stages = @job[:stages]
@@ -85,8 +79,8 @@ module Cyclid
               sequence = stage.on_failure
 
               # Remember the failure while the failure handlers run
-              @job_record.status = FAILING
-              @job_record.save!
+              status = FAILING
+              @notifier.status = status
             end
 
             # Stop if we have no further sequences
@@ -95,14 +89,13 @@ module Cyclid
 
           # Either all of the stages succeeded, and thus the job suceeded, or
           # (at least one of) the stages failed, and thus the job failed
-          if @job_record.status == FAILING
-            @job_record.status = FAILED
+          if status == FAILING
+            @notifier.status = FAILED
             success = false
           else
-            @job_record.status = SUCCEEDED
+            @notifier.status = SUCCEEDED
             success = true
           end
-          @job_record.save!
 
           return success
         end
@@ -175,7 +168,7 @@ module Cyclid
             # XXX We need a proper job context! Should be a hash created
             # initialize (& updated by run?)
             action.prepare(transport: @transport, ctx: {})
-            success, rc = action.perform(@log_buffer)
+            success, rc = action.perform(@notifier)
 
             return [false, rc] unless success
           end

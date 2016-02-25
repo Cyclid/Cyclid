@@ -12,14 +12,6 @@ module Cyclid
         def dispatch(job)
         end
 
-        # Current status of the given job E.g. queued, started, running,
-        # failed, succeeded etc.
-        def status(job_id)
-        end
-
-        # Return the latest data from given jobs log buffer
-        def log_read(job_id)
-        end
       end
     end
   end
