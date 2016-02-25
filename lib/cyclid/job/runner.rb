@@ -13,6 +13,9 @@ module Cyclid
           # buffer
           @notifier = notifier
 
+          # Create an initial job context (more will be added as the job runs)
+          @ctx = {job_id: job_id}
+
           # Un-serialize the job
           begin
             @job = Oj.load(job_definition, symbol_keys: true)
@@ -24,29 +27,35 @@ module Cyclid
             raise 'job failed'
           end
 
+          @ctx.merge!(name: @job[:name], version: @job[:version], environment: environment)
+
           begin
             # We're off!
             @notifier.status = WAITING
 
             # Create a Builder
-            builder = get_builder(environment)
+            @builder = get_builder(environment)
 
             # Obtain a host to run the job on
-            build_host = get_build_host(builder)
+            @build_host = get_build_host(@builder)
 
-            # Connect a transport to it; the notifier is a proxy to the log
-            # buffer
-            @transport = get_transport(build_host, @notifier)
+            # Add some build host details to the build context
+            host, username, _password = @build_host.connect_info
+            @ctx.merge!(host: host, user: username)
+
+            # Connect a transport to the build host; the notifier is a proxy
+            # to the log buffer
+            @transport = get_transport(@build_host, @notifier)
 
             # Prepare the host
-            builder.prepare(@transport, build_host, environment)
+            @builder.prepare(@transport, @build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
             @notifier.status = FAILED
             @notifier.ended = Time.now.to_s
 
-            builder.release(@transport, build_host) if build_host
+            @builder.release(@transport, @build_host) if @build_host
             @transport.close if @transport
 
             raise # XXX Raise an internal exception
@@ -101,7 +110,7 @@ module Cyclid
           end
 
           # We no longer require the build host & transport
-          builder.release(@transport, build_host)
+          @builder.release(@transport, @build_host)
           @transport.close
 
           return success
@@ -120,8 +129,6 @@ module Cyclid
           builder = builder_plugin.new(os: environment[:os])
           raise "couldn't create a builder with environment #{environment}" \
             unless builder
-
-          Cyclid.logger.debug "got a builder: #{builder.inspect}"
 
           return builder
         end
@@ -172,9 +179,7 @@ module Cyclid
             end
 
             # Run the action
-            # XXX We need a proper job context! Should be a hash created
-            # initialize (& updated by run?)
-            action.prepare(transport: @transport, ctx: {})
+            action.prepare(transport: @transport, ctx: @ctx)
             success, rc = action.perform(@notifier)
 
             return [false, rc] unless success
