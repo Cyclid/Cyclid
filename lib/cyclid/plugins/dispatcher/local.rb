@@ -16,6 +16,9 @@ module Cyclid
           record.save!
 
           # XXX Create a SideKiq worker and pass in the job
+          # XXX Testing; just create a Runner
+          runner = Cyclid::API::Job::Runner.new(job.to_hash.to_json, record.id)
+          runner.run
 
           return record.id
         end

@@ -25,7 +25,7 @@ module Cyclid
           hash[:name] = @name
           hash[:version] = @version
           hash[:environment] = @environment
-          hash[:stages] = @stages.map{ |stage| Oj.dump(stage) }
+          hash[:stages] = @stages.each_with_object({}){ |(name, stage), h| h[name.to_sym] = Oj.dump(stage) }
           hash[:sequence] = @sequence
 
           return hash

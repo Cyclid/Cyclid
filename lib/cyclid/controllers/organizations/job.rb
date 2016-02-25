@@ -8,6 +8,7 @@ module Cyclid
       module Jobs
         def self.registered(app)
           include Errors::HTTPErrors
+          include Constants::JobStatus
 
           app.post do
             authorized_for!(params[:name], Operations::WRITE)
@@ -16,7 +17,8 @@ module Cyclid
             Cyclid.logger.debug payload
 
             halt_with_json_response(400, INVALID_JOB, 'invalid job definition') \
-              unless payload.key? 'sequence'
+              unless payload.key? 'sequence' and \
+                     payload.key? 'environment'
 
             org = Organization.find_by(name: params[:name])
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
@@ -29,7 +31,7 @@ module Cyclid
               # Create a new JobRecord
               job_record = JobRecord.new
               job_record.started = Time.now.to_s
-              job_record.status = 0 # XXX NEW. Create some constants.
+              job_record.status = NEW
               job_record.save!
 
               job_id = Cyclid.dispatcher.dispatch(job, job_record)

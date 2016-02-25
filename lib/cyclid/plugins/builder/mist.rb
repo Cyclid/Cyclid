@@ -29,23 +29,26 @@ module Cyclid
         def prepare(transport, buildhost, env = {})
           distro = buildhost[:distro]
 
-          if distro == 'ubuntu' || distro == 'debian'
-            env[:repos].each do |repo|
-              if distro == 'ubuntu'
-                transport.exec "sudo add-apt-repository #{repo}"
-              elsif distro == 'debian'
-                # XXX
+          # XXX This is, clearly, horrible.
+          if env.key? :repos
+            if distro == 'ubuntu' || distro == 'debian'
+              env[:repos].each do |repo|
+                if distro == 'ubuntu'
+                  transport.exec "sudo add-apt-repository #{repo}"
+                elsif distro == 'debian'
+                  # XXX
+                end
               end
-            end
 
-            transport.exec 'sudo apt-get update'
+              transport.exec 'sudo apt-get update'
 
-            env[:packages].each do |package|
-              transport.exec "sudo apt-get install -y #{package}"
-            end
-          elsif distro == 'redhat' || distro == 'fedora'
-            env[:packages].each do |package|
-              transport.exec "sudo yum install #{package}"
+              env[:packages].each do |package|
+                transport.exec "sudo apt-get install -y #{package}"
+              end
+            elsif distro == 'redhat' || distro == 'fedora'
+              env[:packages].each do |package|
+                transport.exec "sudo yum install #{package}"
+              end
             end
           end
         end

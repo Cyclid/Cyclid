@@ -21,6 +21,7 @@ end
 
 require_relative 'db'
 
+require 'cyclid/constants'
 require 'cyclid/errors'
 require 'cyclid/models'
 require 'cyclid/hmac'
