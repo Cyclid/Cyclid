@@ -30,6 +30,11 @@ module Cyclid
           distro = buildhost[:distro]
 
           # XXX This is, clearly, horrible.
+          #
+          # Might want to abstract all of this stuff into "provioners" which
+          # know how to Do Things on a specific operating system; that way
+          # Builders do *not* need to know, and any Builder can use any
+          # Provisioner during build host creation.
           if env.key? :repos
             if distro == 'ubuntu' || distro == 'debian'
               env[:repos].each do |repo|
