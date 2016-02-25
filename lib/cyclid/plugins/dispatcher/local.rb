@@ -4,8 +4,8 @@ module Cyclid
   module API
     # Module for Cyclid Plugins
     module Plugins
-      # Sidekiq based dispatcher
-      class Sidekiq < Dispatcher
+      # Local Sidekiq based dispatcher
+      class Local < Dispatcher
 
         def dispatch(job)
         end

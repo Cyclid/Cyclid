@@ -37,6 +37,10 @@ module Cyclid
           namespace '/stages' do
             register Organizations::Stages
           end
+
+          namespace '/jobs' do
+            register Organizations::Jobs
+          end
         end
       end
     end
