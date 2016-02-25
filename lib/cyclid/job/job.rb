@@ -5,6 +5,8 @@ module Cyclid
     # Module for Cyclid Job related classes
     module Job
       class JobView
+        attr_reader :name, :version
+
         def initialize(job, org)
           # Job is a hash (converted from JSON or YAML)
           job.symbolize_keys!

@@ -11,7 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160216165454) do
+ActiveRecord::Schema.define(version: 20160225133151) do
+
+  create_table "job_records", force: :cascade do |t|
+    t.string   "job_name"
+    t.string   "job_version"
+    t.datetime "started"
+    t.datetime "ended"
+    t.integer  "status"
+    t.text     "log"
+    t.text     "job"
+    t.integer  "organization_id"
+    t.integer  "user_id"
+  end
+
+  add_index "job_records", ["job_name"], name: "index_job_records_on_job_name"
+  add_index "job_records", ["organization_id"], name: "index_job_records_on_organization_id"
+  add_index "job_records", ["user_id"], name: "index_job_records_on_user_id"
 
   create_table "organizations", force: :cascade do |t|
     t.string "name",        null: false

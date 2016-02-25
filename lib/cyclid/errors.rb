@@ -24,7 +24,7 @@ module Cyclid
         INVALID_STAGE = 12
         # No plugin found for the given action
         INVALID_ACTION = 13
-        # Job definition is incorrect
+        # Job definition is incorrect or does not exist
         INVALID_JOB = 14
       end
     end

@@ -7,11 +7,17 @@ module Cyclid
       # Local Sidekiq based dispatcher
       class Local < Dispatcher
 
-        def dispatch(job)
+        def dispatch(job, record)
           Cyclid.logger.debug "dispatching job: #{job}"
-          # XXX Create a new JobRecord
+
+          record.job_name = job.name
+          record.job_version = job.version
+          record.job = job.to_hash.to_json
+          record.save!
+
           # XXX Create a SideKiq worker and pass in the job
-          return 0 # JobRecord.id
+
+          return record.id
         end
 
         def status(job_id)

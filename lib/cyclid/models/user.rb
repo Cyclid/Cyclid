@@ -23,6 +23,7 @@ module Cyclid
 
       has_and_belongs_to_many :organizations
       has_many :userpermissions
+      has_many :job_records
 
       # Allow an unencryped password to be passed in via. new_password and
       # ensure it is encrypted into password when the record is saved

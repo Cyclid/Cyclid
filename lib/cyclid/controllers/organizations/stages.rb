@@ -165,6 +165,7 @@ module Cyclid
                 plugin = Cyclid.plugins.find(action_name, Cyclid::API::Plugins::Action)
 
                 step_action = plugin.new(stage_step)
+                raise if step_action.nil?
               rescue StandardError => ex
                 # XXX Rescue an internal exception
                 halt_with_json_response(404, INVALID_ACTION, ex.message)
