@@ -11,6 +11,9 @@ module Cyclid
         WAITING = 1
         # Runner has started
         STARTED = 2
+        # Job has had a failed stage
+        FAILING = 3
+
         # Job succeeded
         SUCCEEDED = 10
         # Job failed

@@ -62,9 +62,9 @@ module Cyclid
 
           # Run the Job stage actions
           stages = @job[:stages]
-          @job[:sequence].each do |sequence|
-            Cyclid.logger.debug "sequence=#{sequence.inspect}"
+          sequence = @job[:sequence].first
 
+          loop do
             # Find the stage
             raise 'stage not found' unless stages.key? sequence.to_sym
 
@@ -72,40 +72,44 @@ module Cyclid
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
 
-            Cyclid.logger.debug "got stage=#{stage.inspect}"
+            # Run the stage
+            success, rc = run_stage(stage)
 
-            stage.steps.each do |step|
-              Cyclid.logger.debug "step=#{step.inspect}"
+            Cyclid.logger.info "stage #{(success ? 'succeeded' :'failed')} and returned #{rc}"
 
-              # Un-serialize the Action for this step
-              action = Oj.load(step[:action], symbol_keys: true)
-              Cyclid.logger.debug "got action=#{action.inspect}"
+            # Decide which stage to run next depending on the outcome of this
+            # one
+            if success
+              sequence = stage.on_success
+            else
+              sequence = stage.on_failure
 
-              # Run the action
-              # XXX We need a proper job context! Should be a hash created
-              # initialize (& updated by run?)
-              action.prepare(transport: @transport, ctx: {})
-              success, rc = action.perform(@log_buffer)
-
-              # XXX This is wrong; if the Step has failed, the Stage has
-              # failed, and we should run the on_failure Stage
-              if !success
-                @job_record.status = FAILED
-                @job_record.save!
-
-                raise "action failed with exit status #{rc}"
-              end
+              # Remember the failure while the failure handlers run
+              @job_record.status = FAILING
+              @job_record.save!
             end
+
+            # Stop if we have no further sequences
+            break if sequence.nil?
           end
 
-          @job_record.status = SUCCEEDED
+          # Either all of the stages succeeded, and thus the job suceeded, or
+          # (at least one of) the stages failed, and thus the job failed
+          if @job_record.status == FAILING
+            @job_record.status = FAILED
+            success = false
+          else
+            @job_record.status = SUCCEEDED
+            success = true
+          end
           @job_record.save!
 
-          return true
+          return success
         end
 
         private
 
+        # Create a suitable Builder
         def get_builder(environment)
           # XXX Do we need a Builder per. Runner, or can we have a single
           # global Builder and let the get() method do all the hard work for
@@ -122,6 +126,7 @@ module Cyclid
           return builder
         end
 
+        # Acquire a build host from the builder
         def get_build_host(builder)
           # Request a BuildHost
           build_host = builder.get
@@ -130,6 +135,8 @@ module Cyclid
           return build_host
         end
 
+        # Find a transport that can be used with the build host, create one and
+        # connect them together
         def get_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
           host, username, password = build_host.connect_info
@@ -139,20 +146,41 @@ module Cyclid
           # to create; transports should be listed in the order they're preferred.
           transport_plugin = nil
           build_host.transports.each do |t|
-            Cyclid.logger.debug "trying transport '#{t}'.."
             transport_plugin = Cyclid.plugins.find(t, Cyclid::API::Plugins::Transport)
           end
 
           raise "couldn't find a valid transport from #{build_host.transports}" \
             unless transport_plugin
 
-          Cyclid.logger.debug 'got a valid transport'
-
           # Connect the transport to the build host
           transport = transport_plugin.new(host: host, user: username, password: password, log: log_buffer)
           raise "failed to connect the transport" unless transport
 
           return transport
+        end
+
+        # Perform each action defined in the steps of the given stage, until
+        # either an action fails or we run out of steps
+        def run_stage(stage)
+          stage.steps.each do |step|
+            begin
+              # Un-serialize the Action for this step
+              action = Oj.load(step[:action], symbol_keys: true)
+            rescue StandardError => ex
+              Cyclid.logger.error "couldn't un-serialize action for job ID #{job_id}"
+              raise 'job failed'
+            end
+
+            # Run the action
+            # XXX We need a proper job context! Should be a hash created
+            # initialize (& updated by run?)
+            action.prepare(transport: @transport, ctx: {})
+            success, rc = action.perform(@log_buffer)
+
+            return [false, rc] unless success
+          end
+
+          return [true, 0]
         end
 
       end

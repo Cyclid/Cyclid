@@ -43,7 +43,7 @@ module Cyclid
 
               # We couldn't dispatch the job; record the failure
               job_record.status = FAILED
-              job_record.ended = Time.now.to.s
+              job_record.ended = Time.now.to_s
               job_record.save!
 
               halt_with_json_response(500, INVALID_JOB, 'job failed')
