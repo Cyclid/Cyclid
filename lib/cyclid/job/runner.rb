@@ -40,11 +40,8 @@ module Cyclid
 
             # Obtain a host to run the job on
             @build_host = get_build_host(@builder)
-
             # Add some build host details to the build context
-            host, username, _password = @build_host.connect_info
-            @ctx[:host] = host
-            @ctx[:user] = username
+            @ctx.merge! build_host.context_info
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
