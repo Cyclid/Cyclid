@@ -11,6 +11,10 @@ module Cyclid
           include Errors::HTTPErrors
           include Constants::JobStatus
 
+          # @macro [attach] sinatra.post
+          #   @overload post "$1"
+          # @method post_organizations_organization_jobs
+          # Create and run a job.
           app.post do
             authorized_for!(params[:name], Operations::WRITE)
 
@@ -53,6 +57,11 @@ module Cyclid
             return { job_id: job_id }.to_json
           end
 
+          # @macro [attach] sinatra.get
+          #   @overload get "$1"
+          # @method get_organizations_organization_job
+          # @return [String] JSON represention of the job record for the job ID.
+          # Get the complete JobRecord for the given job ID.
           app.get '/:id' do
             authorized_for!(params[:name], Operations::READ)
 
@@ -70,6 +79,9 @@ module Cyclid
             return job_record.to_json
           end
 
+          # @method get_organizations_organization_job_status
+          # @return [String] JSON represention of the job status for the job ID.
+          # Get the current status of the given job ID.
           app.get '/:id/status' do
             authorized_for!(params[:name], Operations::READ)
 
@@ -88,6 +100,9 @@ module Cyclid
             return hash.to_json
           end
 
+          # @method get_organizations_organization_job_log
+          # @return [String] JSON represention of the job log for the job ID.
+          # Get the current complete log of the given job ID.
           app.get '/:id/log' do
             authorized_for!(params[:name], Operations::READ)
 
