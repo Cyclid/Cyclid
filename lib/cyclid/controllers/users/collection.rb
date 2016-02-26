@@ -6,6 +6,7 @@ module Cyclid
     module Users
       # API endpoints for the User collection
       module Collection
+        # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
 

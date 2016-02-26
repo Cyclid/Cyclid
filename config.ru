@@ -4,6 +4,13 @@
 #
 # Authors: Kristian Van Der Vliet <vanders@liqwyd.com>
 require 'sinatra'
+require 'sidekiq/web'
 require File.dirname(__FILE__) + '/init'
 
-run Cyclid::API::App
+map '/' do
+  run Cyclid::API::App
+end
+
+map '/sidekiq' do
+  run Sidekiq::Web
+end
