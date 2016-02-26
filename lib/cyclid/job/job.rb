@@ -58,10 +58,10 @@ module Cyclid
             raise
           end
 
-          # XXX for each stage in the job, it's either already in the list of
-          # stages (how would we find it?) or we need to load it from the
-          # database, create a JobStage from it, and add it to the list of
-          # stages
+          # For each stage in the job, it's either already in the list of
+          # stages because we created on as an ad-hoc stage, or we need to load
+          # it from the database, create a JobStage from it, and add it to the
+          # list of stages
           job[:sequence].each do |job_stage|
             job_stage.symbolize_keys!
 
