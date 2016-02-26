@@ -6,6 +6,7 @@ module Cyclid
     module Plugins
       # Local Sidekiq based dispatcher
       class Local < Dispatcher
+        # Queue the job to be run asynchronously.
         def dispatch(job, record)
           Cyclid.logger.debug "dispatching job: #{job}"
 

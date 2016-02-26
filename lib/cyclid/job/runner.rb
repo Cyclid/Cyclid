@@ -63,6 +63,12 @@ module Cyclid
           end
         end
 
+        # Run the stages.
+        #
+        # Start with the first stage, and execute all of the steps until
+        # either one fails, or there are no more steps. The follow the
+        # on_success & on_failure handlers to the next stage. If no
+        # handler is defined, stop.
         def run
           status = STARTED
           @notifier.status = status

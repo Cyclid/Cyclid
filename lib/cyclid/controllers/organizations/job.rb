@@ -6,6 +6,7 @@ module Cyclid
     module Organizations
       # API endpoints for Organization Jobs
       module Jobs
+        # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
           include Constants::JobStatus

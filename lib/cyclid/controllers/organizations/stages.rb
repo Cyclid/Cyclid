@@ -6,6 +6,7 @@ module Cyclid
     module Organizations
       # API endpoints for Organization Stages
       module Stages
+        # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
 

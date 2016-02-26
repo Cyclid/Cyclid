@@ -20,12 +20,15 @@ module Cyclid
           @os = args[:os]
         end
 
+        # Create & return a build host
         def get(_args = {})
           # XXX Just return a random host from these two, for testing
           hosts = %w(r1 r2)
           MistHost.new(hostname: hosts.sample, username: 'sys-ops', password: nil, distro: 'ubuntu')
         end
 
+        # Prepare the build host for the job, if required E.g. install any extra
+        # packages that are listed in the 'environment' section of the job definition.
         def prepare(transport, buildhost, env = {})
           distro = buildhost[:distro]
 
@@ -58,6 +61,7 @@ module Cyclid
           end
         end
 
+        # Shut destroy the build host
         def release(transport, _buildhost)
           transport.exec 'echo sudo shutdown -h now'
         end

@@ -6,6 +6,7 @@ module Cyclid
     module Users
       # API endpoints for a single Organization document
       module Document
+        # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
 
