@@ -24,11 +24,11 @@ module Cyclid
       # Completely non-blocking; if no data is available, returns an empty
       # string.
       def read(length = nil)
-        if length
-          len = [length, @write_pos].min
-        else
-          len = @write_pos
-        end
+        len = if length
+                [length, @write_pos].min
+              else
+                @write_pos
+              end
         start = @read_pos
         @read_pos += len
 

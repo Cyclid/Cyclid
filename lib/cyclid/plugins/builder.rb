@@ -29,7 +29,7 @@ module Cyclid
         # process and can be merged into the Job context. This may be a subset of the
         # data for this BuildHost, or the full set.
         def context_info
-          self.dup
+          dup
         end
       end
 
@@ -43,7 +43,7 @@ module Cyclid
         # Get or create a build host that can be used by a job. Args will be things
         # like the OS & version required, taken from the 'environment' section of the
         # job definition.
-        # 
+        #
         # The Builder can call out to external service E.g. AWS, DO, RAX etc. or
         # return an existing instance from a pool
         def get(*args)
@@ -53,11 +53,11 @@ module Cyclid
 
         # Prepare the build host for the job, if required E.g. install any extra
         # packages that are listed in the 'environment' section of the job definition.
-        def prepare(transport, buildhost, env={})
+        def prepare(_transport, _buildhost, _env = {})
         end
 
         # Shut down/release/destroy (if appropriate) the build host
-        def release(transport, buildhost)
+        def release(_transport, _buildhost)
         end
       end
     end

@@ -14,7 +14,7 @@ module Cyclid
           @notifier = notifier
 
           # Create an initial job context (more will be added as the job runs)
-          @ctx = {job_id: job_id}
+          @ctx = { job_id: job_id }
 
           # Un-serialize the job
           begin
@@ -22,7 +22,7 @@ module Cyclid
             Cyclid.logger.debug "job=#{@job.inspect}"
 
             environment = @job[:environment]
-          rescue StandardError => ex
+          rescue StandardError
             Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}"
             raise 'job failed'
           end
@@ -41,7 +41,8 @@ module Cyclid
 
             # Add some build host details to the build context
             host, username, _password = @build_host.connect_info
-            @ctx.merge!(host: host, user: username)
+            @ctx[:host] = host
+            @ctx[:user] = username
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
@@ -81,7 +82,7 @@ module Cyclid
             # Run the stage
             success, rc = run_stage(stage)
 
-            Cyclid.logger.info "stage #{(success ? 'succeeded' :'failed')} and returned #{rc}"
+            Cyclid.logger.info "stage #{(success ? 'succeeded' : 'failed')} and returned #{rc}"
 
             # Decide which stage to run next depending on the outcome of this
             # one
@@ -160,8 +161,11 @@ module Cyclid
             unless transport_plugin
 
           # Connect the transport to the build host
-          transport = transport_plugin.new(host: host, user: username, password: password, log: log_buffer)
-          raise "failed to connect the transport" unless transport
+          transport = transport_plugin.new(host: host,
+                                           user: username,
+                                           password: password,
+                                           log: log_buffer)
+          raise 'failed to connect the transport' unless transport
 
           return transport
         end
@@ -173,7 +177,7 @@ module Cyclid
             begin
               # Un-serialize the Action for this step
               action = Oj.load(step[:action], symbol_keys: true)
-            rescue StandardError => ex
+            rescue StandardError
               Cyclid.logger.error "couldn't un-serialize action for job ID #{job_id}"
               raise 'job failed'
             end
@@ -187,7 +191,6 @@ module Cyclid
 
           return [true, 0]
         end
-
       end
     end
   end

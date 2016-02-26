@@ -20,6 +20,6 @@ guard 'rack' do
   watch(%r{^(config|lib|app)/.*})
 end
 
-guard 'sidekiq', :require => './init.rb' do
+guard 'sidekiq', require: './init.rb' do
   watch(%r{^(lib/plugins/dispatcher/workers)/.*})
 end

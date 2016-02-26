@@ -9,7 +9,7 @@ module Cyclid
         # SSH is the only acceptable Transport
         def transports
           ['ssh']
-        end 
+        end
       end
 
       # Mist builder. Calls out to Mist to obtain a build host instance.
@@ -20,12 +20,12 @@ module Cyclid
           @os = args[:os]
         end
 
-        def get(args = {})
+        def get(_args = {})
           # XXX Just return a random host from these two, for testing
-          hosts = ['r1','r2']
+          hosts = %w(r1 r2)
           MistHost.new(hostname: hosts.sample, username: 'sys-ops', password: nil, distro: 'ubuntu')
         end
- 
+
         def prepare(transport, buildhost, env = {})
           distro = buildhost[:distro]
 
@@ -58,8 +58,8 @@ module Cyclid
           end
         end
 
-        def release(transport, buildhost)
-          transport.exec "echo sudo shutdown -h now"
+        def release(transport, _buildhost)
+          transport.exec 'echo sudo shutdown -h now'
         end
 
         # Register this plugin

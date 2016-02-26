@@ -4,6 +4,8 @@ module Cyclid
   module API
     # Module for Cyclid Job related classes
     module Job
+      # Non-ActiveRecord class which holds a complete Job, complete with
+      # serialised stages and the resolved sequence.
       class JobView
         attr_reader :name, :version
 
@@ -25,7 +27,9 @@ module Cyclid
           hash[:name] = @name
           hash[:version] = @version
           hash[:environment] = @environment
-          hash[:stages] = @stages.each_with_object({}){ |(name, stage), h| h[name.to_sym] = Oj.dump(stage) }
+          hash[:stages] = @stages.each_with_object({}) do |(name, stage), h|
+            h[name.to_sym] = Oj.dump(stage)
+          end
           hash[:sequence] = @sequence
 
           return hash
@@ -61,7 +65,7 @@ module Cyclid
           job[:sequence].each do |job_stage|
             job_stage.symbolize_keys!
 
-            raise ArgumentError 'invalid stage definition' \
+            raise ArgumentError, 'invalid stage definition' \
               unless job_stage.key? :stage
 
             # Store the job in the sequence so that we can run the stages in
@@ -75,14 +79,14 @@ module Cyclid
               stage_view = stages[name.to_sym]
             else
               # Try to find a matching pre-defined stage
-              if job_stage.key? :version
-                stage = org.stages.find_by(name: name, version: job_stage[:version])
-              else
-                # If no version given, get the latest
-                stage = org.stages.where(name: name).last
-              end
+              stage = if job_stage.key? :version
+                        org.stages.find_by(name: name, version: job_stage[:version])
+                      else
+                        # If no version given, get the latest
+                        org.stages.where(name: name).last
+                      end
 
-              raise ArgumentError "stage #{name}:#{version} not found" \
+              raise ArgumentError, "stage #{name}:#{version} not found" \
                 if stage.nil?
 
               stage_view = StageView.new(stage)
@@ -98,8 +102,7 @@ module Cyclid
 
           return [stages, sequence]
         end
-
       end
     end
   end
-end 
+end

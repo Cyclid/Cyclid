@@ -5,9 +5,6 @@ module Cyclid
     # Model for Users
     class JobRecord < ActiveRecord::Base
       Cyclid.logger.debug('In the JobRecod model')
-
-      #belongs_to :organizations
-      #belongs_to :users
     end
   end
 end

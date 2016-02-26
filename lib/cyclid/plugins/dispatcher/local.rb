@@ -6,7 +6,6 @@ module Cyclid
     module Plugins
       # Local Sidekiq based dispatcher
       class Local < Dispatcher
-
         def dispatch(job, record)
           Cyclid.logger.debug "dispatching job: #{job}"
 
@@ -37,9 +36,9 @@ module Cyclid
       # A Notifier provides an abstract method to update the JobRecord
       # status and can also proxy LogBuffer writes.
       #
-      # This is a local Notifier, so it can just pass updates directly on to
-      # the JobRecord & LogBuffer
       module Notifier
+        # This is a local Notifier, so it can just pass updates directly on to
+        # the JobRecord & LogBuffer
         class Local
           def initialize(job_id)
             @job_record = JobRecord.find(job_id)
@@ -76,18 +75,15 @@ module Cyclid
 
           # Run a job Runner asynchronously
           def perform(job, job_id)
-            begin
-              notifier = Notifier::Local.new(job_id)
-              runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
-              runner.run
-            rescue StandardError => ex
-              Cyclid.logger.error "job runner failed: #{ex}"
-              raise ex
-            end
+            notifier = Notifier::Local.new(job_id)
+            runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
+            runner.run
+          rescue StandardError => ex
+            Cyclid.logger.error "job runner failed: #{ex}"
+            raise ex
           end
         end
       end
-
     end
   end
 end

@@ -49,7 +49,7 @@ module Cyclid
               halt_with_json_response(500, INVALID_JOB, 'job failed')
             end
 
-            return {job_id: job_id}.to_json
+            return { job_id: job_id }.to_json
           end
 
           app.get '/:id' do
@@ -104,7 +104,6 @@ module Cyclid
 
             return hash.to_json
           end
-
         end
       end
     end

@@ -16,11 +16,11 @@ module Cyclid
           if arg.is_a? Cyclid::API::Stage
             @name = arg.name
             @version = arg.version
-            @steps = arg.steps.map{ |step| step.serializable_hash }
+            @steps = arg.steps.map(&:serializable_hash)
           elsif arg.is_a? Hash
             arg.symbolize_keys!
 
-            raise ArgumentError 'name is required' unless arg.key? :name
+            raise ArgumentError, 'name is required' unless arg.key? :name
 
             @name = arg[:name]
             @version = arg.fetch(:version, '1.0.0')
@@ -39,7 +39,7 @@ module Cyclid
               # Serialize the object into the Step and store it in the database.
               action = Oj.dump(step_action)
 
-              step_definition = {sequence: sequence, action: action}
+              step_definition = { sequence: sequence, action: action }
               sequence += 1
 
               step_definition

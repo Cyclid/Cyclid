@@ -81,5 +81,5 @@ mist.release(ssh, build_host)
 ssh.close
 
 # Dump the log
-puts "========="
+puts '========='
 puts log_buffer.log

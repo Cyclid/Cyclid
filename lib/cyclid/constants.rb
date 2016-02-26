@@ -18,7 +18,7 @@ module Cyclid
         SUCCEEDED = 10
         # Job failed
         FAILED = 11
-      end 
+      end
     end
   end
 end
