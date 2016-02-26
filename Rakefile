@@ -43,6 +43,15 @@ task :guard do
   system 'guard'
 end
 
+task :redis do
+  require 'redis'
+  exec 'redis-server'
+end
+
+task :sidekiq do
+  exec 'sidekiq -r ./init.rb'
+end
+
 task :default do
   Rake::Task['rackup'].invoke
 end

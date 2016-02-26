@@ -10,21 +10,15 @@ module Cyclid
         def dispatch(job, record)
           Cyclid.logger.debug "dispatching job: #{job}"
 
+          job_definition = job.to_hash.to_json
+
           record.job_name = job.name
           record.job_version = job.version
-          record.job = job.to_hash.to_json
+          record.job = job_definition
           record.save!
 
-          # XXX Create a SideKiq worker and pass in the job
-          # XXX Testing; just create a Runner
-          begin
-            notifier = Notifier::Local.new(record.id)
-            runner = Cyclid::API::Job::Runner.new(record.id, job.to_hash.to_json, notifier)
-            runner.run
-          rescue StandardError => ex
-            Cyclid.logger.error "job runner failed: #{ex}"
-            raise ex
-          end
+          # Create a SideKiq worker and pass in the job
+          Worker::Local.perform_async(job_definition, record.id)
 
           # The JobRecord ID is as good a job identifier as anything
           return record.id
@@ -68,6 +62,28 @@ module Cyclid
           # Write data to the log buffer
           def write(data)
             @log_buffer.write data
+          end
+        end
+      end
+
+      # Namespace for any asyncronous workers
+      module Worker
+        # Local Sidekiq based worker
+        class Local
+          include Sidekiq::Worker
+
+          sidekiq_options retry: false
+
+          # Run a job Runner asynchronously
+          def perform(job, job_id)
+            begin
+              notifier = Notifier::Local.new(job_id)
+              runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
+              runner.run
+            rescue StandardError => ex
+              Cyclid.logger.error "job runner failed: #{ex}"
+              raise ex
+            end
           end
         end
       end

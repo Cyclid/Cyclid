@@ -19,3 +19,7 @@ guard 'rack' do
   watch('Gemfile.lock')
   watch(%r{^(config|lib|app)/.*})
 end
+
+guard 'sidekiq', :require => './init.rb' do
+  watch(%r{^(lib/plugins/dispatcher/workers)/.*})
+end
