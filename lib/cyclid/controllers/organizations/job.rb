@@ -24,18 +24,18 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
+            # Create a new JobRecord
+            job_record = JobRecord.new
+            job_record.started = Time.now.to_s
+            job_record.status = NEW
+            job_record.save!
+
+            org.job_records << job_record
+            current_user.job_records << job_record
+
             begin
               job = ::Cyclid::API::Job::JobView.new(payload, org)
               Cyclid.logger.debug job.to_hash
-
-              # Create a new JobRecord
-              job_record = JobRecord.new
-              job_record.started = Time.now.to_s
-              job_record.status = NEW
-              job_record.save!
-
-              org.job_records << job_record
-              current_user.job_records << job_record
 
               job_id = Cyclid.dispatcher.dispatch(job, job_record)
             rescue StandardError => ex

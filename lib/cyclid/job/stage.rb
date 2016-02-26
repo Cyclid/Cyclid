@@ -23,9 +23,27 @@ module Cyclid
             raise ArgumentError 'name is required' unless arg.key? :name
 
             @name = arg[:name]
-            @name = arg.fetch(:version, '1.0.0')
+            @version = arg.fetch(:version, '1.0.0')
 
-            # XXX Steps?
+            # Create & serialize Actions for each step
+            sequence = 1
+            @steps = arg[:steps].map do |step|
+              Cyclid.logger.debug "ad-hoc step=#{step}"
+
+              action_name = step['action']
+              plugin = Cyclid.plugins.find(action_name, Cyclid::API::Plugins::Action)
+
+              step_action = plugin.new(step)
+              raise ArgumentError if step_action.nil?
+
+              # Serialize the object into the Step and store it in the database.
+              action = Oj.dump(step_action)
+
+              step_definition = {sequence: sequence, action: action}
+              sequence += 1
+
+              step_definition
+            end
           end
         end
       end

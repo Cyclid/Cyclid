@@ -50,7 +50,8 @@ module Cyclid
             # XXX Probably something wrong with the definition; re-raise it? Or
             # maybe we get rid of this block and catch it further up (in the
             # controller?)
-            Cyclid.logger.info ex
+            Cyclid.logger.info "ad-hoc stage creation failed: #{ex}"
+            raise
           end
 
           # XXX for each stage in the job, it's either already in the list of
@@ -66,7 +67,6 @@ module Cyclid
             # Store the job in the sequence so that we can run the stages in
             # the correct order
             name = job_stage[:stage]
-            Cyclid.logger.debug "stage name: #{name}"
             sequence << name
 
             # Try to find the stage
@@ -75,7 +75,6 @@ module Cyclid
               stage_view = stages[name.to_sym]
             else
               # Try to find a matching pre-defined stage
-
               if job_stage.key? :version
                 stage = org.stages.find_by(name: name, version: job_stage[:version])
               else
