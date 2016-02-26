@@ -27,7 +27,9 @@ module Cyclid
             raise 'job failed'
           end
 
-          @ctx.merge!(name: @job[:name], version: @job[:version], environment: environment)
+          @ctx[:name] = @job[:name]
+          @ctx[:version] = @job[:version]
+          @ctx[:environment] = environment
 
           begin
             # We're off!
