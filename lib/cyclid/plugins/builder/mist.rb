@@ -61,7 +61,7 @@ module Cyclid
           end
         end
 
-        # Shut destroy the build host
+        # Destroy the build host
         def release(transport, _buildhost)
           transport.exec 'echo sudo shutdown -h now'
         end

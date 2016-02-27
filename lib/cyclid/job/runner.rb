@@ -41,7 +41,7 @@ module Cyclid
             # Obtain a host to run the job on
             @build_host = get_build_host(@builder)
             # Add some build host details to the build context
-            @ctx.merge! build_host.context_info
+            @ctx.merge! @build_host.context_info
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
@@ -71,6 +71,7 @@ module Cyclid
         def run
           status = STARTED
           @notifier.status = status
+          @notifier.write "Job started\nJob context:\n#{@ctx.stringify_keys}"
 
           # Run the Job stage actions
           stages = @job[:stages]
@@ -83,6 +84,8 @@ module Cyclid
             # Un-serialize the stage into a StageView
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
+
+            @notifier.write "Running stage #{stage.name} v#{stage.version}"
 
             # Run the stage
             success, rc = run_stage(stage)
