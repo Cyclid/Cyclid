@@ -35,11 +35,27 @@ module Cyclid
         # Note that we don't need to explicitly use the log for transport
         # related tasks as the transport will take of writing any data from the
         # commands into the log. The log is still passed in to perform() so that
-        # plugins which run locally can write their own data to it.
-        def perform(_log)
+        # plugins can write their own data to it, as we do here by writing out
+        # the (optional) path & command that is being run.
+        def perform(log)
           @transport.export_env @env unless @env.nil?
 
-          success = @transport.exec("#{@cmd} #{@args.join(' ')}", @path)
+          # Log the command being run (and the working directory, if one is
+          # set)
+          cmd_args = "#{@cmd} #{@args.join(' ')}"
+          log.write(@path.nil? ? cmd_args : "#{@path} : #{cmd_args}")
+
+          begin
+            # Interpolate any data from the job context
+            cmd_args = cmd_args % @ctx
+
+            # Run the command
+            success = @transport.exec(cmd_args, @path)
+          rescue KeyError => ex
+            # Interpolation failed
+            log.write ex.message
+            success = false
+          end
 
           [success, @transport.exit_code]
         end
