@@ -55,8 +55,12 @@ module Cyclid
             @notifier.status = FAILED
             @notifier.ended = Time.now.to_s
 
-            @builder.release(@transport, @build_host) if @build_host
-            @transport.close if @transport
+            begin
+              @builder.release(@transport, @build_host) if @build_host
+              @transport.close if @transport
+            rescue ::Net::SSH::Disconnect
+              # Ignored
+            end
 
             raise # XXX Raise an internal exception
           end
@@ -119,8 +123,12 @@ module Cyclid
           end
 
           # We no longer require the build host & transport
-          @builder.release(@transport, @build_host)
-          @transport.close
+          begin
+            @builder.release(@transport, @build_host)
+            @transport.close
+          rescue ::Net::SSH::Disconnect
+            # Ignored
+          end
 
           return success
         end
@@ -156,7 +164,7 @@ module Cyclid
         def get_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
           host, username, password = build_host.connect_info
-          Cyclid.logger.debug "host: #{host} username: #{username} password: #{password}"
+          Cyclid.logger.debug "get_transport: host: #{host} username: #{username} password: #{password}"
 
           # Try to match a transport that the host supports, to a transport we know how
           # to create; transports should be listed in the order they're preferred.

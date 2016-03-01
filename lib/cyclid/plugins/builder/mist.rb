@@ -1,3 +1,6 @@
+require 'mist/pool'
+require 'mist/client'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -18,13 +21,39 @@ module Cyclid
           args.symbolize_keys!
 
           @os = args[:os]
+
+          pool = ::Mist::Pool.get
+          pool.add('r1') # XXX testing
+
+          @client = ::Mist::Client.new(pool)
         end
 
         # Create & return a build host
-        def get(_args = {})
-          # XXX Just return a random host from these two, for testing
-          hosts = %w(r1 r2)
-          MistHost.new(hostname: hosts.sample, username: 'sys-ops', password: nil, distro: 'ubuntu')
+        def get(args = {})
+          distro = args[:distro] || 'ubuntu'
+          release = args[:release] || 'trusty'
+
+          begin
+            result = @client.call(:create, {distro: distro, release: release})
+            Cyclid.logger.debug "mist result=#{result}"
+
+            raise "failed to create build host: #{result['message']}" \
+              unless result['status']
+
+            buildhost = MistHost.new(name: result['name'],
+                                     host: result['ip'],
+                                     username: 'build',
+                                     password: nil,
+                                     server: result['client'],
+                                     distro: distro,
+                                     release: release)
+          rescue StandardError => ex
+            Cyclid.logger.error "couldn't get a build host from Mist: #{ex}"
+            raise "mist failed: #{ex}"
+          end
+
+          Cyclid.logger.debug "mist_host=#{buildhost.inspect}"
+          return buildhost
         end
 
         # Prepare the build host for the job, if required E.g. install any extra
@@ -62,8 +91,11 @@ module Cyclid
         end
 
         # Destroy the build host
-        def release(transport, _buildhost)
-          transport.exec 'echo sudo shutdown -h now'
+        def release(_transport, buildhost)
+          name = buildhost[:name]
+          server = buildhost[:server]
+
+          @client.call(:destroy,{name: name, server: server})
         end
 
         # Register this plugin

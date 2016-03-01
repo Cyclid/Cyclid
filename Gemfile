@@ -11,6 +11,7 @@ gem 'sinatra-activerecord'
 gem 'bcrypt'
 gem 'net-ssh'
 gem 'sidekiq'
+gem 'mist-client', :path => "../Mist/"
 
 group :development, :test do
   gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt
