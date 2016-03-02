@@ -36,10 +36,10 @@ module Cyclid
             @notifier.status = WAITING
 
             # Create a Builder
-            @builder = get_builder(environment)
+            @builder = get_builder
 
             # Obtain a host to run the job on
-            @build_host = get_build_host(@builder)
+            @build_host = get_build_host(@builder, environment)
             # Add some build host details to the build context
             @ctx.merge! @build_host.context_info
 
@@ -136,24 +136,19 @@ module Cyclid
         private
 
         # Create a suitable Builder
-        def get_builder(environment)
-          # XXX Do we need a Builder per. Runner, or can we have a single
-          # global Builder and let the get() method do all the hard work for
-          # each Builder?
-          builder_plugin = Cyclid.plugins.find('mist', Cyclid::API::Plugins::Builder)
-          raise "couldn't find a builder plugin" unless builder_plugin
-
-          builder = builder_plugin.new(os: environment[:os])
-          raise "couldn't create a builder with environment #{environment}" \
+        def get_builder
+          # Each worker creates a new instance
+          builder = Cyclid.builder.new
+          raise "couldn't create a builder" \
             unless builder
 
           return builder
         end
 
         # Acquire a build host from the builder
-        def get_build_host(builder)
+        def get_build_host(builder, environment)
           # Request a BuildHost
-          build_host = builder.get
+          build_host = builder.get(environment)
           raise "couldn't obtain a build host" unless build_host
 
           return build_host
