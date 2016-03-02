@@ -36,16 +36,16 @@ module Cyclid
             @notifier.status = WAITING
 
             # Create a Builder
-            @builder = get_builder
+            @builder = create_builder
 
             # Obtain a host to run the job on
-            @build_host = get_build_host(@builder, environment)
+            @build_host = request_build_host(@builder, environment)
             # Add some build host details to the build context
             @ctx.merge! @build_host.context_info
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
-            @transport = get_transport(@build_host, @notifier)
+            @transport = create_transport(@build_host, @notifier)
 
             # Prepare the host
             @builder.prepare(@transport, @build_host, environment)
@@ -58,7 +58,7 @@ module Cyclid
             begin
               @builder.release(@transport, @build_host) if @build_host
               @transport.close if @transport
-            rescue ::Net::SSH::Disconnect
+            rescue ::Net::SSH::Disconnect # rubocop:disable Lint/HandleExceptions
               # Ignored
             end
 
@@ -126,7 +126,7 @@ module Cyclid
           begin
             @builder.release(@transport, @build_host)
             @transport.close
-          rescue ::Net::SSH::Disconnect
+          rescue ::Net::SSH::Disconnect # rubocop:disable Lint/HandleExceptions
             # Ignored
           end
 
@@ -136,7 +136,7 @@ module Cyclid
         private
 
         # Create a suitable Builder
-        def get_builder
+        def create_builder
           # Each worker creates a new instance
           builder = Cyclid.builder.new
           raise "couldn't create a builder" \
@@ -146,7 +146,7 @@ module Cyclid
         end
 
         # Acquire a build host from the builder
-        def get_build_host(builder, environment)
+        def request_build_host(builder, environment)
           # Request a BuildHost
           build_host = builder.get(environment)
           raise "couldn't obtain a build host" unless build_host
@@ -156,10 +156,12 @@ module Cyclid
 
         # Find a transport that can be used with the build host, create one and
         # connect them together
-        def get_transport(build_host, log_buffer)
+        def create_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
           host, username, password = build_host.connect_info
-          Cyclid.logger.debug "get_transport: host: #{host} username: #{username} password: #{password}"
+          Cyclid.logger.debug "create_transport: host: #{host} " \
+                                            "username: #{username} " \
+                                            "password: #{password}"
 
           # Try to match a transport that the host supports, to a transport we know how
           # to create; transports should be listed in the order they're preferred.

@@ -11,9 +11,10 @@ gem 'sinatra-activerecord'
 gem 'bcrypt'
 gem 'net-ssh'
 gem 'sidekiq'
-gem 'mist-client', :path => "../Mist/"
+gem 'mist-client', path: '../Mist/'
 
 group :development, :test do
+  gem 'rake'
   gem 'ffi', git: 'git://github.com/ffi/ffi.git', branch: :elcapt
   gem 'rb-inotify', '~> 0.9.7'
   gem 'guard'

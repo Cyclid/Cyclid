@@ -41,7 +41,7 @@ module Cyclid
           end
 
           begin
-            result = @client.call(:create, {distro: distro, release: release})
+            result = @client.call(:create, distro: distro, release: release)
             Cyclid.logger.debug "mist result=#{result}"
 
             raise "failed to create build host: #{result['message']}" \
@@ -106,7 +106,7 @@ module Cyclid
           server = buildhost[:server]
 
           begin
-            @client.call(:destroy,{name: name, server: server})
+            @client.call(:destroy, name: name, server: server)
           rescue MessagePack::RPC::TimeoutError => ex
             Cyclid.logger.error "Mist destroy timed out: #{ex}"
           end
