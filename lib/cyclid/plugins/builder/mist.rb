@@ -51,7 +51,7 @@ module Cyclid
                                      host: result['ip'],
                                      username: 'build',
                                      password: nil,
-                                     server: result['client'],
+                                     server: result['server'],
                                      distro: distro,
                                      release: release)
           rescue MessagePack::RPC::TimeoutError => ex
