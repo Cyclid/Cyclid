@@ -76,12 +76,16 @@ module Cyclid
 
           # Run a job Runner asynchronously
           def perform(job, job_id)
-            notifier = Notifier::Local.new(job_id)
-            runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
-            runner.run
-          rescue StandardError => ex
-            Cyclid.logger.error "job runner failed: #{ex}"
-            raise ex
+            begin
+              notifier = Notifier::Local.new(job_id)
+              runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
+              success = runner.run
+            rescue StandardError => ex
+              Cyclid.logger.error "job runner failed: #{ex}"
+              success = false
+            end
+
+            return success
           end
         end
       end
