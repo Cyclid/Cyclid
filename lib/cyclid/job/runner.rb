@@ -94,7 +94,7 @@ module Cyclid
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
 
-            @notifier.write "#{'-' * 79}\n#{Time.now} : "
+            @notifier.write "#{'-' * 79}\n#{Time.now} : " \
                             "Running stage #{stage.name} v#{stage.version}\n"
 
             # Run the stage
