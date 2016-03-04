@@ -9,14 +9,16 @@ module Cyclid
         # Prepare a Debian based build host
         def prepare(transport, buildhost, env = {})
           begin
-            env[:repos].each do |repo|
-              # XXX Repos probably need to be more complex than a simple list;
-              # URLs, components & key ID's will be required
-              raise 'adding repositories on Debian is not yet supported!'
-            end if env.key? :repos
+            if env.key? :repos
+              env[:repos].each do |repo|
+                # XXX Repos probably need to be more complex than a simple list;
+                # URLs, components & key ID's will be required
+                raise 'adding repositories on Debian is not yet supported!'
+              end
 
-            success = transport.exec 'sudo apt-get update'
-            raise "failed to update repositories" unless success
+              success = transport.exec 'sudo apt-get update'
+              raise "failed to update repositories" unless success
+            end
 
             env[:packages].each do |package|
               success = transport.exec "sudo apt-get install -y #{package}"
