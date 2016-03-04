@@ -43,7 +43,7 @@ module Cyclid
           # Log the command being run (and the working directory, if one is
           # set)
           cmd_args = "#{@cmd} #{@args.join(' ')}"
-          log.write(@path.nil? ? "#{cmd_args}\n" : "#{@path} : #{cmd_args}\n")
+          log.write(@path.nil? ? "$ #{cmd_args}\n" : "$ #{@path} : #{cmd_args}\n")
 
           begin
             # Interpolate any data from the job context
