@@ -6,7 +6,7 @@ require 'cyclid/plugin_registry'
 # Top level module for the core Cyclid code.
 module Cyclid
   class << self
-    attr_accessor :controllers, :plugins, :dispatcher, :logger
+    attr_accessor :controllers, :plugins, :dispatcher, :builder, :logger
 
     Cyclid.controllers = []
     Cyclid.plugins = API::Plugins::Registry.new
@@ -31,3 +31,5 @@ require 'cyclid/controllers'
 
 dispatcher = Cyclid.plugins.find('local', Cyclid::API::Plugins::Dispatcher)
 Cyclid.dispatcher = dispatcher.new
+
+Cyclid.builder = Cyclid.plugins.find('mist', Cyclid::API::Plugins::Builder)

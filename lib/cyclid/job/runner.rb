@@ -36,27 +36,32 @@ module Cyclid
             @notifier.status = WAITING
 
             # Create a Builder
-            @builder = get_builder(environment)
+            @builder = create_builder
 
             # Obtain a host to run the job on
-            @build_host = get_build_host(@builder)
+            @build_host = request_build_host(@builder, environment)
             # Add some build host details to the build context
             @ctx.merge! @build_host.context_info
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
-            @transport = get_transport(@build_host, @notifier)
+            @transport = create_transport(@build_host, @notifier)
 
             # Prepare the host
-            @builder.prepare(@transport, @build_host, environment)
+            provisioner = create_provisioner(@build_host)
+            provisioner.prepare(@transport, @build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
             @notifier.status = FAILED
             @notifier.ended = Time.now.to_s
 
-            @builder.release(@transport, @build_host) if @build_host
-            @transport.close if @transport
+            begin
+              @builder.release(@transport, @build_host) if @build_host
+              @transport.close if @transport
+            rescue ::Net::SSH::Disconnect # rubocop:disable Lint/HandleExceptions
+              # Ignored
+            end
 
             raise # XXX Raise an internal exception
           end
@@ -119,8 +124,12 @@ module Cyclid
           end
 
           # We no longer require the build host & transport
-          @builder.release(@transport, @build_host)
-          @transport.close
+          begin
+            @builder.release(@transport, @build_host)
+            @transport.close
+          rescue ::Net::SSH::Disconnect # rubocop:disable Lint/HandleExceptions
+            # Ignored
+          end
 
           return success
         end
@@ -128,24 +137,19 @@ module Cyclid
         private
 
         # Create a suitable Builder
-        def get_builder(environment)
-          # XXX Do we need a Builder per. Runner, or can we have a single
-          # global Builder and let the get() method do all the hard work for
-          # each Builder?
-          builder_plugin = Cyclid.plugins.find('mist', Cyclid::API::Plugins::Builder)
-          raise "couldn't find a builder plugin" unless builder_plugin
-
-          builder = builder_plugin.new(os: environment[:os])
-          raise "couldn't create a builder with environment #{environment}" \
+        def create_builder
+          # Each worker creates a new instance
+          builder = Cyclid.builder.new
+          raise "couldn't create a builder" \
             unless builder
 
           return builder
         end
 
         # Acquire a build host from the builder
-        def get_build_host(builder)
+        def request_build_host(builder, environment)
           # Request a BuildHost
-          build_host = builder.get
+          build_host = builder.get(environment)
           raise "couldn't obtain a build host" unless build_host
 
           return build_host
@@ -153,10 +157,12 @@ module Cyclid
 
         # Find a transport that can be used with the build host, create one and
         # connect them together
-        def get_transport(build_host, log_buffer)
+        def create_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
           host, username, password = build_host.connect_info
-          Cyclid.logger.debug "host: #{host} username: #{username} password: #{password}"
+          Cyclid.logger.debug "create_transport: host: #{host} " \
+                                            "username: #{username} " \
+                                            "password: #{password}"
 
           # Try to match a transport that the host supports, to a transport we know how
           # to create; transports should be listed in the order they're preferred.
@@ -176,6 +182,21 @@ module Cyclid
           raise 'failed to connect the transport' unless transport
 
           return transport
+        end
+
+        # Find a provisioner that can be used with the build host and create
+        # one
+        def create_provisioner(build_host)
+          distro = build_host[:distro]
+
+          provisioner_plugin = Cyclid.plugins.find(distro, Cyclid::API::Plugins::Provisioner)
+          raise "couldn't find a valid provisioner for #{distro}" \
+            unless provisioner_plugin
+
+          provisioner = provisioner_plugin.new
+          raise 'failed to create provisioner' unless provisioner
+
+          return provisioner
         end
 
         # Perform each action defined in the steps of the given stage, until

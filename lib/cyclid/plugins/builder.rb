@@ -15,7 +15,7 @@ module Cyclid
         # Return the information needed (hostname/IP, username, password if there
         # is one) to create a Transport to this host, in a normalized form.
         def connect_info
-          [self[:hostname], self[:username], self[:password]]
+          [self[:host], self[:username], self[:password]]
         end
 
         # Return a list of acceptable Transports that can be used to connect to this
@@ -47,13 +47,6 @@ module Cyclid
         # The Builder can call out to external service E.g. AWS, DO, RAX etc. or
         # return an existing instance from a pool
         def get(*args)
-        end
-
-        # XXX Do we want prepare() & destroy() methods on the BuildHost, instead?
-
-        # Prepare the build host for the job, if required E.g. install any extra
-        # packages that are listed in the 'environment' section of the job definition.
-        def prepare(_transport, _buildhost, _env = {})
         end
 
         # Shut down/release/destroy (if appropriate) the build host
