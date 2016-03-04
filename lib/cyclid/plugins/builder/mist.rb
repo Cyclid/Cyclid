@@ -49,7 +49,7 @@ module Cyclid
 
             buildhost = MistHost.new(name: result['name'],
                                      host: result['ip'],
-                                     username: 'build',
+                                     username: result['username'],
                                      password: nil,
                                      server: result['server'],
                                      distro: distro,
