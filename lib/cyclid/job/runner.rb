@@ -196,8 +196,6 @@ module Cyclid
           provisioner = provisioner_plugin.new
           raise 'failed to create provisioner' unless provisioner
 
-          Cyclid.logger.debug "provisioner=#{provisioner}"
-
           return provisioner
         end
 
