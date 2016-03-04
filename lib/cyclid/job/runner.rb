@@ -49,6 +49,8 @@ module Cyclid
 
             # Prepare the host
             provisioner = create_provisioner(@build_host)
+
+            @notifier.write "Preparing build host\n"
             provisioner.prepare(@transport, @build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
@@ -76,7 +78,7 @@ module Cyclid
         def run
           status = STARTED
           @notifier.status = status
-          @notifier.write "Job started\nJob context:\n#{@ctx.stringify_keys}"
+          @notifier.write "Job started\nJob context:\n#{@ctx.stringify_keys}\n"
 
           # Run the Job stage actions
           stages = @job[:stages]
@@ -90,7 +92,7 @@ module Cyclid
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
 
-            @notifier.write "Running stage #{stage.name} v#{stage.version}"
+            @notifier.write "Running stage #{stage.name} v#{stage.version}\n"
 
             # Run the stage
             success, rc = run_stage(stage)

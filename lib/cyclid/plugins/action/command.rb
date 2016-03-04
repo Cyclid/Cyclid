@@ -43,7 +43,7 @@ module Cyclid
           # Log the command being run (and the working directory, if one is
           # set)
           cmd_args = "#{@cmd} #{@args.join(' ')}"
-          log.write(@path.nil? ? cmd_args : "#{@path} : #{cmd_args}")
+          log.write(@path.nil? ? "#{cmd_args}\n" : "#{@path} : #{cmd_args}\n")
 
           begin
             # Interpolate any data from the job context
@@ -53,7 +53,7 @@ module Cyclid
             success = @transport.exec(cmd_args, @path)
           rescue KeyError => ex
             # Interpolation failed
-            log.write ex.message
+            log.write "#{ex.message}\n"
             success = false
           end
 
