@@ -39,7 +39,9 @@ module Cyclid
             @builder = create_builder
 
             # Obtain a host to run the job on
+            @notifier.write "#{Time.now} : Obtaining build host...\n"
             @build_host = request_build_host(@builder, environment)
+
             # Add some build host details to the build context
             @ctx.merge! @build_host.context_info
 
@@ -50,7 +52,7 @@ module Cyclid
             # Prepare the host
             provisioner = create_provisioner(@build_host)
 
-            @notifier.write "#{'=' * 79}\nPreparing build host\n"
+            @notifier.write "#{Time.now} : Preparing build host...\n#{'=' * 79}\n"
             provisioner.prepare(@transport, @build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
@@ -78,7 +80,7 @@ module Cyclid
         def run
           status = STARTED
           @notifier.status = status
-          @notifier.write "#{'=' * 79}\nJob started\nJob context: #{@ctx.stringify_keys}\n"
+          @notifier.write "#{'=' * 79}\n#{Time.now} : Job started. Context: #{@ctx.stringify_keys}\n"
 
           # Run the Job stage actions
           stages = @job[:stages]
@@ -92,7 +94,8 @@ module Cyclid
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
 
-            @notifier.write "#{'-' * 79}\nRunning stage #{stage.name} v#{stage.version}\n"
+            @notifier.write "#{'-' * 79}\n#{Time.now} : "
+                            "Running stage #{stage.name} v#{stage.version}\n"
 
             # Run the stage
             success, rc = run_stage(stage)
