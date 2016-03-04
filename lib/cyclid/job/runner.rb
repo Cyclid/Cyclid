@@ -48,7 +48,8 @@ module Cyclid
             @transport = create_transport(@build_host, @notifier)
 
             # Prepare the host
-            @builder.prepare(@transport, @build_host, environment)
+            provisioner = create_provisioner(@build_host)
+            provisioner.prepare(@transport, @build_host, environment)
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
@@ -181,6 +182,23 @@ module Cyclid
           raise 'failed to connect the transport' unless transport
 
           return transport
+        end
+
+        # Find a provisioner that can be used with the build host and create
+        # one
+        def create_provisioner(build_host)
+          distro = build_host[:distro]
+
+          provisioner_plugin = Cyclid.plugins.find(distro, Cyclid::API::Plugins::Provisioner)
+          raise "couldn't find a valid provisioner for #{distro}" \
+            unless provisioner_plugin
+
+          provisioner = provisioner_plugin.new
+          raise 'failed to create provisioner' unless provisioner
+
+          Cyclid.logger.debug "provisioner=#{provisioner}"
+
+          return provisioner
         end
 
         # Perform each action defined in the steps of the given stage, until

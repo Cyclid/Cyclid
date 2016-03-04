@@ -66,40 +66,6 @@ module Cyclid
           return buildhost
         end
 
-        # Prepare the build host for the job, if required E.g. install any extra
-        # packages that are listed in the 'environment' section of the job definition.
-        def prepare(transport, buildhost, env = {})
-          distro = buildhost[:distro]
-
-          # XXX This is, clearly, horrible.
-          #
-          # Might want to abstract all of this stuff into "provioners" which
-          # know how to Do Things on a specific operating system; that way
-          # Builders do *not* need to know, and any Builder can use any
-          # Provisioner during build host creation.
-          if env.key? :repos
-            if distro == 'ubuntu' || distro == 'debian'
-              env[:repos].each do |repo|
-                if distro == 'ubuntu'
-                  transport.exec "sudo add-apt-repository #{repo}"
-                elsif distro == 'debian'
-                  # XXX
-                end
-              end
-
-              transport.exec 'sudo apt-get update'
-
-              env[:packages].each do |package|
-                transport.exec "sudo apt-get install -y #{package}"
-              end
-            elsif distro == 'redhat' || distro == 'fedora'
-              env[:packages].each do |package|
-                transport.exec "sudo yum install #{package}"
-              end
-            end
-          end
-        end
-
         # Destroy the build host
         def release(_transport, buildhost)
           name = buildhost[:name]

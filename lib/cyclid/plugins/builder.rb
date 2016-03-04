@@ -49,13 +49,6 @@ module Cyclid
         def get(*args)
         end
 
-        # XXX Do we want prepare() & destroy() methods on the BuildHost, instead?
-
-        # Prepare the build host for the job, if required E.g. install any extra
-        # packages that are listed in the 'environment' section of the job definition.
-        def prepare(_transport, _buildhost, _env = {})
-        end
-
         # Shut down/release/destroy (if appropriate) the build host
         def release(_transport, _buildhost)
         end
