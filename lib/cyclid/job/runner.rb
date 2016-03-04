@@ -80,7 +80,8 @@ module Cyclid
         def run
           status = STARTED
           @notifier.status = status
-          @notifier.write "#{'=' * 79}\n#{Time.now} : Job started. Context: #{@ctx.stringify_keys}\n"
+          @notifier.write "#{'=' * 79}\n#{Time.now} : Job started. " \
+                          "Context: #{@ctx.stringify_keys}\n"
 
           # Run the Job stage actions
           stages = @job[:stages]
