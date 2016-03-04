@@ -16,3 +16,5 @@ module Cyclid
     end
   end
 end
+
+require_rel 'provisioner/*.rb'

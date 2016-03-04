@@ -7,7 +7,7 @@ module Cyclid
       # Ubuntu provisioner
       class Ubuntu < Provisioner
         # Prepare an Ubuntu based build host
-        def prepare(transport, _buildhost, env = {})
+        def prepare(transport, buildhost, env = {})
           begin
             env[:repos].each do |repo|
               # XXX Check that it's actually a PPA
@@ -21,7 +21,7 @@ module Cyclid
             env[:packages].each do |package|
               success = transport.exec "sudo apt-get install -y #{package}"
               raise "failed to install package #{package}" unless success
-            end
+            end if env.key? :packages
           rescue StandardError => ex
             Cyclid.logger.error "failed to provision #{buildhost[:name]}: #{ex}"
             raise
