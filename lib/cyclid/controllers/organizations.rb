@@ -41,10 +41,20 @@ module Cyclid
           namespace '/jobs' do
             register Organizations::Jobs
           end
+
+          namespace '/plugins' do
+            Cyclid.plugins.all(Cyclid::API::Plugins::Api).each do |plugin|
+              Cyclid.logger.debug "Registering API extension plugin #{plugin.name}"
+
+              # Create a namespace for this plugin and register it
+              namespace "/#{plugin.name}" do
+                register plugin.controller
+              end
+            end
+          end
         end
       end
     end
-
     Cyclid.controllers << OrganizationController
   end
 end

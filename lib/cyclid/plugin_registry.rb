@@ -20,10 +20,18 @@ module Cyclid
         # Find a plugin from the registry
         def find(name, type)
           @plugins.each do |plugin|
-            Cyclid.logger.debug plugin.name
             return plugin if plugin.name == name && plugin.superclass == type
           end
           return nil
+        end
+
+        # Return a list of all plugins of a certain type
+        def all(type)
+          list = []
+          @plugins.each do |plugin|
+            list << plugin if plugin.superclass == type
+          end
+          return list
         end
       end
     end
