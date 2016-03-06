@@ -17,7 +17,7 @@ module Cyclid
         end
       end
 
-      # SSH based transport
+      # API extension for Github hooks 
       class Github < Api
         def self.controller
           return ApiExtension::Controller.new(ApiExtension::GithubMethods)
