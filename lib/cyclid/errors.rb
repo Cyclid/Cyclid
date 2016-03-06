@@ -26,6 +26,9 @@ module Cyclid
         INVALID_ACTION = 13
         # Job definition is incorrect or does not exist
         INVALID_JOB = 14
+
+        # API plugin request failed
+        PLUGIN_ERROR = 20
       end
     end
 
