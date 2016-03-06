@@ -11,8 +11,8 @@ module Cyclid
           include Methods
 
           def post(data)
-            Cyclid.logger.debug 'in GithubMethods::post'
-            return "GithubMethods::post\n"
+            Cyclid.logger.debug 'in GithubMethods::post: #{data}'
+            return_failure(405, 'not implemented')
           end
         end
       end
