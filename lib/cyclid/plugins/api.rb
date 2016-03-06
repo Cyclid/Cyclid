@@ -19,30 +19,26 @@ module Cyclid
 
             app.get do
               Cyclid.logger.debug 'ApiExtension::Controller::get'
-              get
+              get(request) #headers)
             end
 
             app.post do
               Cyclid.logger.debug 'ApiExtension::Controller::post'
 
               payload = parse_request_body
-              Cyclid.logger.debug payload
-
-              post(payload)
+              post(payload, http_headers(request.env))# headers)
             end
 
             app.put do
               Cyclid.logger.debug 'ApiExtension::Controller::put'
 
               payload = parse_request_body
-              Cyclid.logger.debug payload
-
-              put(payload)
+              put(payload, headers)
             end
 
             app.delete do
               Cyclid.logger.debug 'ApiExtension::Controller::delete'
-              delete
+              delete(headers)
             end
 
             app.helpers do
@@ -60,25 +56,25 @@ module Cyclid
         # them...
         module Methods
           # GET callback
-          def get
+          def get(_headers)
             authorize('get')
             return_failure(405, 'not implemented')
           end
 
           # POST callback
-          def post(data)
+          def post(_data, _headers)
             authorize('post')
             return_failure(405, 'not implemented')
           end
 
           # PUT callback
-          def put(data)
+          def put(_data, _headers)
             authorize('put')
             return_failure(405, 'not implemented')
           end
 
           # DELETE callback
-          def delete
+          def delete(_headers)
             authorize('delete')
             return_failure(405, 'not implemented')
           end
@@ -117,6 +113,21 @@ module Cyclid
           # Return a standard Cyclid style failure.
           def return_failure(code, message)
             halt_with_json_response(code, Errors::HTTPErrors::PLUGIN_ERROR, message)
+          end
+
+          # Extract headers from the raw request & pretty them up
+          def http_headers(environment)
+            http_headers = headers
+            environment.each do |env|
+              key, value = env
+              match = key.match /\AHTTP_(.*)\Z/
+              next unless match
+
+              header = match[1].split('_').map{ |k| k.capitalize }.join('-')
+              http_headers[header] = value
+            end
+
+            return http_headers
           end
         end
       end
