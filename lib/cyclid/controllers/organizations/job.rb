@@ -25,36 +25,13 @@ module Cyclid
               unless payload.key? 'sequence' and \
                      payload.key? 'environment'
 
-            org = Organization.find_by(name: params[:name])
-            halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-              if org.nil?
-
-            # Create a new JobRecord
-            job_record = JobRecord.new
-            job_record.started = Time.now.to_s
-            job_record.status = NEW
-            job_record.save!
-
-            org.job_records << job_record
-            current_user.job_records << job_record
-
             begin
-              job = ::Cyclid::API::Job::JobView.new(payload, org)
-              Cyclid.logger.debug job.to_hash
-
-              job_id = Cyclid.dispatcher.dispatch(job, job_record)
+              job_data = job_from_definition(job_definition)
             rescue StandardError => ex
-              Cyclid.logger.error "job failed: #{ex}"
-
-              # We couldn't dispatch the job; record the failure
-              job_record.status = FAILED
-              job_record.ended = Time.now.to_s
-              job_record.save!
-
               halt_with_json_response(500, INVALID_JOB, 'job failed')
             end
 
-            return { job_id: job_id }.to_json
+            return job_data
           end
 
           # @macro [attach] sinatra.get
@@ -119,6 +96,10 @@ module Cyclid
             hash[:log] = job_record.log
 
             return hash.to_json
+          end
+
+          app.helpers do
+            include Job::Helpers
           end
         end
       end
