@@ -5,6 +5,7 @@ test.db
 .yardoc
 doc
 dump.rdb
+*.swp
 
 # OS artifacts
 .DS_Store
