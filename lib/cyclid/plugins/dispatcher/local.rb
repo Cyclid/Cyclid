@@ -52,8 +52,6 @@ module Cyclid
 
             # Unserialize the callback object, if there is one
             @callback = callback_object.nil? ? nil : Oj.load(callback_object)
-            Cyclid.logger.debug "callback_object=#{callback_object}"
-            Cyclid.logger.debug "callback=#{@callback.inspect}"
           end
 
           # Set the JobRecord status
@@ -73,7 +71,6 @@ module Cyclid
 
           # Ping the callback completion hook, if required
           def completion(success)
-            Cyclid.logger.debug "Calling callback #{@callback.inspect}"
             @callback.completion(success) if @callback
           end
 
