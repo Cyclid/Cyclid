@@ -7,7 +7,7 @@ module Cyclid
       # Local Sidekiq based dispatcher
       class Local < Dispatcher
         # Queue the job to be run asynchronously.
-        def dispatch(job, record)
+        def dispatch(job, record, callback = nil)
           Cyclid.logger.debug "dispatching job: #{job}"
 
           job_definition = job.to_hash.to_json
@@ -17,8 +17,12 @@ module Cyclid
           record.job = job_definition
           record.save!
 
+          # The callback instance has to be serailised into JSON to survive the
+          # trip through Redis to Sidekiq
+          callback_json = callback.nil? ? nil : Oj.dump(callback)
+
           # Create a SideKiq worker and pass in the job
-          Worker::Local.perform_async(job_definition, record.id)
+          Worker::Local.perform_async(job_definition, record.id, callback_json)
 
           # The JobRecord ID is as good a job identifier as anything
           return record.id
@@ -40,17 +44,25 @@ module Cyclid
       module Notifier
         # This is a local Notifier, so it can just pass updates directly on to
         # the JobRecord & LogBuffer
-        class Local
-          def initialize(job_id)
+        class Local < Base
+          def initialize(job_id, callback_object)
             @job_record = JobRecord.find(job_id)
             # Create a LogBuffer
             @log_buffer = LogBuffer.new(@job_record)
+
+            # Unserialize the callback object, if there is one
+            @callback = callback_object.nil? ? nil : Oj.load(callback_object)
+            Cyclid.logger.debug "callback_object=#{callback_object}"
+            Cyclid.logger.debug "callback=#{@callback.inspect}"
           end
 
           # Set the JobRecord status
           def status=(status)
             @job_record.status = status
             @job_record.save!
+
+            # Ping the callback status_changed hook, if required
+            @callback.status_changed(status) if @callback
           end
 
           # Set the JobRecord ended
@@ -59,9 +71,18 @@ module Cyclid
             @job_record.save!
           end
 
+          # Ping the callback completion hook, if required
+          def completion(success)
+            Cyclid.logger.debug "Calling callback #{@callback.inspect}"
+            @callback.completion(success) if @callback
+          end
+
           # Write data to the log buffer
           def write(data)
             @log_buffer.write data
+
+            # Ping the callback log_write hook, if required
+            @callback.log_write(data) if @callback
           end
         end
       end
@@ -75,15 +96,24 @@ module Cyclid
           sidekiq_options retry: false
 
           # Run a job Runner asynchronously
-          def perform(job, job_id)
+          def perform(job, job_id, callback_object)
             begin
-              notifier = Notifier::Local.new(job_id)
+              notifier = Notifier::Local.new(job_id, callback_object)
+            rescue StandardError => ex
+              Cyclid.logger.debug "couldn't create notifier: #{ex}"
+              return false
+            end
+
+            begin
               runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
               success = runner.run
             rescue StandardError => ex
               Cyclid.logger.error "job runner failed: #{ex}"
               success = false
             end
+
+            # Notify completion
+            notifier.completion(success)
 
             return success
           end
