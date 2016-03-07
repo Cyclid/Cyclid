@@ -19,30 +19,31 @@ module Cyclid
 
             app.get do
               Cyclid.logger.debug 'ApiExtension::Controller::get'
-              get(request) #headers)
+              get(http_headers(request.env))
             end
 
             app.post do
               Cyclid.logger.debug 'ApiExtension::Controller::post'
 
               payload = parse_request_body
-              post(payload, http_headers(request.env))# headers)
+              post(payload, http_headers(request.env))
             end
 
             app.put do
               Cyclid.logger.debug 'ApiExtension::Controller::put'
 
               payload = parse_request_body
-              put(payload, headers)
+              put(payload, http_headers(request.env))
             end
 
             app.delete do
               Cyclid.logger.debug 'ApiExtension::Controller::delete'
-              delete(headers)
+              delete(http_headers(request.env))
             end
 
             app.helpers do
               include Helpers
+              include Job::Helpers
               include @@plugin_methods
             end
           end
