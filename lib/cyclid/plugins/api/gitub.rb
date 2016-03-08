@@ -71,7 +71,7 @@ module Cyclid
             config['repository_tokens'].each do |entry|
               entry_url = URI(entry['url'])
               auth_token = entry['token'] if entry_url.host == html_url.host && \
-                                             entry_url.path == entry_url.path
+                                             entry_url.path == html_url.path
             end
             Cyclid.logger.debug "auth token=#{auth_token}"
 
