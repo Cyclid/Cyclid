@@ -72,7 +72,7 @@ module Cyclid
             end
 
             # Set the PR to 'pending'
-            GithubStatus.set_status(api_url, pr_sha, 'pending', 'Waiting for build')
+            GithubStatus.set_status(api_url, pr_sha, auth_token, 'pending', 'Waiting for build')
 
             # Get the Pull Request
             begin
@@ -112,7 +112,7 @@ module Cyclid
             Cyclid.logger.debug "job_url=#{job_url}"
 
             if job_url.nil?
-              GithubStatus.set_status(api_url, pr_sha, 'error', 'No Cyclid job file found')
+              GithubStatus.set_status(api_url, pr_sha, auth_token, 'error', 'No Cyclid job file found')
               return_failure(400, 'not a Cyclid repository')
             end
 
@@ -133,7 +133,7 @@ module Cyclid
               job_blob = Oj.load response.body
               job_definition = Oj.load(Base64.decode64(job_blob['content']))
             rescue StandardError => ex
-              GithubStatus.set_status(api_url, pr_sha, 'error', "Couldn't retrieve Cyclid job file")
+              GithubStatus.set_status(api_url, pr_sha, auth_token, 'error', "Couldn't retrieve Cyclid job file")
               Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
               raise
             end
@@ -141,17 +141,17 @@ module Cyclid
             Cyclid.logger.debug "job_definition=#{job_definition}"
 
             begin
-              callback = GithubCallback.new(api_url, pr_sha)
+              callback = GithubCallback.new(api_url, pr_sha, auth_token)
               job_json = job_from_definition(job_definition, callback)
             rescue StandardError => ex
-              GithubStatus.set_status(api_url, pr_sha, 'failure', ex)
+              GithubStatus.set_status(api_url, pr_sha, auth_token, 'failure', ex)
               return_failure(500, 'job failed')
             end
           end
         end
 
         module GithubStatus
-          def self.set_status(api_url, pr_sha, auth_token state, description)
+          def self.set_status(api_url, pr_sha, auth_token, state, description)
             # Update the PR status
             begin
               status_url = URI("#{api_url}/statuses/#{pr_sha}")
@@ -197,9 +197,10 @@ module Cyclid
         end
 
         class GithubCallback < Callback
-          def initialize(api_url, pr_sha)
+          def initialize(api_url, pr_sha, auth_token)
             @api_url = api_url
             @pr_sha = pr_sha
+            @auth_token = auth_token
           end
 
           def completion(status)
@@ -210,7 +211,7 @@ module Cyclid
               state = 'failure'
               message = 'Build job failed'
             end
-            GithubStatus.set_status(@api_url, @pr_sha, state, message)
+            GithubStatus.set_status(@api_url, @pr_sha, @auth_token, state, message)
           end
         end
       end
