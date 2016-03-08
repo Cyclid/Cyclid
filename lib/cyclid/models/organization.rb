@@ -18,6 +18,7 @@ module Cyclid
       has_many :userpermissions
       has_many :stages
       has_many :job_records
+      has_many :plugin_configs
 
       # Ensure that a set of Userpermissions exist when a User is added to
       # this Organization
