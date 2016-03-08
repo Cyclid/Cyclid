@@ -30,15 +30,17 @@ module Cyclid
               # No config currently exists; create a new default config
               config = PluginConfig.new(plugin: @name,
                                         version: '1.0.0',
-                                        config: default_config)
+                                        config: Oj.dump(default_config.stringify_keys))
               config.save!
 
               org.plugin_configs << config
             end
 
-            # Convert the model to a hash and add the config schema
+            # Convert the model to a hash, add the config schema, and convert the JSON config
+            # blob back into a hash
             config_hash = config.serializable_hash
-            config_hash[:schema] = config_schema
+            config_hash['schema'] = config_schema
+            config_hash['config'] = Oj.load(config.config)
 
             return config_hash
           rescue StandardError => ex
@@ -47,8 +49,39 @@ module Cyclid
           end
 
           # Set the configuration for the given org
-          def set_config(config, org)
-            raise "this plugin doesn't have a setable config"
+          def set_config(new_config, org)
+            new_config.stringify_keys!
+
+            config = org.plugin_configs.find_by(plugin: @name)
+            if config.nil?
+              # No config currently exists; create a new default config
+              config = PluginConfig.new(plugin: @name,
+                                        version: '1.0.0',
+                                        config: Oj.dump(default_config.stringify_keys))
+              config.save!
+
+              org.plugin_configs << config
+            end
+
+            # Let the plugin validate & merge the changes into the config hash
+            config_hash = config.serializable_hash
+            current_config = config_hash['config']
+            Cyclid.logger.debug "current_config=#{current_config}"
+            merged_config = update_config(Oj.load(current_config), new_config)
+
+            raise 'plugin rejected the configuration' if merged_config == false
+
+            Cyclid.logger.debug "merged_config=#{merged_config}"
+
+            # Update the stored configuration
+            config.config = Oj.dump(merged_config.stringify_keys)
+            config.save!
+          end
+
+          # Validite the given configuration items and merge them into the correct configuration,
+          # returning an updated complete configuration that can be stored.
+          def update_config(current, new)
+            return false
           end
 
           # Provide the default configuration state that should be used when creating a new config
