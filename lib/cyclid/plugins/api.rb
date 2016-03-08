@@ -138,6 +138,11 @@ module Cyclid
         def self.controller
           return ApiExtension::Controller.new(ApiExtension::Methods)
         end
+
+        # Return the 'human' name for the plugin type
+        def self.human_name
+          'api'
+        end
       end
     end
   end

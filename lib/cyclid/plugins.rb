@@ -12,6 +12,11 @@ module Cyclid
         class << self
           attr_reader :name
 
+          # Returns the 'human' name for the plugin type
+          def human_name
+            'base'
+          end
+
           # Add the (derived) plugin to the plugin registry
           def register_plugin(name)
             @name = name

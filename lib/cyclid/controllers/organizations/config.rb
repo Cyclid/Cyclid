@@ -23,10 +23,10 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
+            Cyclid.logger.debug "type=#{params[:type]} plugin=#{params[:plugin]}"
+
             # Find the plugin
-            # XXX How do we deal with plugins with the same name but different types?
-            # XXX Just hardwire this to be Api plugins for now
-            plugin = Cyclid.plugins.find(params[:plugin], Cyclid::API::Plugins::Api)
+            plugin = Cyclid.plugins.find(params[:plugin], params[:type])
             halt_with_json_response(404, INVALID_PLUGIN, 'plugin does not exist') \
               if plugin.nil?
 
@@ -58,9 +58,7 @@ module Cyclid
               if org.nil?
 
             # Find the plugin
-            # XXX How do we deal with plugins with the same name but different types?
-            # XXX Just hardwire this to be Api plugins for now
-            plugin = Cyclid.plugins.find(params[:plugin], Cyclid::API::Plugins::Api)
+            plugin = Cyclid.plugins.find(params[:plugin], params[:type])
             halt_with_json_response(404, INVALID_PLUGIN, 'plugin does not exist') \
               if plugin.nil?
 

@@ -6,6 +6,11 @@ module Cyclid
     module Plugins
       # Base class for Provisioner plugins
       class Provisioner < Base
+        # Return the 'human' name for the plugin type
+        def self.human_name
+          'provisioner'
+        end
+
         # Process the environment, performing all of the steps necasary to
         # configure the host according to the given environment; this can
         # include adding repositories, installing packages etc.

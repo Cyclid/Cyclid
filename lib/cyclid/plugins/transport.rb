@@ -9,6 +9,11 @@ module Cyclid
         def initialize(args = {})
         end
 
+        # Return the 'human' name for the plugin type
+        def self.human_name
+          'transport'
+        end
+
         # If possible, export each of the variables in env as a shell
         # environment variables. The default is simply to remember the
         # environment variables, which will be exported each time when a

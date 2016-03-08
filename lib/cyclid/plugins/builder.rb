@@ -40,6 +40,11 @@ module Cyclid
         def initialize(*args)
         end
 
+        # Return the 'human' name for the plugin type
+        def self.human_name
+          'builder'
+        end
+
         # Get or create a build host that can be used by a job. Args will be things
         # like the OS & version required, taken from the 'environment' section of the
         # job definition.
