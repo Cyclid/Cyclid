@@ -26,7 +26,7 @@ module Cyclid
 
               config = controller_plugin.get_config(org)
 
-              get(http_headers(request.env), config)
+              get(http_headers(request.env), config['config'])
             end
 
             app.post do
@@ -40,7 +40,7 @@ module Cyclid
 
               config = controller_plugin.get_config(org)
 
-              post(payload, http_headers(request.env), config)
+              post(payload, http_headers(request.env), config['config'])
             end
 
             app.put do
@@ -54,7 +54,7 @@ module Cyclid
 
               config = controller_plugin.get_config(org)
 
-              put(payload, http_headers(request.env), config)
+              put(payload, http_headers(request.env), config['config'])
             end
 
             app.delete do
@@ -66,7 +66,7 @@ module Cyclid
 
               config = controller_plugin.get_config(org)
 
-              delete(http_headers(request.env), config)
+              delete(http_headers(request.env), config['config'])
             end
 
             app.helpers do

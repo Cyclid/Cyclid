@@ -66,10 +66,14 @@ module Cyclid
             html_url = URI(pr['base']['repo']['html_url'])
 
             # Get an OAuth token, if one is set for this repo
+            Cyclid.logger.debug "attempting to find auth token for #{html_url}"
             auth_token = nil
-            config['repository_keys'].each do |entry|
-              auth_token = entry['token'] if entry['url'] == html_url
+            config['repository_tokens'].each do |entry|
+              entry_url = URI(entry['url'])
+              auth_token = entry['token'] if entry_url.host == html_url.host && \
+                                             entry_url.path == entry_url.path
             end
+            Cyclid.logger.debug "auth token=#{auth_token}"
 
             # Set the PR to 'pending'
             GithubStatus.set_status(api_url, pr_sha, auth_token, 'pending', 'Waiting for build')
@@ -152,9 +156,11 @@ module Cyclid
 
         module GithubStatus
           def self.set_status(api_url, pr_sha, auth_token, state, description)
+            Cyclid.logger.debug "api_url=#{api_url}"
             # Update the PR status
             begin
               status_url = URI("#{api_url}/statuses/#{pr_sha}")
+              Cyclid.logger.debug "status_url=#{status_url} auth_token=#{auth_token}"
               status = {state: state,
                         target_url: 'http://cyclid.io',
                         description: description,
@@ -173,6 +179,9 @@ module Cyclid
               case response
               when Net::HTTPSuccess, Net::HTTPRedirection
                 Cyclid.logger.info "updated PR status to #{state}"
+              when Net::HTTPNotFound
+                Cyclid.logger.error 'update PR status failed; possibly an auth failure'
+                raise
               else
                 Cyclid.logger.error "update PR status failed: #{response}"
                 raise
