@@ -10,8 +10,14 @@ module Cyclid
         module GithubMethods
           include Methods
 
-          def post(data, headers)
-            Cyclid.logger.debug "in GithubMethods::post: #{headers}"
+          # Return a reference to the plugin that is associated with this
+          # controller; used by the lower level code.
+          def controller_plugin
+            Cyclid.plugins.find('github', Cyclid::API::Plugins::Api)
+          end
+
+          def post(data, headers, config)
+            Cyclid.logger.debug "in GithubMethods::post: config=#{config}"
 
             return_failure(400, 'no event specified') \
               unless headers.include? 'X-Github-Event'
@@ -27,7 +33,7 @@ module Cyclid
 
             case event
             when 'pull_request'
-              result = gh_pull_request(data)
+              result = gh_pull_request(data, config)
             when 'ping'
               result = true
             when 'status'
@@ -40,7 +46,7 @@ module Cyclid
           end
 
           # Handle Pull Request event
-          def gh_pull_request(data)
+          def gh_pull_request(data, config)
             action = data['action'] || nil
             number = data['number'] || nil
             pr = data['pull_request'] || nil
@@ -56,18 +62,26 @@ module Cyclid
             Cyclid.logger.debug "SHA=#{pr_sha}"
             return_failure(400, 'no SHA') unless pr_sha
 
-            repo_url = URI(pr['head']['repo']['url'])
+            api_url = URI(pr['head']['repo']['url'])
+            html_url = URI(pr['base']['repo']['html_url'])
+
+            # Get an OAuth token, if one is set for this repo
+            auth_token = nil
+            config['repository_keys'].each do |entry|
+              auth_token = entry['token'] if entry['url'] == html_url
+            end
 
             # Set the PR to 'pending'
-            GithubStatus.set_status(repo_url, pr_sha, 'pending', 'Waiting for build')
+            GithubStatus.set_status(api_url, pr_sha, 'pending', 'Waiting for build')
 
             # Get the Pull Request
             begin
-              pr_url = URI("#{repo_url}/git/trees/#{pr_sha}")
+              pr_url = URI("#{api_url}/git/trees/#{pr_sha}")
               Cyclid.logger.debug "Getting root for #{pr_url}"
 
               request = Net::HTTP::Get.new(pr_url)
-              request.add_field 'Authorization', 'token 9fdeb8455415c9c9d1a91a73410a7bf91b5b63c2'
+              request.add_field 'Authorization', "token #{auth_token}" \
+                unless auth_token.nil?
 
               http = Net::HTTP.new(pr_url.hostname, pr_url.port)
               http.use_ssl = (pr_url.scheme == 'https')
@@ -98,7 +112,7 @@ module Cyclid
             Cyclid.logger.debug "job_url=#{job_url}"
 
             if job_url.nil?
-              GithubStatus.set_status(repo_url, pr_sha, 'error', 'No Cyclid job file found')
+              GithubStatus.set_status(api_url, pr_sha, 'error', 'No Cyclid job file found')
               return_failure(400, 'not a Cyclid repository')
             end
 
@@ -108,7 +122,8 @@ module Cyclid
               Cyclid.logger.info "Retrieving PR job from #{job_url}"
 
               request = Net::HTTP::Get.new(job_file_url)
-              request.add_field 'Authorization', 'token 9fdeb8455415c9c9d1a91a73410a7bf91b5b63c2'
+              request.add_field 'Authorization', "token #{auth_token}" \
+                unless auth_token.nil?
 
               http = Net::HTTP.new(job_file_url.hostname, job_file_url.port)
               http.use_ssl = (job_file_url.scheme == 'https')
@@ -118,7 +133,7 @@ module Cyclid
               job_blob = Oj.load response.body
               job_definition = Oj.load(Base64.decode64(job_blob['content']))
             rescue StandardError => ex
-              GithubStatus.set_status(repo_url, pr_sha, 'error', "Couldn't retrieve Cyclid job file")
+              GithubStatus.set_status(api_url, pr_sha, 'error', "Couldn't retrieve Cyclid job file")
               Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
               raise
             end
@@ -126,20 +141,20 @@ module Cyclid
             Cyclid.logger.debug "job_definition=#{job_definition}"
 
             begin
-              callback = GithubCallback.new(repo_url, pr_sha)
+              callback = GithubCallback.new(api_url, pr_sha)
               job_json = job_from_definition(job_definition, callback)
             rescue StandardError => ex
-              GithubStatus.set_status(repo_url, pr_sha, 'failure', ex)
+              GithubStatus.set_status(api_url, pr_sha, 'failure', ex)
               return_failure(500, 'job failed')
             end
           end
         end
 
         module GithubStatus
-          def self.set_status(repo_url, pr_sha, state, description)
+          def self.set_status(api_url, pr_sha, auth_token state, description)
             # Update the PR status
             begin
-              status_url = URI("#{repo_url}/statuses/#{pr_sha}")
+              status_url = URI("#{api_url}/statuses/#{pr_sha}")
               status = {state: state,
                         target_url: 'http://cyclid.io',
                         description: description,
@@ -147,7 +162,8 @@ module Cyclid
 
               request = Net::HTTP::Post.new(status_url)
               request.content_type = 'application/json'
-              request.add_field 'Authorization', 'token 9fdeb8455415c9c9d1a91a73410a7bf91b5b63c2'
+              request.add_field 'Authorization', "token #{auth_token}" \
+                unless auth_token.nil?
               request.body = status.to_json
 
               http = Net::HTTP.new(status_url.hostname, status_url.port)
@@ -181,8 +197,8 @@ module Cyclid
         end
 
         class GithubCallback < Callback
-          def initialize(repo_url, pr_sha)
-            @repo_url = repo_url
+          def initialize(api_url, pr_sha)
+            @api_url = api_url
             @pr_sha = pr_sha
           end
 
@@ -194,7 +210,7 @@ module Cyclid
               state = 'failure'
               message = 'Build job failed'
             end
-            GithubStatus.set_status(@repo_url, @pr_sha, state, message)
+            GithubStatus.set_status(@api_url, @pr_sha, state, message)
           end
         end
       end

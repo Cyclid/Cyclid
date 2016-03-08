@@ -19,26 +19,54 @@ module Cyclid
 
             app.get do
               Cyclid.logger.debug 'ApiExtension::Controller::get'
-              get(http_headers(request.env))
+
+              org = Organization.find_by(name: params[:name])
+              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                if org.nil?
+
+              config = controller_plugin.get_config(org)
+
+              get(http_headers(request.env), config)
             end
 
             app.post do
               Cyclid.logger.debug 'ApiExtension::Controller::post'
 
               payload = parse_request_body
-              post(payload, http_headers(request.env))
+
+              org = Organization.find_by(name: params[:name])
+              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                if org.nil?
+
+              config = controller_plugin.get_config(org)
+
+              post(payload, http_headers(request.env), config)
             end
 
             app.put do
               Cyclid.logger.debug 'ApiExtension::Controller::put'
 
               payload = parse_request_body
-              put(payload, http_headers(request.env))
+
+              org = Organization.find_by(name: params[:name])
+              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                if org.nil?
+
+              config = controller_plugin.get_config(org)
+
+              put(payload, http_headers(request.env), config)
             end
 
             app.delete do
               Cyclid.logger.debug 'ApiExtension::Controller::delete'
-              delete(http_headers(request.env))
+
+              org = Organization.find_by(name: params[:name])
+              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                if org.nil?
+
+              config = controller_plugin.get_config(org)
+
+              delete(http_headers(request.env), config)
             end
 
             app.helpers do
@@ -57,25 +85,25 @@ module Cyclid
         # them...
         module Methods
           # GET callback
-          def get(_headers)
+          def get(_headers, _config)
             authorize('get')
             return_failure(405, 'not implemented')
           end
 
           # POST callback
-          def post(_data, _headers)
+          def post(_data, _headers, _config)
             authorize('post')
             return_failure(405, 'not implemented')
           end
 
           # PUT callback
-          def put(_data, _headers)
+          def put(_data, _headers, _config)
             authorize('put')
             return_failure(405, 'not implemented')
           end
 
           # DELETE callback
-          def delete(_headers)
+          def delete(_headers, _config)
             authorize('delete')
             return_failure(405, 'not implemented')
           end
