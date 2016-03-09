@@ -26,7 +26,7 @@ module Cyclid
                      payload.key? 'environment'
 
             begin
-              job_data = job_from_definition(job_definition)
+              job_data = job_from_definition(payload)
             rescue StandardError => ex
               halt_with_json_response(500, INVALID_JOB, 'job failed')
             end
