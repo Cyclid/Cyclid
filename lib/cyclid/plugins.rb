@@ -25,6 +25,8 @@ module Cyclid
 
           # Get the configuration for the given org
           def get_config(org)
+            # XXX Plugins of different types can have the same name; we need to
+            # add a 'type' field and also find by the type.
             config = org.plugin_configs.find_by(plugin: @name)
             if config.nil?
               # No config currently exists; create a new default config

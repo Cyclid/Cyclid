@@ -54,6 +54,10 @@ module Cyclid
 
             @notifier.write "#{Time.now} : Preparing build host...\n#{'=' * 79}\n"
             provisioner.prepare(@transport, @build_host, environment)
+
+            # Check out sources
+            @notifier.write "#{'=' * 79}\n#{Time.now} : Checking out source...\n"
+            checkout_sources(@transport, @job[:sources])
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
@@ -203,6 +207,20 @@ module Cyclid
           raise 'failed to create provisioner' unless provisioner
 
           return provisioner
+        end
+
+        # Find and create a suitable source plugin instance for each source and have it check out
+        # the given source using the transport.
+        def checkout_sources(transport, sources)
+          sources.each do |job_source|
+            raise 'no type given in source definition' unless job_source.key? :type
+
+            source = Cyclid.plugins.find(job_source[:type], Cyclid::API::Plugins::Source)
+            raise "can't find a plugin for #{job_source[:type]} source" if source.nil?
+
+            success = source.new.checkout(transport, job_source)
+            raise "failed to check out source" unless success
+          end
         end
 
         # Perform each action defined in the steps of the given stage, until
