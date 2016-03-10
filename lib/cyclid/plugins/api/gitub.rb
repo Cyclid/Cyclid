@@ -60,7 +60,6 @@ module Cyclid
             # Pull Request branch
             html_url = URI(pr['base']['repo']['html_url'])
             pr_sha = pr['head']['sha']
-            #ref = pr['head']['repo']['ref']
             ref = pr['head']['ref']
 
             Cyclid.logger.debug "sha=#{pr_sha} ref=#{ref}"
@@ -83,7 +82,7 @@ module Cyclid
             Cyclid.logger.debug "auth token=#{auth_token}"
 
             # Set the PR to 'pending'
-            GithubStatus.set_status(statuses, auth_token, 'pending', 'Waiting for build')
+            GithubStatus.set_status(statuses, auth_token, 'pending', 'Preparing build')
 
             # Get the Pull Request
             begin
@@ -107,13 +106,10 @@ module Cyclid
               return_failure(500, 'could not retrieve Pull Request root')
             end
 
-            tree = root['tree']
-            Cyclid.logger.debug "tree=#{tree}"
-
             # See if a .cyclid.yml or .cyclid.json file exists in the project
             # root
             job_url = nil
-            tree.each do |file|
+            root['tree'].each do |file|
               if file['path'] =~ /\A\.cyclid\.(json|yml)\z/
                 job_url = URI(file['url'])
                 break
@@ -161,7 +157,7 @@ module Cyclid
 
             begin
               callback = GithubCallback.new(statuses, auth_token)
-              job_json = job_from_definition(job_definition, callback)
+              job_id = job_from_definition(job_definition, callback)
             rescue StandardError => ex
               GithubStatus.set_status(statuses, auth_token, 'failure', ex)
               return_failure(500, 'job failed')
@@ -174,13 +170,12 @@ module Cyclid
             # Update the PR status
             begin
               statuses_url = URI(statuses)
-              Cyclid.logger.debug "statuses_url=#{statuses_url} auth_token=#{auth_token}"
-
               status = {state: state,
                         target_url: 'http://cyclid.io',
                         description: description,
                         context: 'continuous-integration/cyclid'}
 
+              # Post the status to the statuses endpoint
               request = Net::HTTP::Post.new(statuses_url)
               request.content_type = 'application/json'
               request.add_field 'Authorization', "token #{auth_token}" \
@@ -210,13 +205,13 @@ module Cyclid
 
         # XXX Move me
         class Callback
-          def completion(status)
+          def completion(job_id, status)
           end
 
-          def status_changed(status)
+          def status_changed(job_id, status)
           end
 
-          def log_write(data)
+          def log_write(job_id, data)
           end
         end
 
@@ -226,13 +221,29 @@ module Cyclid
             @auth_token = auth_token
           end
 
-          def completion(status)
+          def status_changed(job_id, status)
+            case status
+            when WAITING
+              state = 'pending'
+              message = "Queued job ##{job_id}."
+            when STARTED
+              state = 'pending'
+              message = "Job ##{job_id} started."
+            when FAILING
+              state = 'failure'
+              message = "Job ##{job_id} failed. Waiting for job to finish."
+            end
+
+            GithubStatus.set_status(@statuses, @auth_token, state, message)
+          end
+
+          def completion(job_id, status)
             if status == true
               state = 'success'
-              message = 'Build job completed successfuly'
+              message = "Job ##{job_id} completed successfuly."
             else
               state = 'failure'
-              message = 'Build job failed'
+              message = "Job ##{job_id} failed."
             end
             GithubStatus.set_status(@statuses, @auth_token, state, message)
           end
