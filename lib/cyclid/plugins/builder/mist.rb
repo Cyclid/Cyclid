@@ -50,6 +50,7 @@ module Cyclid
             buildhost = MistHost.new(name: result['name'],
                                      host: result['ip'],
                                      username: result['username'],
+                                     workspace: "/home/#{result['username']}/",
                                      password: nil,
                                      server: result['server'],
                                      distro: distro,
