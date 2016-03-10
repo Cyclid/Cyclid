@@ -20,7 +20,23 @@ module Cyclid
           # username
           url.user = source[:token] if source.key? :token
 
-          return transport.exec "git clone #{url}"
+          success = transport.exec "git clone #{url}"
+          return false unless success
+
+          # If a branch was given, check it out
+          if source.key? :branch
+            branch = source[:branch]
+
+            match = url.path.match(/^.*\/(\w*)/)
+            # XXX Fixme with interpolated paths, rather than an absolute path
+            source_dir = "/home/build/#{match[1]}"
+
+            success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
+            success = transport.exec("git checkout #{branch}", source_dir) \
+              unless success == false
+          end
+
+          return success
         end
 
         # Register this plugin
