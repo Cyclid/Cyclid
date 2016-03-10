@@ -1,0 +1,71 @@
+{
+   "name" : "Cyclid",
+   "environment":
+      {
+        "os": "ubuntu_trusty",
+        "packages": [
+          "ruby2.0",
+          "ruby2.0-dev",
+          "build-essential",
+          "git",
+          "zlib1g-dev",
+          "libsqlite3-dev"
+        ]
+      },
+   "sources": [
+      {
+        "type": "git",
+        "url": "https://github.com/Liqwyd/Mist",
+        "token": "a57e67a3f2b38b0f22e5b335625d0b736ceafc35"
+      }
+   ],
+   "stages" : [
+      {
+        "name" : "bundle-install",
+        "steps" : [
+          {
+            "action" : "command", 
+            "cmd" : "sudo gem2.0 install bundler --no-ri --no-doc"
+          },
+          {
+            "action" : "command",
+            "cmd": "bundle install --path vendor/bundle",
+            "path" : "%{workspace}/Cyclid"
+          }
+        ]
+      },
+      {
+        "name" : "lint",
+        "steps" : [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake rubocop",
+            "path" : "%{workspace}/Cyclid"
+          },
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake doc",
+            "path" : "%{workspace}/Cyclid"
+          }
+        ]
+      }
+   ],
+   "sequence" : [
+      {
+         "stage" : "bundle-install",
+         "on_success" : "lint",
+         "on_failure" : "failure"
+      },
+      {
+        "stage" : "lint",
+        "on_success" : "success",
+        "on_failure" : "failure"
+      },
+      {
+         "stage" : "success"
+      },
+      {
+         "stage" : "failure"
+      }
+   ]
+}
