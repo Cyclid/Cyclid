@@ -139,16 +139,18 @@ module Cyclid
               raise "couldn't get Cyclid job" unless response.code == '200'
 
               job_blob = Oj.load response.body
-              job_definition = Oj.load(Base64.decode64(job_blob['content']), symbolize_keys: true)
+              job_definition = Oj.load(Base64.decode64(job_blob['content']))
 
               # Insert this repository & branch into the sources
               #
               # XXX Could this cause collisions between the existing sources in
               # the job definition? Not entirely sure what the workflow will
               # look like.
-              job_sources = job_definition[:sources] || []
-              job_sources << {type: 'git', url: html_url.to_s, branch: ref, token: auth_token}
-              job_definition[:sources] = job_sources
+              job_sources = job_definition['sources'] || []
+              job_sources << {'type' => 'git', 'url' => html_url.to_s, 'branch' => ref, 'token' => auth_token}
+              job_definition['sources'] = job_sources
+
+              Cyclid.logger.debug "sources=#{job_definition['sources']}"
             rescue StandardError => ex
               GithubStatus.set_status(statuses, auth_token, 'error', "Couldn't retrieve Cyclid job file")
               Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
