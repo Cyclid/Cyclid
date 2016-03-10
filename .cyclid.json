@@ -14,7 +14,7 @@
    "sources: [
       {
         "type": "git",
-        "https://github.com/Liqwyd/Mist",
+        "url": "https://github.com/Liqwyd/Mist",
         "token": "a57e67a3f2b38b0f22e5b335625d0b736ceafc35"
       }
    ],
