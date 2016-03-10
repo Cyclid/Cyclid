@@ -223,15 +223,15 @@ module Cyclid
 
           def status_changed(job_id, status)
             case status
-            when WAITING
+            when Constants::JobStatus::WAITING
               state = 'pending'
               message = "Queued job ##{job_id}."
-            when STARTED
+            when Constants::JobStatus::STARTED
               state = 'pending'
               message = "Job ##{job_id} started."
-            when FAILING
+            when Constants::JobStatus::FAILING
               state = 'failure'
-              message = "Job ##{job_id} failed. Waiting for job to finish."
+              message = "Job ##{job_id} failed."
             end
 
             GithubStatus.set_status(@statuses, @auth_token, state, message)
