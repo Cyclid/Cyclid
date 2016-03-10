@@ -35,7 +35,9 @@ module Cyclid
               message = "Job ##{job_id} started."
             when Constants::JobStatus::FAILING
               state = 'failure'
-              message = "Job ##{job_id} failed."
+              message = "Job ##{job_id} failed. Waiting for job to complete."
+            else
+              return false
             end
 
             GithubStatus.set_status(@statuses, @auth_token, state, message)
