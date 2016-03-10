@@ -58,12 +58,19 @@ module Cyclid
 
             # Get the list of files in the root of the repository in the
             # Pull Request branch
-            pr_sha = pr['head']['sha'] || nil
-            Cyclid.logger.debug "SHA=#{pr_sha}"
-            return_failure(400, 'no SHA') unless pr_sha
-
-            api_url = URI(pr['head']['repo']['url'])
             html_url = URI(pr['base']['repo']['html_url'])
+            pr_sha = pr['head']['sha']
+            #ref = pr['head']['repo']['ref']
+            ref = pr['head']['ref']
+
+            Cyclid.logger.debug "sha=#{pr_sha} ref=#{ref}"
+
+            # Get some useful endpoints & interpolate the SHA for this PR
+            url = pr['head']['repo']['statuses_url']
+            statuses = url.gsub('{sha}', pr_sha)
+
+            url = pr['head']['repo']['trees_url']
+            trees = url.gsub('{/sha}', "/#{pr_sha}")
 
             # Get an OAuth token, if one is set for this repo
             Cyclid.logger.debug "attempting to find auth token for #{html_url}"
@@ -76,19 +83,19 @@ module Cyclid
             Cyclid.logger.debug "auth token=#{auth_token}"
 
             # Set the PR to 'pending'
-            GithubStatus.set_status(api_url, pr_sha, auth_token, 'pending', 'Waiting for build')
+            GithubStatus.set_status(statuses, auth_token, 'pending', 'Waiting for build')
 
             # Get the Pull Request
             begin
-              pr_url = URI("#{api_url}/git/trees/#{pr_sha}")
-              Cyclid.logger.debug "Getting root for #{pr_url}"
+              trees_url = URI(trees)
+              Cyclid.logger.debug "Getting root for #{trees_url}"
 
-              request = Net::HTTP::Get.new(pr_url)
+              request = Net::HTTP::Get.new(trees_url)
               request.add_field 'Authorization', "token #{auth_token}" \
                 unless auth_token.nil?
 
-              http = Net::HTTP.new(pr_url.hostname, pr_url.port)
-              http.use_ssl = (pr_url.scheme == 'https')
+              http = Net::HTTP.new(trees_url.hostname, trees_url.port)
+              http.use_ssl = (trees_url.scheme == 'https')
               response = http.request(request)
 
               Cyclid.logger.debug response.inspect
@@ -108,7 +115,7 @@ module Cyclid
             job_url = nil
             tree.each do |file|
               if file['path'] =~ /\A\.cyclid\.(json|yml)\z/
-                job_url = file['url']
+                job_url = URI(file['url'])
                 break
               end
             end
@@ -116,28 +123,36 @@ module Cyclid
             Cyclid.logger.debug "job_url=#{job_url}"
 
             if job_url.nil?
-              GithubStatus.set_status(api_url, pr_sha, auth_token, 'error', 'No Cyclid job file found')
+              GithubStatus.set_status(statuses, auth_token, 'error', 'No Cyclid job file found')
               return_failure(400, 'not a Cyclid repository')
             end
 
             # Pull down the job file
             begin
-              job_file_url = URI(job_url)
               Cyclid.logger.info "Retrieving PR job from #{job_url}"
 
-              request = Net::HTTP::Get.new(job_file_url)
+              request = Net::HTTP::Get.new(job_url)
               request.add_field 'Authorization', "token #{auth_token}" \
                 unless auth_token.nil?
 
-              http = Net::HTTP.new(job_file_url.hostname, job_file_url.port)
-              http.use_ssl = (job_file_url.scheme == 'https')
+              http = Net::HTTP.new(job_url.hostname, job_url.port)
+              http.use_ssl = (job_url.scheme == 'https')
               response = http.request(request)
               raise "couldn't get Cyclid job" unless response.code == '200'
 
               job_blob = Oj.load response.body
-              job_definition = Oj.load(Base64.decode64(job_blob['content']))
+              job_definition = Oj.load(Base64.decode64(job_blob['content']), symbolize_keys: true)
+
+              # Insert this repository & branch into the sources
+              #
+              # XXX Could this cause collisions between the existing sources in
+              # the job definition? Not entirely sure what the workflow will
+              # look like.
+              job_sources = job_definition[:sources] || []
+              job_sources << {type: 'git', url: html_url.to_s, branch: ref, token: auth_token}
+              job_definition[:sources] = job_sources
             rescue StandardError => ex
-              GithubStatus.set_status(api_url, pr_sha, auth_token, 'error', "Couldn't retrieve Cyclid job file")
+              GithubStatus.set_status(statuses, auth_token, 'error', "Couldn't retrieve Cyclid job file")
               Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
               raise
             end
@@ -145,35 +160,35 @@ module Cyclid
             Cyclid.logger.debug "job_definition=#{job_definition}"
 
             begin
-              callback = GithubCallback.new(api_url, pr_sha, auth_token)
+              callback = GithubCallback.new(statuses, auth_token)
               job_json = job_from_definition(job_definition, callback)
             rescue StandardError => ex
-              GithubStatus.set_status(api_url, pr_sha, auth_token, 'failure', ex)
+              GithubStatus.set_status(statuses, auth_token, 'failure', ex)
               return_failure(500, 'job failed')
             end
           end
         end
 
         module GithubStatus
-          def self.set_status(api_url, pr_sha, auth_token, state, description)
-            Cyclid.logger.debug "api_url=#{api_url}"
+          def self.set_status(statuses, auth_token, state, description)
             # Update the PR status
             begin
-              status_url = URI("#{api_url}/statuses/#{pr_sha}")
-              Cyclid.logger.debug "status_url=#{status_url} auth_token=#{auth_token}"
+              statuses_url = URI(statuses)
+              Cyclid.logger.debug "statuses_url=#{statuses_url} auth_token=#{auth_token}"
+
               status = {state: state,
                         target_url: 'http://cyclid.io',
                         description: description,
                         context: 'continuous-integration/cyclid'}
 
-              request = Net::HTTP::Post.new(status_url)
+              request = Net::HTTP::Post.new(statuses_url)
               request.content_type = 'application/json'
               request.add_field 'Authorization', "token #{auth_token}" \
                 unless auth_token.nil?
               request.body = status.to_json
 
-              http = Net::HTTP.new(status_url.hostname, status_url.port)
-              http.use_ssl = (status_url.scheme == 'https')
+              http = Net::HTTP.new(statuses_url.hostname, statuses_url.port)
+              http.use_ssl = (statuses_url.scheme == 'https')
               response = http.request(request)
 
               case response
@@ -187,7 +202,7 @@ module Cyclid
                 raise
               end
             rescue StandardError => ex
-              Cyclid.logger.error "couldn't set status for PR #{pr_sha}"
+              Cyclid.logger.error "couldn't set status for PR: #{ex}"
               raise
             end
           end
@@ -206,9 +221,8 @@ module Cyclid
         end
 
         class GithubCallback < Callback
-          def initialize(api_url, pr_sha, auth_token)
-            @api_url = api_url
-            @pr_sha = pr_sha
+          def initialize(statuses, auth_token)
+            @statuses = statuses
             @auth_token = auth_token
           end
 
@@ -220,7 +234,7 @@ module Cyclid
               state = 'failure'
               message = 'Build job failed'
             end
-            GithubStatus.set_status(@api_url, @pr_sha, @auth_token, state, message)
+            GithubStatus.set_status(@statuses, @auth_token, state, message)
           end
         end
       end
