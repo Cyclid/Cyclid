@@ -24,7 +24,22 @@ module Cyclid
           @log = args[:log]
 
           # Create an SSH channel
-          @session = Net::SSH.start(args[:host], args[:user], password: password)
+          Cyclid.logger.debug 'waiting for SSH...'
+
+          start = Time.now
+          loop do
+            begin
+              @session = Net::SSH.start(args[:host], args[:user], password: password, timeout: 5)
+              break unless @session.nil?
+            rescue Net::SSH::AuthenticationFailed
+              Cyclid.logger.debug 'SSH authentication failed'
+            end
+
+            sleep 2
+
+            raise 'timed out waiting for SSH' \
+              if (Time.now - start) >= 10
+          end
         end
 
         # Execute a command via. SSH
