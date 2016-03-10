@@ -8,7 +8,8 @@
           "ruby2.0-dev",
           "build-essential",
           "git",
-          "zlib1g-dev"
+          "zlib1g-dev",
+          "libsqlite3-dev"
         ]
       },
    "sources": [
