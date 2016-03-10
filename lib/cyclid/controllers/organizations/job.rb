@@ -26,12 +26,12 @@ module Cyclid
                      payload.key? 'environment'
 
             begin
-              job_data = job_from_definition(payload)
+              job_id = job_from_definition(payload)
             rescue StandardError => ex
               halt_with_json_response(500, INVALID_JOB, 'job failed')
             end
 
-            return job_data
+            return { job_id: job_id }.to_json
           end
 
           # @macro [attach] sinatra.get

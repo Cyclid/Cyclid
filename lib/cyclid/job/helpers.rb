@@ -44,7 +44,7 @@ module Cyclid
             raise
           end
 
-          return { job_id: job_id }.to_json
+          return job_id
         end
       end
     end
