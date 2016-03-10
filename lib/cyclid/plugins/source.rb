@@ -13,7 +13,7 @@ module Cyclid
 
         # Process the source to produce a copy of the remote code in a
         # directory in the working directory
-        def checkout(_transport, _source = {})
+        def checkout(_transport, _ctx, _source = {})
           false
         end
       end

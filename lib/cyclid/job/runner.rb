@@ -57,7 +57,7 @@ module Cyclid
 
             # Check out sources
             @notifier.write "#{'=' * 79}\n#{Time.now} : Checking out source...\n"
-            checkout_sources(@transport, @job[:sources])
+            checkout_sources(@transport, @ctx, @job[:sources])
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
@@ -211,14 +211,14 @@ module Cyclid
 
         # Find and create a suitable source plugin instance for each source and have it check out
         # the given source using the transport.
-        def checkout_sources(transport, sources)
+        def checkout_sources(transport, ctx, sources)
           sources.each do |job_source|
             raise 'no type given in source definition' unless job_source.key? :type
 
             source = Cyclid.plugins.find(job_source[:type], Cyclid::API::Plugins::Source)
             raise "can't find a plugin for #{job_source[:type]} source" if source.nil?
 
-            success = source.new.checkout(transport, job_source)
+            success = source.new.checkout(transport, ctx, job_source)
             raise "failed to check out source" unless success
           end
         end

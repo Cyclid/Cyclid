@@ -8,7 +8,7 @@ module Cyclid
       class Git < Source
         # Run commands via. the transport to check out a given Git remote
         # repository
-        def checkout(transport, source = {})
+        def checkout(transport, ctx, source = {})
           source.symbolize_keys!
 
           raise 'invalid git source definition' \
@@ -28,8 +28,7 @@ module Cyclid
             branch = source[:branch]
 
             match = url.path.match(/^.*\/(\w*)/)
-            # XXX Fixme with interpolated paths, rather than an absolute path
-            source_dir = "/home/build/#{match[1]}"
+            source_dir = "#{ctx[:workspace]}/#{match[1]}"
 
             success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
             success = transport.exec("git checkout #{branch}", source_dir) \

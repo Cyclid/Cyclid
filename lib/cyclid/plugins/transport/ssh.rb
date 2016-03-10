@@ -35,10 +35,10 @@ module Cyclid
               Cyclid.logger.debug 'SSH authentication failed'
             end
 
-            sleep 2
+            sleep 5
 
             raise 'timed out waiting for SSH' \
-              if (Time.now - start) >= 10
+              if (Time.now - start) >= 30
           end
         end
 
