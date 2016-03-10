@@ -11,6 +11,13 @@
           "zlib1g-dev"
         ]
       },
+   "sources: [
+      {
+        "type": "git",
+        "https://github.com/Liqwyd/Mist",
+        "token": "a57e67a3f2b38b0f22e5b335625d0b736ceafc35"
+      }
+   ],
    "stages" : [
       {
         "name" : "bundle-install",
@@ -21,7 +28,7 @@
           },
           {
             "action" : "command",
-            "cmd": "bundle install --without lxc gce --path vendor/bundle",
+            "cmd": "bundle install --path vendor/bundle",
             "path" : "%{workspace}/Cyclid"
           }
         ]
