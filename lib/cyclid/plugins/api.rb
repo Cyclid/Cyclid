@@ -164,6 +164,7 @@ module Cyclid
 
       # Base class for Api plugins
       class Api < Base
+        # Return a new instance of the Sinatra controller
         def self.controller
           return ApiExtension::Controller.new(ApiExtension::Methods)
         end

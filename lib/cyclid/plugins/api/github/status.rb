@@ -8,6 +8,7 @@ module Cyclid
       module ApiExtension
         # Wrapper for a static method to push a status update to Github
         module GithubStatus
+          # Call the Github statuses API to update the status
           def self.set_status(statuses, auth_token, state, description)
             # Update the PR status
 

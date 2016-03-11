@@ -10,6 +10,7 @@ module Cyclid
     module Plugins
       # API extension for Github hooks
       class Github < Api
+        # Return an instance of the Github API controller
         def self.controller
           return ApiExtension::Controller.new(ApiExtension::GithubMethods)
         end

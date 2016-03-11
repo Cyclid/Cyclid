@@ -8,13 +8,16 @@ module Cyclid
       module ApiExtension
         # XXX Move me
         class Callback
-          def completion(job_id, status)
+          # Called when the job completes
+          def completion(_job_id, _status)
           end
 
-          def status_changed(job_id, status)
+          # Called whenever the job status changes
+          def status_changed(_job_id, _status)
           end
 
-          def log_write(job_id, data)
+          # Called whenever any data is written to the job record log
+          def log_write(_job_id, _data)
           end
         end
 
@@ -26,6 +29,7 @@ module Cyclid
             @auth_token = auth_token
           end
 
+          # Job status has changed
           def status_changed(job_id, status)
             case status
             when Constants::JobStatus::WAITING
@@ -44,6 +48,7 @@ module Cyclid
             GithubStatus.set_status(@statuses, @auth_token, state, message)
           end
 
+          # Job has completed
           def completion(job_id, status)
             if status == true
               state = 'success'
