@@ -6,7 +6,6 @@ module Cyclid
     module Plugins
       # Container for the Sinatra related controllers modules
       module ApiExtension
- 
         # XXX Move me
         class Callback
           def completion(job_id, status)
@@ -19,6 +18,8 @@ module Cyclid
           end
         end
 
+        # Notifier callback for Github. Updates the external Github Pull
+        # Request status as the job progresses.
         class GithubCallback < Callback
           def initialize(statuses, auth_token)
             @statuses = statuses

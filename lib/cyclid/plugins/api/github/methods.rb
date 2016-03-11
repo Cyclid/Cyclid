@@ -25,8 +25,8 @@ module Cyclid
               unless headers.include? 'X-Github-Delivery'
 
             event = headers['X-Github-Event']
-            delivery = headers['X-Github-Delivery']
-            signature = headers['X-Hub-Signature'] || nil
+            # Not used yet but will be when we add HMAC support
+            # signature = headers['X-Hub-Signature'] || nil
 
             Cyclid.logger.debug "Github: event is #{event}"
 
@@ -47,7 +47,6 @@ module Cyclid
           # Handle a Github Pull Request event
           def gh_pull_request(data, config)
             action = data['action'] || nil
-            number = data['number'] || nil
             pr = data['pull_request'] || nil
 
             Cyclid.logger.debug "action=#{action}"
@@ -147,12 +146,18 @@ module Cyclid
               # the job definition? Not entirely sure what the workflow will
               # look like.
               job_sources = job_definition['sources'] || []
-              job_sources << {'type' => 'git', 'url' => html_url.to_s, 'branch' => ref, 'token' => auth_token}
+              job_sources << { 'type' => 'git',
+                               'url' => html_url.to_s,
+                               'branch' => ref,
+                               'token' => auth_token }
               job_definition['sources'] = job_sources
 
               Cyclid.logger.debug "sources=#{job_definition['sources']}"
             rescue StandardError => ex
-              GithubStatus.set_status(statuses, auth_token, 'error', "Couldn't retrieve Cyclid job file")
+              GithubStatus.set_status(statuses,
+                                      auth_token,
+                                      'error',
+                                      "Couldn't retrieve Cyclid job file")
               Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
               raise
             end
@@ -161,7 +166,7 @@ module Cyclid
 
             begin
               callback = GithubCallback.new(statuses, auth_token)
-              job_id = job_from_definition(job_definition, callback)
+              job_from_definition(job_definition, callback)
             rescue StandardError => ex
               GithubStatus.set_status(statuses, auth_token, 'failure', ex)
               return_failure(500, 'job failed')

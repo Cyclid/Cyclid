@@ -5,7 +5,6 @@ module Cyclid
     # Model for PluginConfigs
     class PluginConfig < ActiveRecord::Base
       belongs_to :organization
-
     end
   end
 end

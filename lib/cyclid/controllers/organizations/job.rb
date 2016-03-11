@@ -28,7 +28,7 @@ module Cyclid
             begin
               job_id = job_from_definition(payload)
             rescue StandardError => ex
-              halt_with_json_response(500, INVALID_JOB, 'job failed')
+              halt_with_json_response(500, INVALID_JOB, "job failed: #{ex}")
             end
 
             return { job_id: job_id }.to_json

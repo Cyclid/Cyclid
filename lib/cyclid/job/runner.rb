@@ -219,7 +219,7 @@ module Cyclid
             raise "can't find a plugin for #{job_source[:type]} source" if source.nil?
 
             success = source.new.checkout(transport, ctx, job_source)
-            raise "failed to check out source" unless success
+            raise 'failed to check out source' unless success
           end
         end
 

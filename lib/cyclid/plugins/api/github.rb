@@ -8,7 +8,7 @@ module Cyclid
   module API
     # Module for Cyclid Plugins
     module Plugins
-      # API extension for Github hooks 
+      # API extension for Github hooks
       class Github < Api
         def self.controller
           return ApiExtension::Controller.new(ApiExtension::GithubMethods)
@@ -41,8 +41,8 @@ module Cyclid
               #    is an array of the original hashes.
               #
               # Thanks, Stackoverflow!
-              new_hash = Hash[new_tokens.map{|h| [h['url'], h]}]
-              current_hash = Hash[current_tokens.map{|h| [h['url'], h]}]
+              new_hash = Hash[new_tokens.map{ |h| [h['url'], h] }]
+              current_hash = Hash[current_tokens.map{ |h| [h['url'], h] }]
 
               merged = current_hash.merge(new_hash).values
 
@@ -74,14 +74,14 @@ module Cyclid
           # Github plugin configuration schema
           def config_schema
             schema = []
-            schema << {name: 'repository_tokens',
-                       type: 'hash-list',
-                       description: 'Repository OAuth tokens',
-                       default: []}
-            schema << {name: 'hmac_secret',
-                       type: 'string',
-                       description: 'Github HMAC signing secret',
-                       default: nil}
+            schema << { name: 'repository_tokens',
+                        type: 'hash-list',
+                        description: 'Repository OAuth tokens',
+                        default: [] }
+            schema << { name: 'hmac_secret',
+                        type: 'string',
+                        description: 'Github HMAC signing secret',
+                        default: nil }
 
             return schema
           end

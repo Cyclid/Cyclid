@@ -19,7 +19,7 @@ module Cyclid
 
           # Maintain a human<->type mapping
           human_name = plugin.human_name
-          @types << {human: human_name, type: plugin.superclass}
+          @types << { human: human_name, type: plugin.superclass }
         end
 
         # Find a plugin from the registry

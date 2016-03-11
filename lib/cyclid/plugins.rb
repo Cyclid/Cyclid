@@ -82,7 +82,7 @@ module Cyclid
 
           # Validite the given configuration items and merge them into the correct configuration,
           # returning an updated complete configuration that can be stored.
-          def update_config(current, new)
+          def update_config(_current, _new)
             return false
           end
 

@@ -8,7 +8,7 @@ module Cyclid
       module ApiExtension
         # Sinatra controller; this is more complex than usual to allow the
         # plugin to connect it's own set of methods as callbacks.
-        class Controller < Module 
+        class Controller < Module
           def initialize(methods)
             @@plugin_methods = methods
           end
@@ -127,7 +127,7 @@ module Cyclid
             method.downcase!
             operation = if method == 'get'
                           Operations::READ
-                        elsif  method == 'put'
+                        elsif method == 'put'
                           Operations::WRITE
                         elsif method == 'post' or
                               method == 'delete'
@@ -149,10 +149,10 @@ module Cyclid
             http_headers = headers
             environment.each do |env|
               key, value = env
-              match = key.match /\AHTTP_(.*)\Z/
+              match = key.match(/\AHTTP_(.*)\Z/)
               next unless match
 
-              header = match[1].split('_').map{ |k| k.capitalize }.join('-')
+              header = match[1].split('_').map(&:capitalize).join('-')
               http_headers[header] = value
             end
 
