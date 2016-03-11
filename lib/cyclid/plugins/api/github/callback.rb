@@ -8,7 +8,7 @@ module Cyclid
       module ApiExtension
         # Notifier callback for Github. Updates the external Github Pull
         # Request status as the job progresses.
-        class GithubCallback < Callback
+        class GithubCallback < Plugins::Notifier::Callback
           def initialize(statuses, auth_token)
             @statuses = statuses
             @auth_token = auth_token
