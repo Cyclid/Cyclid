@@ -48,6 +48,24 @@ module Cyclid
           def write(data)
           end
         end
+
+        # Plugins may create a Callback instance that contains callbacks which
+        # are called by the Notifier when something happens; the Plugin can
+        # then take whatever action they need (E.g. updating an external
+        # status)
+        class Callback
+          # Called when the job completes
+          def completion(_job_id, _status)
+          end
+
+          # Called whenever the job status changes
+          def status_changed(_job_id, _status)
+          end
+
+          # Called whenever any data is written to the job record log
+          def log_write(_job_id, _data)
+          end
+        end
       end
     end
   end
