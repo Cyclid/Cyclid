@@ -45,15 +45,14 @@ module Cyclid
         # This is a local Notifier, so it can just pass updates directly on to
         # the JobRecord & LogBuffer
         class Local < Base
-          def initialize(job_id, callback_object)
+          def initialize(job_id, callback)
             @job_id = job_id
             @job_record = JobRecord.find(job_id)
 
             # Create a LogBuffer
             @log_buffer = LogBuffer.new(@job_record)
 
-            # Unserialize the callback object, if there is one
-            @callback = callback_object.nil? ? nil : Oj.load(callback_object)
+            @callback = callback
           end
 
           # Set the JobRecord status
@@ -97,7 +96,10 @@ module Cyclid
           # Run a job Runner asynchronously
           def perform(job, job_id, callback_object)
             begin
-              notifier = Notifier::Local.new(job_id, callback_object)
+              # Unserialize the callback object, if there is one
+              callback = callback_object.nil? ? nil : Oj.load(callback_object)
+
+              notifier = Notifier::Local.new(job_id, callback)
             rescue StandardError => ex
               Cyclid.logger.debug "couldn't create notifier: #{ex}"
               return false
