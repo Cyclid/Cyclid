@@ -1,3 +1,4 @@
+# rubocop:disable Style/FileName
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -17,18 +18,18 @@ module Cyclid
           end
 
           # HTTP GET callback
-          def get(headers, config)
-            Cyclid.logger.debug "Here I am in the test plugin GET callback"
+          def get(_headers, _config)
+            Cyclid.logger.debug 'Here I am in the test plugin GET callback'
             return_failure(400, 'this is a test plugin')
           end
 
           # HTTP POST callback
-          def post(data, headers, config)
-            Cyclid.logger.debug "Here I am in the test plugin POST callback"
+          def post(_data, _headers, _config)
+            Cyclid.logger.debug 'Here I am in the test plugin POST callback'
             return_failure(400, 'this is a test plugin')
           end
         end
-      end 
+      end
 
       # API extension for Test hooks
       class Test < Api
