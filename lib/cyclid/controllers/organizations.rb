@@ -52,7 +52,9 @@ module Cyclid
 
               # Create a namespace for this plugin and register it
               namespace "/#{plugin.name}" do
-                register plugin.controller
+                ctrl = plugin.controller
+                register ctrl
+                helpers ctrl.plugin_methods
               end
             end
           end

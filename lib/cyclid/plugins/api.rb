@@ -9,8 +9,10 @@ module Cyclid
         # Sinatra controller; this is more complex than usual to allow the
         # plugin to connect it's own set of methods as callbacks.
         class Controller < Module
-          def initialize(methods)
-            @@plugin_methods = methods
+          attr_reader :plugin_methods
+
+          def initialize(methods = nil)
+            @plugin_methods = methods
           end
 
           # Sinatra callback
@@ -72,7 +74,6 @@ module Cyclid
             app.helpers do
               include Helpers
               include Job::Helpers
-              include @@plugin_methods
             end
           end
         end
