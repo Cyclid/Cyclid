@@ -8,7 +8,10 @@ require 'sidekiq/web'
 require File.dirname(__FILE__) + '/init'
 
 map '/' do
-  run Cyclid::API::App
+  app = Cyclid::API::App
+  app.set :bind, '0.0.0.0'
+  app.set :port, 80
+  app.run!
 end
 
 map '/sidekiq' do

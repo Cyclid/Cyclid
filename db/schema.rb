@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160225133151) do
+ActiveRecord::Schema.define(version: 20160308145556) do
 
   create_table "job_records", force: :cascade do |t|
     t.string   "job_name"
@@ -41,6 +41,15 @@ ActiveRecord::Schema.define(version: 20160225133151) do
 
   add_index "organizations_users", ["organization_id"], name: "index_organizations_users_on_organization_id"
   add_index "organizations_users", ["user_id"], name: "index_organizations_users_on_user_id"
+
+  create_table "plugin_configs", force: :cascade do |t|
+    t.string  "plugin"
+    t.string  "version"
+    t.text    "config"
+    t.integer "organization_id"
+  end
+
+  add_index "plugin_configs", ["organization_id"], name: "index_plugin_configs_on_organization_id"
 
   create_table "stages", force: :cascade do |t|
     t.string  "name",                              null: false

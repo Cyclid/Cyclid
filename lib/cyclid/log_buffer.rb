@@ -73,9 +73,6 @@ module Cyclid
 
         # Write to web socket
         @websocket.write data if @websocket
-
-        # Dump the data for debug purposes
-        Cyclid.logger.debug data
       end
 
       # Non-destructively read any new data from the buffer

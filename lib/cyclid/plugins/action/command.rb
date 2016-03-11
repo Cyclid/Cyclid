@@ -38,19 +38,28 @@ module Cyclid
         # plugins can write their own data to it, as we do here by writing out
         # the (optional) path & command that is being run.
         def perform(log)
-          @transport.export_env @env unless @env.nil?
-
-          # Log the command being run (and the working directory, if one is
-          # set)
-          cmd_args = "#{@cmd} #{@args.join(' ')}"
-          log.write(@path.nil? ? "$ #{cmd_args}\n" : "$ #{@path} : #{cmd_args}\n")
-
           begin
+            # Export the environment data to the build host, if necesary
+            if @env
+              # Interpolate any data from the job context
+              env = @env % @ctx
+              @transport.export_env env
+            end
+
+            # Log the command being run (and the working directory, if one is
+            # set)
+            cmd_args = "#{@cmd} #{@args.join(' ')}"
+            log.write(@path.nil? ? "$ #{cmd_args}\n" : "$ #{@path} : #{cmd_args}\n")
+
             # Interpolate any data from the job context
             cmd_args = cmd_args % @ctx
 
+            # Interpolate the path if one is set
+            path = @path
+            path = path % @ctx unless path.nil?
+
             # Run the command
-            success = @transport.exec(cmd_args, @path)
+            success = @transport.exec(cmd_args, path)
           rescue KeyError => ex
             # Interpolation failed
             log.write "#{ex.message}\n"

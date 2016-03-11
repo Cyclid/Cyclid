@@ -9,6 +9,11 @@ module Cyclid
         def initialize(args = {})
         end
 
+        # Return the 'human' name for the plugin type
+        def self.human_name
+          'action'
+        end
+
         # Provide any additional run-time data, such as the transport &
         # context, that the plugin will require for perform() but didn't get
         # during initialize.

@@ -15,6 +15,7 @@ module Cyclid
     # Sinatra Warden AuthN/AuthZ helpers
     module AuthHelpers
       # Return an HTTP error with a RESTful JSON response
+      # XXX Should probably be in ApiHelpers?
       def halt_with_json_response(error, id, description)
         halt error, json_response(id, description)
       end
