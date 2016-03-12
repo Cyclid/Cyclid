@@ -35,7 +35,7 @@
         ]
       },
       {
-        "name" : "lint",
+        "name" : "lint-test",
         "steps" : [
           {
             "action" : "command",
@@ -45,6 +45,11 @@
           {
             "action" : "command",
             "cmd" : "bundle exec rake doc",
+            "path" : "%{workspace}/Cyclid"
+          },
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake spec",
             "path" : "%{workspace}/Cyclid"
           }
         ]
@@ -57,7 +62,7 @@
          "on_failure" : "failure"
       },
       {
-        "stage" : "lint",
+        "stage" : "lint-test",
         "on_success" : "success",
         "on_failure" : "failure"
       },
