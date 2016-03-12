@@ -6,6 +6,7 @@ test.db
 doc
 dump.rdb
 *.swp
+coverage
 
 # OS artifacts
 .DS_Store
