@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Cyclid.plugins do
   it 'should be a Registry instance' do
-      expect(Cyclid.plugins).to be_an_instance_of Cyclid::API::Plugins::Registry
+    expect(Cyclid.plugins).to be_an_instance_of Cyclid::API::Plugins::Registry
   end
 end
 
@@ -59,11 +59,11 @@ describe Cyclid::API::Plugins::Registry do
     end
 
     it 'should register a new plugin' do
-      expect{@registry.register(TestPluginOne)}.to_not raise_error
+      expect{ @registry.register(TestPluginOne) }.to_not raise_error
     end
 
     it 'should register a plugin of a different type with the same name' do
-      expect{@registry.register(TestPluginTwo)}.to_not raise_error
+      expect{ @registry.register(TestPluginTwo) }.to_not raise_error
     end
 
     it 'should find a registered plugin' do
