@@ -75,7 +75,7 @@ describe Cyclid::API::Plugins::Registry do
       expect(@registry.find('non-existent_plugin', PluginTypeOne)).to be_nil
     end
 
-    it "should find a registered plugin by it's human name" do
+    it 'should find a registered plugin by its human name' do
       expect(@registry.find('test_plugin', 'plugin_type_one')).to eq(TestPluginOne)
       expect(@registry.find('test_plugin', 'plugin_type_two')).to eq(TestPluginTwo)
     end
