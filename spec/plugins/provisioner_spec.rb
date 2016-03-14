@@ -9,5 +9,9 @@ describe Cyclid::API::Plugins::Provisioner do
     before :all do
       @provisioner = Cyclid::API::Plugins::Provisioner.new
     end
+
+    it 'should not prepare a host' do
+      expect(@provisioner.prepare(nil, nil)).to be false
+    end
   end
 end

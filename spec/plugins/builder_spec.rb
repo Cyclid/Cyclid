@@ -21,7 +21,6 @@ describe Cyclid::API::Plugins::Builder do
 end
 
 describe Cyclid::API::Plugins::BuildHost do
-
   context 'creating a new BuildHost' do
     before :all do
       args = { host: 'example.com',
@@ -29,7 +28,7 @@ describe Cyclid::API::Plugins::BuildHost do
                password: 'xxtestxx',
                extra: 'additional data' }
       @buildhost = Cyclid::API::Plugins::BuildHost.new(args)
-    end 
+    end
 
     it 'should be a sub-class of Hash' do
       expect(@buildhost).to be_a Hash
