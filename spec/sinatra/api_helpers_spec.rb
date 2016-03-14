@@ -1,3 +1,4 @@
+# rubocop:disable Style/GlobalVars
 require 'spec_helper'
 require 'json'
 require 'yaml'
@@ -46,8 +47,8 @@ describe Cyclid::API::APIHelpers do
         body = { 'a' => 1, 'b' => 2 }
         $request = TestRequest.new(body.to_json, 'application/json')
 
-        parsed=nil
-        expect{ parsed=parse_request_body }.to_not raise_error
+        parsed = nil
+        expect{ parsed = parse_request_body }.to_not raise_error
         expect(parsed).to eq body
       end
 
@@ -55,8 +56,8 @@ describe Cyclid::API::APIHelpers do
         body = { 'a' => 1, 'b' => 2 }
         $request = TestRequest.new(body.to_json, 'text/json')
 
-        parsed=nil
-        expect{ parsed=parse_request_body }.to_not raise_error
+        parsed = nil
+        expect{ parsed = parse_request_body }.to_not raise_error
         expect(parsed).to eq body
       end
     end
@@ -66,8 +67,8 @@ describe Cyclid::API::APIHelpers do
         body = { 'a' => 1, 'b' => 2 }
         $request = TestRequest.new(body.to_yaml, 'application/x-yaml')
 
-        parsed=nil
-        expect{ parsed=parse_request_body }.to_not raise_error
+        parsed = nil
+        expect{ parsed = parse_request_body }.to_not raise_error
         expect(parsed).to eq body
       end
 
@@ -75,8 +76,8 @@ describe Cyclid::API::APIHelpers do
         body = { 'a' => 1, 'b' => 2 }
         $request = TestRequest.new(body.to_yaml, 'text/x-yaml')
 
-        parsed=nil
-        expect{ parsed=parse_request_body }.to_not raise_error
+        parsed = nil
+        expect{ parsed = parse_request_body }.to_not raise_error
         expect(parsed).to eq body
       end
     end
@@ -86,7 +87,8 @@ describe Cyclid::API::APIHelpers do
         body = 'this is not valid JSON'
         $request = TestRequest.new(body, 'application/json')
 
-        expect{ parse_request_body }.to raise_error('400:expected true at line 1, column 2 [parse.c:148]')
+        expect{ parse_request_body }.to \
+          raise_error('400:expected true at line 1, column 2 [parse.c:148]')
       end
     end
 
