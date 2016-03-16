@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+new_database
+
 describe 'the API root' do
   include Rack::Test::Methods
 
