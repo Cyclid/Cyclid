@@ -82,3 +82,7 @@ end
 def post_yaml(endpoint, yaml)
   post(endpoint, yaml, {'CONTENT_TYPE'=>'text/x-yaml'})
 end
+
+def put_json(endpoint, json)
+  put(endpoint, json, {'CONTENT_TYPE'=>'text/json'})
+end

@@ -1,10 +1,12 @@
 require 'spec_helper'
 require 'json'
 
-new_database
-
 describe 'the users collection' do
   include Rack::Test::Methods
+
+  before :all do
+    new_database
+  end
 
   it 'requires authentication' do
     get '/users'
