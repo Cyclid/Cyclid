@@ -8,7 +8,7 @@ describe Cyclid::API::Job::Runner do
     end
   end
 
-  class TestBuilder < Cyclid::API::Plugins::Builder
+  class JobTestBuilder < Cyclid::API::Plugins::Builder
     def get(*_args)
       TestBuildHost.new(host: 'test.example.com',
                         username: 'test',
@@ -51,7 +51,7 @@ describe Cyclid::API::Job::Runner do
     new_database
     @org = Cyclid::API::Organization.find(1)
 
-    Cyclid.builder = TestBuilder
+    Cyclid.builder = JobTestBuilder
     @notifier = Cyclid::API::Plugins::Notifier::Base.new(nil, nil)
   end
 
