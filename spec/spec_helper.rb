@@ -5,6 +5,11 @@ SimpleCov.start do
   add_filter '/spec/'
   add_filter '/test/'
   add_filter '/db/'
+
+  add_group 'Controllers', 'lib/cyclid/controller'
+  add_group 'Models', 'lib/cyclid/models'
+  add_group 'Job', 'lib/cyclid/job'
+  add_group 'Plugins', 'lib/cyclid/plugins'
 end
 
 # Pull in dependencies and Rack mocks
