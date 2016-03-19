@@ -165,3 +165,35 @@ describe Cyclid::API::Plugins::Notifier::Local do
     end
   end
 end
+
+describe Cyclid::API::Plugins::Worker::Local do
+  class TestBuilder < Cyclid::API::Plugins::Builder
+    def get(*_args)
+      raise 'test builder'
+    end
+  end
+
+  before :all do
+    # Stub a fail-fast Builder so that we don't try to run the job
+    Cyclid.builder = TestBuilder
+
+    new_database
+    @job_record = Cyclid::API::JobRecord.new
+    @job_record.save!
+  end
+
+  it 'creates an instance' do
+    expect{ Cyclid::API::Plugins::Worker::Local.new }.to_not raise_error
+  end
+
+  # There is a LOT of code sat behind this single method; most of it is covered by the job tests,
+  # and we provide a Builder that will fail so that we don't need to stub out most of the code to
+  # make the Job runner work.
+  it 'performs a job' do
+    job_json = { name: 'test', environment: {}, sources: [], sequence: {} }.to_json
+
+    worker = nil
+    expect{ worker = Cyclid::API::Plugins::Worker::Local.new }.to_not raise_error
+    expect{ worker.perform(job_json, @job_record.id, nil) }.to_not raise_error
+  end
+end
