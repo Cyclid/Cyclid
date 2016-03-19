@@ -29,7 +29,7 @@ def setup_database
     adapter: 'sqlite3',
     database: ':memory:'
   )
-  load File::expand_path('db/schema.rb')
+  load File.expand_path('db/schema.rb')
 end
 
 # Helpers for setting up a single admin user & admins organization
@@ -76,13 +76,13 @@ end
 
 # Rack Mock wrappers
 def post_json(endpoint, json)
-  post(endpoint, json, {'CONTENT_TYPE'=>'text/json'})
+  post(endpoint, json, 'CONTENT_TYPE' => 'text/json')
 end
 
 def post_yaml(endpoint, yaml)
-  post(endpoint, yaml, {'CONTENT_TYPE'=>'text/x-yaml'})
+  post(endpoint, yaml, 'CONTENT_TYPE' => 'text/x-yaml')
 end
 
 def put_json(endpoint, json)
-  put(endpoint, json, {'CONTENT_TYPE'=>'text/json'})
+  put(endpoint, json, 'CONTENT_TYPE' => 'text/json')
 end

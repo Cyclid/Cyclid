@@ -19,13 +19,15 @@ describe 'the organizations collection' do
     expect(last_response.status).to eq(200)
 
     res_json = JSON.parse(last_response.body)
-    expect(res_json).to eq([{"id"=>1, "name"=>"admins", "owner_email"=>"admins@example.com"}])
+    expect(res_json).to eq([{ 'id' => 1,
+                              'name' => 'admins',
+                              'owner_email' => 'admins@example.com' }])
   end
 
   context 'creating a new organization' do
     it 'creates a new organization without any users' do
-      new_org = {'name'=>'test',
-                 'owner_email'=>'admin@example.com'}
+      new_org = { 'name' => 'test',
+                  'owner_email' => 'admin@example.com' }
 
       authorize 'admin', 'password'
       post_json '/organizations', new_org.to_json
@@ -33,8 +35,8 @@ describe 'the organizations collection' do
     end
 
     it 'fails to create a duplicate organization' do
-      new_org = {'name'=>'test',
-                 'owner_email'=>'admin@example.com'}
+      new_org = { 'name' => 'test',
+                  'owner_email' => 'admin@example.com' }
 
       authorize 'admin', 'password'
       post_json '/organizations', new_org.to_json
@@ -42,9 +44,9 @@ describe 'the organizations collection' do
     end
 
     it 'creates a new organization with valid users' do
-      new_org = {'name'=>'test2',
-                 'owner_email'=>'admin@example.com',
-                 'users' => ['admin']}
+      new_org = { 'name' => 'test2',
+                  'owner_email' => 'admin@example.com',
+                  'users' => ['admin'] }
 
       authorize 'admin', 'password'
       post_json '/organizations', new_org.to_json
@@ -52,9 +54,9 @@ describe 'the organizations collection' do
     end
 
     it 'fails to create a new organization with invalid users' do
-      new_org = {'name'=>'test3',
-                 'owner_email'=>'admin@example.com',
-                 'users' => ['invalid']}
+      new_org = { 'name' => 'test3',
+                  'owner_email' => 'admin@example.com',
+                  'users' => ['invalid'] }
 
       authorize 'admin', 'password'
       post_json '/organizations', new_org.to_json
@@ -62,7 +64,7 @@ describe 'the organizations collection' do
     end
 
     it 'fails if no owner email is given' do
-      new_org = {'name'=>'test4'}
+      new_org = { 'name' => 'test4' }
 
       authorize 'admin', 'password'
       post_json '/organizations', new_org.to_json
@@ -71,7 +73,7 @@ describe 'the organizations collection' do
 
     it 'fails if the JSON is invalid' do
       authorize 'admin', 'password'
-      post_json '/organizations', 'this is not valid JSON' 
+      post_json '/organizations', 'this is not valid JSON'
       expect(last_response.status).to eq(400)
     end
   end
