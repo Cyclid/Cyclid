@@ -36,6 +36,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    addressable (2.4.0)
     arel (6.0.3)
     ast (2.2.0)
     awesome_print (1.6.1)
@@ -46,6 +47,8 @@ GEM
     concurrent-ruby (1.0.1)
     connection_pool (2.2.0)
     cool.io (1.4.3)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
     formatador (0.2.5)
@@ -61,6 +64,7 @@ GEM
     guard-sidekiq (0.1.0)
       guard (>= 2)
       sidekiq
+    hashdiff (0.3.0)
     i18n (0.7.0)
     json (1.8.3)
     listen (3.0.6)
@@ -119,6 +123,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.7.5)
+    safe_yaml (1.0.4)
     shellany (0.0.1)
     sidekiq (4.1.1)
       concurrent-ruby (~> 1.0)
@@ -155,6 +160,10 @@ GEM
     unicode-display_width (1.0.2)
     warden (1.2.6)
       rack (>= 1.0)
+    webmock (1.24.2)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
     yard (0.8.7.6)
 
 PLATFORMS
@@ -184,6 +193,7 @@ DEPENDENCIES
   sinatra-contrib
   sqlite3
   warden
+  webmock
   yard
 
 BUNDLED WITH

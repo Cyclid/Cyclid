@@ -26,4 +26,5 @@ group :development, :test do
   gem 'rack-test'
   gem 'yard'
   gem 'sqlite3'
+  gem 'webmock'
 end

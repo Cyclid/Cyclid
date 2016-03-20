@@ -12,6 +12,11 @@ SimpleCov.start do
   add_group 'Plugins', 'lib/cyclid/plugins'
 end
 
+# Mock external HTTP requests
+require 'webmock/rspec'
+
+WebMock.disable_net_connect!(allow_localhost: true)
+
 # Pull in dependencies and Rack mocks
 require 'active_record'
 require 'rack/test'
