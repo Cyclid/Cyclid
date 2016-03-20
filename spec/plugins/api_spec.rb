@@ -50,47 +50,89 @@ describe Cyclid::API::Plugins::ApiExtension::Methods do
   end
 end
 
-describe Cyclid::API::Plugins::ApiExtension::Helpers do
+describe Cyclid::API::Plugins::ApiExtension::Controller do
+  module APIPlugin
+    # Create a stub plugin implementation
+    module TestMethods
+      include Cyclid::API::Plugins::ApiExtension::Methods
+
+      def controller_plugin
+        Cyclid::API::Plugins::Api
+      end
+    end
+
+    class TestController < Cyclid::API::Plugins::Api
+      def self.controller
+        return Cyclid::API::Plugins::ApiExtension::Controller.new(TestMethods)
+      end
+    end
+
+    # Create a Sinatra application to register the plugin controller with
+    require 'sinatra/base'
+    require 'sinatra/namespace'
+
+    class TestApp < Cyclid::API::ControllerBase
+      register Sinatra::Namespace
+      namespace '/test/:name' do
+        ctrl = TestController.controller
+        register ctrl
+        helpers ctrl.plugin_methods
+      end
+    end
+  end
+
+  # Some Rack::Test boilerplate
   include Rack::Test::Methods
 
-  class TestHelpers
-    include Cyclid::API::Plugins::ApiExtension::Helpers
-
-    def headers
-      {}
-    end
+  def app
+    APIPlugin::TestApp
   end
 
   before :all do
-    @helpers = TestHelpers.new
-
-    def authorized_for!(_name, _operation)
-      true
-    end
+    new_database
   end
 
-  it 'authorizes a user for a get' do
+  it 'requires authentication for the GET method' do
+    get '/test/admins'
+    expect(last_response.status).to eq(401)
+  end
+
+  it 'returns "not implemented" for the GET method' do
     authorize 'admin', 'password'
-    expect(@helpers.authorize('get')).to be true
+    get '/test/admins'
+    expect(last_response.status).to eq(405)
   end
 
-  it 'authorizes a user for a post' do
+  it 'requires authentication for the POST method' do
+    post_json '/test/admins', '{}'
+    expect(last_response.status).to eq(401)
+  end
+
+  it 'returns "not implemented" for the POST method' do
     authorize 'admin', 'password'
-    expect(@helpers.authorize('post')).to be true
+    post_json '/test/admins', '{}'
+    expect(last_response.status).to eq(405)
   end
 
-  it 'authorizes a user for a put' do
+  it 'requires authentication for the PUT method' do
+    put_json '/test/admins', '{}'
+    expect(last_response.status).to eq(401)
+  end
+
+  it 'returns "not implemented" for the PUT method' do
     authorize 'admin', 'password'
-    expect(@helpers.authorize('put')).to be true
+    put_json '/test/admins', '{}'
+    expect(last_response.status).to eq(405)
   end
 
-  it 'authorizes a user for a delete' do
+  it 'requires authentication for the DELETE method' do
+    delete '/test/admins'
+    expect(last_response.status).to eq(401)
+  end
+
+  it 'returns "not implemented" for the DELETE method' do
     authorize 'admin', 'password'
-    expect(@helpers.authorize('delete')).to be true
-  end
-
-  it 'extracts HTTP headers' do
-    expect(@helpers.http_headers([%w(HTTP_HEADER test),
-                                  %w(NOT_A_HEADER xxx)])).to match_array([%w(Header test)])
+    delete '/test/admins'
+    expect(last_response.status).to eq(405)
   end
 end
