@@ -42,7 +42,7 @@ module Cyclid
             # Export the environment data to the build host, if necesary
             if @env
               # Interpolate any data from the job context
-              @env.each do |key, value|
+              env = @env.each do |key, value|
                 @env[key] = value % @ctx if value.is_a? String
               end
 
