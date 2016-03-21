@@ -12,6 +12,9 @@ SimpleCov.start do
   add_group 'Plugins', 'lib/cyclid/plugins'
 end
 
+# Configure RSpec
+RSpec::Expectations.configuration.warn_about_potential_false_positives = false
+
 # Mock external HTTP requests
 require 'webmock/rspec'
 
@@ -31,6 +34,9 @@ end
 # Pull in the code
 require_relative '../lib/cyclid'
 
+# Turn down log output
+Cyclid.logger.level = Logger::FATAL
+
 # Helper to create an empty database
 def setup_database
   ActiveRecord::Base.remove_connection
@@ -39,7 +45,10 @@ def setup_database
     adapter: 'sqlite3',
     database: ':memory:'
   )
-  load File.expand_path('db/schema.rb')
+
+  ActiveRecord::Migration.suppress_messages do
+    load File.expand_path('db/schema.rb')
+  end
 end
 
 # Helpers for setting up a single admin user & admins organization
