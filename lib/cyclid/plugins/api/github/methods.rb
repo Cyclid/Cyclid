@@ -110,9 +110,12 @@ module Cyclid
             # See if a .cyclid.yml or .cyclid.json file exists in the project
             # root
             job_url = nil
+            job_type = nil
             root['tree'].each do |file|
-              if file['path'] =~ /\A\.cyclid\.(json|yml)\z/
+              match = file['path'].match /\A\.cyclid\.(json|yml)\z/
+              if match
                 job_url = URI(file['url'])
+                job_type = match[1]
                 break
               end
             end
@@ -138,7 +141,12 @@ module Cyclid
               raise "couldn't get Cyclid job" unless response.code == '200'
 
               job_blob = Oj.load response.body
-              job_definition = Oj.load(Base64.decode64(job_blob['content']))
+              case job_type
+              when 'json'
+                job_definition = Oj.load(Base64.decode64(job_blob['content']))
+              when 'yml'
+                job_definition = YAML.load(Base64.decode64(job_blob['content']))
+              end
 
               # Insert this repository & branch into the sources
               #

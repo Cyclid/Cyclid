@@ -109,21 +109,51 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       expect(@methods.post(request, headers, config)).to be false
     end
 
-    it 'processes a Pull Request with a Cyclid job file' do
+    it 'processes a Pull Request with a JSON Cyclid job file' do
       # Don't actually create a Callback object
       callback = double(Cyclid::API::Plugins::ApiExtension::GithubCallback)
       allow(callback).to receive(:new).and_return(nil)
 
-      # Return a tree with a Cyclid job file.
+      # Return a tree with a JSON Cyclid job file.
       tree = '{"tree":[{"path":".cyclid.json", "url": "http://example.com/example/test/cyclid"}]}'
       stub_request(:get, 'http://example.com/example/test/tree/1234567890')
         .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
         .to_return(status: 200, body: tree, headers: {})
 
       # Return the Cyclid job file
-      # XXX Issue #20
       job = { sources: [], sequence: [] }
       job_blob = { content: Base64.encode64(job.to_json) }
+      stub_request(:get, 'http://example.com/example/test/cyclid')
+        .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
+        .to_return(status: 200, body: job_blob.to_json, headers: {})
+
+      config = { 'repository_tokens' => [] }
+      pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
+             'head' => { 'sha' => '1234567890',
+                         'ref' => 'abcdefg',
+                         'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
+                                     'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
+      request = { 'action' => 'opened', 'pull_request' => pr }
+      headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
+
+      expect(@methods.post(request, headers, config)).to be true
+    end
+
+    # Issue #20
+    it 'processes a Pull Request with a YAML Cyclid job file' do
+      # Don't actually create a Callback object
+      callback = double(Cyclid::API::Plugins::ApiExtension::GithubCallback)
+      allow(callback).to receive(:new).and_return(nil)
+
+      # Return a tree with a YAML Cyclid job file.
+      tree = '{"tree":[{"path":".cyclid.yml", "url": "http://example.com/example/test/cyclid"}]}'
+      stub_request(:get, 'http://example.com/example/test/tree/1234567890')
+        .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
+        .to_return(status: 200, body: tree, headers: {})
+
+      # Return the Cyclid job file
+      job = { sources: [], sequence: [] }
+      job_blob = { content: Base64.encode64(job.to_yaml) }
       stub_request(:get, 'http://example.com/example/test/cyclid')
         .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
         .to_return(status: 200, body: job_blob.to_json, headers: {})
