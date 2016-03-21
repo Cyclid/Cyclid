@@ -5,6 +5,9 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
   # Wrap the module into a test class instance
   module GithubPlugin
     module Test
+      class TestStop < StandardError
+      end
+
       class TestMethods
         attr_reader :code, :message
 
@@ -13,6 +16,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         def return_failure(code, message)
           @code = code
           @message = message
+          raise TestStop
         end
 
         # Don't actually create & dispatch a job
@@ -61,7 +65,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
   it 'fails for unsupported requests' do
     headers = { 'X-Github-Event' => 'unsupported', 'X-Github-Delivery' => '' }
-    expect{ @methods.post('{}', headers, nil) }.to_not raise_error
+    expect{ @methods.post('{}', headers, nil) }.to raise_error(GithubPlugin::Test::TestStop)
     expect(@methods.code).to eq(400)
     expect(@methods.message).to eq("event type 'unsupported' is not supported")
   end
@@ -106,7 +110,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
 
-      expect(@methods.post(request, headers, config)).to be false
+      expect{ @methods.post(request, headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
     end
 
     it 'processes a Pull Request with a JSON Cyclid job file' do
