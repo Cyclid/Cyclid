@@ -43,7 +43,9 @@ module Cyclid
               org['owner_email'] = payload['owner_email']
 
               # Add each provided user to the Organization
-              org.users = payload['users'].map do |username|
+              users = payload['users'] || []
+
+              org.users = users.map do |username|
                 user = User.find_by(username: username)
 
                 halt_with_json_response(404, \
