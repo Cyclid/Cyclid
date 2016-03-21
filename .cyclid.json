@@ -35,21 +35,31 @@
         ]
       },
       {
-        "name" : "lint-test",
+        "name" : "lint",
         "steps" : [
           {
             "action" : "command",
             "cmd" : "bundle exec rake rubocop",
             "path" : "%{workspace}/Cyclid"
-          },
-          {
-            "action" : "command",
-            "cmd" : "bundle exec rake doc",
-            "path" : "%{workspace}/Cyclid"
-          },
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "steps": [
           {
             "action" : "command",
             "cmd" : "bundle exec rake spec",
+            "path" : "%{workspace}/Cyclid"
+          }
+        ]
+      },
+      {
+        "name": "docs",
+        "steps": [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake doc",
             "path" : "%{workspace}/Cyclid"
           }
         ]
@@ -62,7 +72,17 @@
          "on_failure" : "failure"
       },
       {
-        "stage" : "lint-test",
+        "stage" : "lint",
+        "on_success" : "test",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "test",
+        "on_success" : "doc",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "doc",
         "on_success" : "success",
         "on_failure" : "failure"
       },
