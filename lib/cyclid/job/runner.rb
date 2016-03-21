@@ -88,10 +88,11 @@ module Cyclid
                           "Context: #{@ctx.stringify_keys}\n"
 
           # Run the Job stage actions
-          stages = @job[:stages]
-          sequence = @job[:sequence].first
+          stages = @job[:stages] || []
+          sequence = (@job[:sequence] || []).first
 
-          loop do
+          # Run each stage in the sequence until there are none left
+          until sequence.nil?
             # Find the stage
             raise 'stage not found' unless stages.key? sequence.to_sym
 
@@ -118,9 +119,6 @@ module Cyclid
               status = FAILING
               @notifier.status = status
             end
-
-            # Stop if we have no further sequences
-            break if sequence.nil?
           end
 
           # Either all of the stages succeeded, and thus the job suceeded, or
