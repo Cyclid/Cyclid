@@ -101,7 +101,7 @@ describe Cyclid::API::Plugins::Notifier::Local do
       expect{ notifier.ended = time }.to_not raise_error
 
       db_record = Cyclid::API::JobRecord.find(@job_record.id)
-      expect(Time.at(db_record.ended)).to eq(Time.at(time))
+      expect(Time.at(db_record.ended).to_i).to eq(Time.at(time).to_i)
     end
 
     it 'writes data to the buffer' do
