@@ -78,11 +78,11 @@
       },
       {
         "stage" : "test",
-        "on_success" : "doc",
+        "on_success" : "docs",
         "on_failure" : "failure"
       },
       {
-        "stage" : "doc",
+        "stage" : "docs",
         "on_success" : "success",
         "on_failure" : "failure"
       },
