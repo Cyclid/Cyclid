@@ -105,13 +105,15 @@ describe Cyclid::API::Plugins::Command do
     it 'exports the environment' do
       command = nil
       expect do
-        command = Cyclid::API::Plugins::Command.new(cmd: '/bin/true', path: '/tmp', env: 'test')
+        command = Cyclid::API::Plugins::Command.new(cmd: '/bin/true',
+                                                    path: '/tmp',
+                                                    env: { 'test' => 'data' })
       end.to_not raise_error
       expect{ command.prepare(transport: @transport, ctx: nil) }.to_not raise_error
       expect{ command.perform(@log) }.to_not raise_error
       expect(@transport.cmd).to match(%r{/bin/true})
       expect(@transport.path).to match(%r{/tmp})
-      expect(@transport.env).to eq('test')
+      expect(@transport.env).to eq('test' => 'data')
     end
   end
 
