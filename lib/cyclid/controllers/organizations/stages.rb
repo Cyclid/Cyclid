@@ -55,6 +55,13 @@ module Cyclid
             halt_with_json_response(400, INVALID_JSON, 'stage does not define any steps') \
               unless payload.key? 'steps'
 
+            # Ensure that a stage with the same name & version doesn't already exist
+            version = payload['version'] || '0.0.1'
+            halt_with_json_response(409, \
+                                    DUPLICATE, \
+                                    'A stage with that name and version already exists') \
+            if org.stages.exists?(name: payload['name'], version: version)
+
             begin
               stage = Stage.new
 
