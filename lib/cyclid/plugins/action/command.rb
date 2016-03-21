@@ -12,7 +12,7 @@ module Cyclid
           args.symbolize_keys!
 
           # At a bear minimum there has to be a command to execute.
-          return false unless args.include? :cmd
+          raise 'a command action requires a command' unless args.include? :cmd
 
           # The command & arguments can either be passed seperately, with the
           # args as an array, or as a single string which we then split into
@@ -42,7 +42,10 @@ module Cyclid
             # Export the environment data to the build host, if necesary
             if @env
               # Interpolate any data from the job context
-              env = @env % @ctx
+              @env.each do |key, value|
+                @env[key] = value % @ctx if value.is_a? String
+              end
+
               @transport.export_env env
             end
 
