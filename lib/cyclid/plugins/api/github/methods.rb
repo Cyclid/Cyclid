@@ -112,12 +112,11 @@ module Cyclid
             job_url = nil
             job_type = nil
             root['tree'].each do |file|
-              match = file['path'].match /\A\.cyclid\.(json|yml)\z/
-              if match
-                job_url = URI(file['url'])
-                job_type = match[1]
-                break
-              end
+              match = file['path'].match(/\A\.cyclid\.(json|yml)\z/)
+              next unless match
+
+              job_url = URI(file['url'])
+              job_type = match[1]
             end
 
             Cyclid.logger.debug "job_url=#{job_url}"
