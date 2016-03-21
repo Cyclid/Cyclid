@@ -7,13 +7,21 @@ require 'sinatra'
 require 'sidekiq/web'
 require File.dirname(__FILE__) + '/init'
 
-map '/' do
-  app = Cyclid::API::App
-  app.set :bind, '0.0.0.0'
-  app.set :port, 80
-  app.run!
+configure :production do
+  map '/' do
+    app = Cyclid::API::App
+    app.set :bind, '0.0.0.0'
+    app.set :port, 80
+    app.run!
+  end
 end
 
-map '/sidekiq' do
-  run Sidekiq::Web
+configure :development do
+  map '/' do
+    run Cyclid::API::App
+  end
+
+  map '/sidekiq' do
+    run Sidekiq::Web
+  end
 end

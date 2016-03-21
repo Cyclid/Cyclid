@@ -6,6 +6,8 @@ require 'require_all'
 require 'logger'
 require 'active_record'
 
+ENV['RACK_ENV'] = ENV['RACK_ENV'] || 'development'
+
 module Cyclid
   class << self
     attr_accessor :logger

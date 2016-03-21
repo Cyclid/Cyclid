@@ -41,7 +41,22 @@
             "action" : "command",
             "cmd" : "bundle exec rake rubocop",
             "path" : "%{workspace}/Cyclid"
-          },
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "steps": [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake spec",
+            "path" : "%{workspace}/Cyclid"
+          }
+        ]
+      },
+      {
+        "name": "docs",
+        "steps": [
           {
             "action" : "command",
             "cmd" : "bundle exec rake doc",
@@ -58,6 +73,16 @@
       },
       {
         "stage" : "lint",
+        "on_success" : "test",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "test",
+        "on_success" : "docs",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "docs",
         "on_success" : "success",
         "on_failure" : "failure"
       },

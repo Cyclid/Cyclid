@@ -27,6 +27,8 @@ rescue LoadError
   end
 end
 
+ENV['RACK_ENV'] = 'development'
+
 require 'sinatra/activerecord/rake'
 require_relative 'lib/db.rb'
 
