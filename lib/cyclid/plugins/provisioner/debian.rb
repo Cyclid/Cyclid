@@ -8,6 +8,8 @@ module Cyclid
       class Debian < Provisioner
         # Prepare a Debian based build host
         def prepare(transport, buildhost, env = {})
+          transport.export_env(env.merge('DEBIAN_FRONTEND' => 'noninteractive'))
+
           if env.key? :repos
             env[:repos].each do |repo|
               next unless repo.key? :url
