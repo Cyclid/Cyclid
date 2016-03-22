@@ -79,6 +79,6 @@ describe Cyclid::API::Plugins::Debian do
     provisioner = nil
     expect{ provisioner = Cyclid::API::Plugins::Debian.new }.to_not raise_error
     expect{ provisioner.prepare(@transport, @buildhost, env) }.to_not raise_error
-    expect(@transport.cmd).to eq('sudo apt-get install -y package')
+    expect(@transport.cmd).to eq('sudo -E apt-get install -y package')
   end
 end
