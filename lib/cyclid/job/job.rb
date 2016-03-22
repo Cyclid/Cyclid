@@ -16,7 +16,7 @@ module Cyclid
           @name = job[:name]
           @version = job[:version] || '1.0.0'
           @environment = job[:environment]
-          @sources = job[:sources]
+          @sources = job[:sources] || []
 
           # Build a single unified list of StageViews
           @stages, @sequence = build_stage_collection(job, org)

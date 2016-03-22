@@ -55,16 +55,14 @@ describe Cyclid::API::Job::Runner do
     @notifier = Cyclid::API::Plugins::Notifier::Base.new(nil, nil)
   end
 
-  # XXX Issue #15
   it 'creates a job given a valid job definition' do
     job_json = { name: 'test', environment: {}, sources: [], sequence: {} }.to_json
 
     expect{ Cyclid::API::Job::Runner.new(1, job_json, @notifier) }.to_not raise_error
   end
 
-  # XXX Issue #16
   it 'runs a job with an empty sequence' do
-    job_def = { name: 'test', environment: {}, sources: [], sequence: {} }
+    job_def = { name: 'test', environment: {}, sequence: {} }
 
     job_view = nil
     expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
