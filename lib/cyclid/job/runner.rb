@@ -56,8 +56,10 @@ module Cyclid
             provisioner.prepare(@transport, @build_host, environment)
 
             # Check out sources
-            @notifier.write "#{'=' * 79}\n#{Time.now} : Checking out source...\n"
-            checkout_sources(@transport, @ctx, @job[:sources])
+            if @job[:sources].any?
+              @notifier.write "#{'=' * 79}\n#{Time.now} : Checking out source...\n"
+              checkout_sources(@transport, @ctx, @job[:sources])
+            end
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
 
