@@ -55,7 +55,7 @@ module Cyclid
           fragment = "deb #{url} #{release} #{components}"
 
           success = transport.exec \
-            "sudo echo '#{fragment}' >> /etc/apt/sources.list.d/cyclid.list"
+            "echo '#{fragment}' | sudo tee -a /etc/apt/sources.list.d/cyclid.list"
           raise "failed to add repository #{url}" unless success
 
           if repo.key? :key_id
