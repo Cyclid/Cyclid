@@ -8,6 +8,8 @@ module Cyclid
       class Debian < Provisioner
         # Prepare a Debian based build host
         def prepare(transport, buildhost, env = {})
+          transport.export_env('DEBIAN_FRONTEND' => 'noninteractive')
+
           if env.key? :repos
             env[:repos].each do |repo|
               next unless repo.key? :url
@@ -27,7 +29,8 @@ module Cyclid
           end
 
           env[:packages].each do |package|
-            success = transport.exec "sudo apt-get install -y #{package}"
+            success = transport.exec \
+              "sudo -E apt-get install -y #{package}"
             raise "failed to install package #{package}" unless success
           end if env.key? :packages
         rescue StandardError => ex
