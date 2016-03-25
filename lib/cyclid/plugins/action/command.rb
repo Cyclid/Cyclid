@@ -41,7 +41,7 @@ module Cyclid
           begin
             # Export the environment data to the build host, if necesary
             env = @env.interpolate(@ctx) if @env
-            transport.export_env(env)
+            @transport.export_env(env)
 
             # Log the command being run (and the working directory, if one is
             # set)
