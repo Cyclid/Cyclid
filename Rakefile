@@ -28,9 +28,9 @@ rescue LoadError
 end
 
 ENV['RACK_ENV'] = 'development'
+require_relative 'lib/db'
 
 require 'sinatra/activerecord/rake'
-require_relative 'lib/db.rb'
 
 task :doc do
   Rake::Task['yard'].invoke
