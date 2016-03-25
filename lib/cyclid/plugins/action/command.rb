@@ -40,14 +40,8 @@ module Cyclid
         def perform(log)
           begin
             # Export the environment data to the build host, if necesary
-            if @env
-              # Interpolate any data from the job context
-              env = @env.each do |key, value|
-                @env[key] = value % @ctx if value.is_a? String
-              end
-
-              @transport.export_env env
-            end
+            env = @env.interpolate(@ctx) if @env
+            transport.export_env(env)
 
             # Log the command being run (and the working directory, if one is
             # set)

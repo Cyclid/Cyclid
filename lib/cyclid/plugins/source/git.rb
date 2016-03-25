@@ -14,6 +14,9 @@ module Cyclid
           raise 'invalid git source definition' \
             unless source.key? :url
 
+          # Add any context data (which could include secrets)
+          source = source.interpolate(ctx)
+
           url = URI(source[:url])
 
           # If the source includes an OAuth token, add it to the URL as the
