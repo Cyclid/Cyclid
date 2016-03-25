@@ -17,6 +17,7 @@ module Cyclid
           @version = job[:version] || '1.0.0'
           @environment = job[:environment]
           @sources = job[:sources] || []
+          @secrets = job[:secrets] || {}
 
           # Build a single unified list of StageViews
           @stages, @sequence = build_stage_collection(job, org)
@@ -29,6 +30,7 @@ module Cyclid
           hash[:version] = @version
           hash[:environment] = @environment
           hash[:sources] = @sources
+          hash[:secrets] = @secrets
           hash[:stages] = @stages.each_with_object({}) do |(name, stage), h|
             h[name.to_sym] = Oj.dump(stage)
           end
