@@ -21,6 +21,7 @@ end
 
 require_relative 'db'
 
+require 'cyclid/monkey_patches'
 require 'cyclid/constants'
 require 'cyclid/errors'
 require 'cyclid/models'

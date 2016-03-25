@@ -17,7 +17,7 @@ module Cyclid
           @version = job[:version] || '1.0.0'
           @environment = job[:environment]
           @sources = job[:sources] || []
-          @secrets = job[:secrets] || {}
+          @secrets = setec_astronomy(org, (job[:secrets] || {}))
 
           # Build a single unified list of StageViews
           @stages, @sequence = build_stage_collection(job, org)
@@ -40,6 +40,16 @@ module Cyclid
         end
 
         private
+
+        # Too Many Secrets
+        def setec_astronomy(org, secrets)
+          # Create the RSA private key
+          private_key = OpenSSL::PKey::RSA.new(org.rsa_private_key)
+
+          secrets.hmap do |key, secret|
+            { key => private_key.private_decrypt(Base64.decode64(secret)) }
+          end
+        end
 
         # Create the ad-hoc StageViews & combine them with the Stages defined
         # in the Job, returning an array of StageViews & a list of the Stages

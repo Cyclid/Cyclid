@@ -22,9 +22,9 @@ module Cyclid
             Cyclid.logger.debug "job=#{@job.inspect}"
 
             environment = @job[:environment]
-            secrets = setec_astronomy(@job[:secrets])
-          rescue StandardError
-            Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}"
+            secrets = @job[:secrets]
+          rescue StandardError => ex
+            Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}: #{ex}"
             raise 'job failed'
           end
 
@@ -147,16 +147,6 @@ module Cyclid
         end
 
         private
-
-        # Too Many Secrets
-        def setec_astronomy(org, secrets)
-          # Create the RSA private key
-          private_key = OpenSSL::PKey.new(org.rsa_private_key)
-
-          secrets.hmap do |key, secret|
-            { key => private_key.private_decrypt(Base64.decode64(secret)) }
-          end
-        end
 
         # Create a suitable Builder
         def create_builder
