@@ -64,9 +64,14 @@ def create_admin_user
 end
 
 def create_admin_organization
+  key = OpenSSL::PKey::RSA.new(2048)
+
   org = Cyclid::API::Organization.new
   org.name = ADMINS_ORG
   org.owner_email = 'admins@example.com'
+  org.rsa_private_key = key.to_der
+  org.rsa_public_key = key.public_key.to_der
+  org.salt = SecureRandom.hex(32)
   org.users << Cyclid::API::User.find_by(username: 'admin')
 end
 
