@@ -19,10 +19,18 @@ describe 'an organization document' do
     expect(last_response.status).to eq(200)
 
     res_json = JSON.parse(last_response.body)
-    expect(res_json).to eq('id' => 1,
-                           'name' => 'admins',
-                           'owner_email' => 'admins@example.com',
-                           'users' => ['admin'])
+    expect(res_json).to include('id' => 1,
+                                'name' => 'admins',
+                                'owner_email' => 'admins@example.com',
+                                'users' => ['admin'])
+
+    # The document should not include any encryption information.
+    expect(res_json).to_not include('rsa_private_key',
+                                    'rsa_public_key',
+                                    'salt')
+
+    # It should include the encoded (not raw) public key
+    expect(res_json).to include('public_key')
   end
 
   it 'fails if the organizations does not exist' do
@@ -47,10 +55,10 @@ describe 'an organization document' do
 
       res_json = JSON.parse(last_response.body)
 
-      expect(res_json).to eq('id' => 1,
-                             'name' => 'admins',
-                             'owner_email' => 'test@example.com',
-                             'users' => ['admin'])
+      expect(res_json).to include('id' => 1,
+                                  'name' => 'admins',
+                                  'owner_email' => 'test@example.com',
+                                  'users' => ['admin'])
     end
 
     it 'adds a new user' do
@@ -76,10 +84,10 @@ describe 'an organization document' do
 
       res_json = JSON.parse(last_response.body)
 
-      expect(res_json).to eq('id' => 1,
-                             'name' => 'admins',
-                             'owner_email' => 'test@example.com',
-                             'users' => %w(admin test))
+      expect(res_json).to include('id' => 1,
+                                  'name' => 'admins',
+                                  'owner_email' => 'test@example.com',
+                                  'users' => %w(admin test))
     end
 
     it 'removes a user' do
@@ -96,10 +104,10 @@ describe 'an organization document' do
 
       res_json = JSON.parse(last_response.body)
 
-      expect(res_json).to eq('id' => 1,
-                             'name' => 'admins',
-                             'owner_email' => 'test@example.com',
-                             'users' => ['admin'])
+      expect(res_json).to include('id' => 1,
+                                  'name' => 'admins',
+                                  'owner_email' => 'test@example.com',
+                                  'users' => ['admin'])
     end
 
     it 'does not add an invalid user' do

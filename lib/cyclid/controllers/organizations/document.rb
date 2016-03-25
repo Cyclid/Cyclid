@@ -21,9 +21,14 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
-            # Convert to a Hash and inject the Users data
-            org_hash = org.serializable_hash
+            # Base64 encode the public key
+            public_key = Base64.strict_encode64(org.rsa_public_key)
+
+            # Convert to a Hash, sanitize and inject the Users data & encoded
+            # RSA key
+            org_hash = sanitize_organization(org.serializable_hash)
             org_hash['users'] = org.users.map(&:username)
+            org_hash['public_key'] = public_key
 
             return org_hash.to_json
           end

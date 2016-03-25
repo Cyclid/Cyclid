@@ -76,5 +76,33 @@ describe 'the organizations collection' do
       post_json '/organizations', 'this is not valid JSON'
       expect(last_response.status).to eq(400)
     end
+
+    it 'creates an encryption key for the organization' do
+      new_org = { 'name' => 'test5',
+                  'owner_email' => 'admin@example.com' }
+
+      authorize 'admin', 'password'
+      post_json '/organizations', new_org.to_json
+      expect(last_response.status).to eq(200)
+
+      # Retrieve the organization and ensure a key pair was created
+      authorize 'admin', 'password'
+      get '/organizations/test5'
+      expect(last_response.status).to eq(200)
+
+      res_json = JSON.parse(last_response.body)
+
+      # The document should not include any encryption information.
+      expect(res_json).to_not include('rsa_private_key',
+                                      'rsa_public_key',
+                                      'salt')
+
+      # It should include a valid, encoded (not raw) public key
+      expect(res_json).to include('public_key')
+
+      key = nil
+      expect{ key = Base64.decode64(res_json['public_key']) }.to_not raise_error
+      expect{ OpenSSL::PKey::RSA.new(key) }.to_not raise_error
+    end
   end
 end

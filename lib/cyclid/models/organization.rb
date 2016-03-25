@@ -6,8 +6,20 @@ module Cyclid
     class Organization < ActiveRecord::Base
       Cyclid.logger.debug('In the Organization model')
 
+      class << self
+        # Return the collection of Organizations as an array of Hashes (instead
+        # of Organization objects)
+        def all_as_hash
+          all.to_a.map(&:serializable_hash)
+        end
+      end
+
       validates :name, presence: true
       validates :owner_email, presence: true
+
+      validates :rsa_private_key, presence: true
+      validates :rsa_public_key, presence: true
+      validates :salt, presence: true
 
       validates_uniqueness_of :name
 

@@ -9,6 +9,7 @@ module Cyclid
         # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
+          include Constants
 
           # @macro [attach] sinatra.get
           #   @overload get "$1"
@@ -18,7 +19,15 @@ module Cyclid
           app.get do
             authorized_admin!(Operations::READ)
 
-            orgs = Organization.all
+            # Retrieve the organization data in a form we can more easily
+            # manipulate so that we can sanitize it
+            orgs = Organization.all_as_hash
+
+            # Remove any sensitive data
+            orgs.map! do |org|
+              sanitize_organization(org)
+            end
+
             return orgs.to_json
           end
 
@@ -41,6 +50,14 @@ module Cyclid
               org = Organization.new
               org['name'] = payload['name']
               org['owner_email'] = payload['owner_email']
+
+              # Generate an RSA key-pair and a Salt
+              key = OpenSSL::PKey::RSA.new(RSA_KEY_LENGTH)
+
+              org['rsa_private_key'] = key.to_der
+              org['rsa_public_key'] = key.public_key.to_der
+
+              org['salt'] = SecureRandom.hex(32)
 
               # Add each provided user to the Organization
               users = payload['users'] || []
