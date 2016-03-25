@@ -56,7 +56,7 @@ describe Cyclid::API::Job::Runner do
   end
 
   it 'creates a job given a valid job definition' do
-    job_json = { name: 'test', environment: {}, sources: [], sequence: {} }.to_json
+    job_json = { name: 'test', environment: {}, secrets: {}, sources: [], sequence: {} }.to_json
 
     expect{ Cyclid::API::Job::Runner.new(1, job_json, @notifier) }.to_not raise_error
   end

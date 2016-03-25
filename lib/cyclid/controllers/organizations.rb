@@ -20,6 +20,13 @@ module Cyclid
             key == 'stage_id'
           end
         end
+
+        # Remove sensitive data from the organization data
+        def sanitize_organization(org)
+          org.delete_if do |key, _value|
+            key == 'rsa_private_key' || key == 'rsa_public_key' || key == 'salt'
+          end
+        end
       end
 
       register Sinatra::Namespace

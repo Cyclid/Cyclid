@@ -26,6 +26,7 @@ require 'cyclid/models'
 include Cyclid::API
 
 ADMINS_ORG = 'admins'.freeze
+RSA_KEY_LENGTH = 2048
 
 def create_users
   user = User.new
@@ -44,14 +45,24 @@ def create_users
 end
 
 def create_organizations
+  key = OpenSSL::PKey::RSA.new(RSA_KEY_LENGTH)
+
   org = Organization.new
   org.name = ADMINS_ORG
   org.owner_email = 'admins@example.com'
+  org.rsa_private_key = key.to_der
+  org.rsa_public_key = key.public_key.to_der
+  org.salt = SecureRandom.hex(32)
   org.users << User.find_by(username: 'admin')
+
+  key = OpenSSL::PKey::RSA.new(RSA_KEY_LENGTH)
 
   org = Organization.new
   org.name = 'test'
   org.owner_email = 'test@example.com'
+  org.rsa_private_key = key.to_der
+  org.rsa_public_key = key.public_key.to_der
+  org.salt = SecureRandom.hex(32)
   org.users << User.find_by(username: 'test')
 end
 

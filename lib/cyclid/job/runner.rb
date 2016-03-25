@@ -22,14 +22,16 @@ module Cyclid
             Cyclid.logger.debug "job=#{@job.inspect}"
 
             environment = @job[:environment]
-          rescue StandardError
-            Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}"
+            secrets = @job[:secrets]
+          rescue StandardError => ex
+            Cyclid.logger.error "couldn't un-serialize job for job ID #{job_id}: #{ex}"
             raise 'job failed'
           end
 
           @ctx[:name] = @job[:name]
           @ctx[:version] = @job[:version]
           @ctx[:environment] = environment
+          @ctx.merge! secrets
 
           begin
             # We're off!

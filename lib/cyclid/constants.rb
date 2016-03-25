@@ -19,6 +19,11 @@ module Cyclid
         # Job failed
         FAILED = 11
       end
+
+      # Other one-off constants
+      #
+      # Default size for generating RSA key pairs
+      RSA_KEY_LENGTH = 2048
     end
   end
 end
