@@ -19,8 +19,6 @@ end
 
 begin
   require 'yard'
-
-  YARD::Rake::YardocTask.new
 rescue LoadError
   task :yard do
     abort 'YARD is not available.'
@@ -33,7 +31,8 @@ require_relative 'lib/db'
 require 'sinatra/activerecord/rake'
 
 task :doc do
-  Rake::Task['yard'].invoke
+  YARD::CLI::Yardoc.run('--hide-api', 'REST', '--output-dir', 'doc/api')
+  YARD::CLI::Yardoc.run('--api', 'REST', '--output-dir', 'doc/rest')
   # YARD::CLI::Stats.run('--list-undoc')
 end
 

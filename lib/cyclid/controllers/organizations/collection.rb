@@ -5,6 +5,7 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for the Organization collection
+      # @api REST
       module Collection
         # @!group Organizations
 
@@ -41,6 +42,7 @@ module Cyclid
         # @!endgroup
 
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
           include Constants
