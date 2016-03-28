@@ -6,15 +6,45 @@ module Cyclid
     module Organizations
       # API endpoints for the Organization collection
       module Collection
+        # @!group Organizations
+
+        # @!method get_organizations
+        # @overload GET /organizations
+        # @macro rest
+        # Get all of the organizations.
+        # @return [Array<Object>] List of organizations
+        # @example Get a list of organizations
+        #   GET /organizations => [{"id": 1, "name": "example", "owner_email": "admin@example.com"}]
+        # @see get_organizations_organization
+
+        # @!method post_organizations(body)
+        # @overload POST /organizations
+        # @macro rest
+        # Create a new organization.
+        # @param [JSON] body New organization
+        # @option body [String] name Name of the new organization
+        # @option body [String] owner_email Email address of the organization owner
+        # @option body [Array<String>] users ([]) List of users to add to the organization
+        # @example Create a new organization with user1 & user2 as members
+        #   POST /organizations <= {"name": "example",
+        #                           "owner_email": "admin@example.com",
+        #                           "users": ["user1", "user2"]}
+        #                           ***
+        # @example Create a new organization with no users as members
+        #   POST /organizations <= {"name": "example",
+        #                           "owner_email": "admin@example.com"}
+        #                           ***
+        # @return [200] Organization was created successfully
+        # @return [404] A user in the list of members does not exist
+        # @return [409] An organization with that name already exists
+
+        # @!endgroup
+
         # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
           include Constants
 
-          # @macro [attach] sinatra.get
-          #   @overload get "$1"
-          # @method get_organizationss
-          # @return [String] JSON represention of all the organizations.
           # Get all of the organizations.
           app.get do
             authorized_admin!(Operations::READ)
@@ -31,9 +61,6 @@ module Cyclid
             return orgs.to_json
           end
 
-          # @macro [attach] sinatra.post
-          #   @overload post "$1"
-          # @method post_organizations
           # Create a new organization.
           app.post do
             authorized_admin!(Operations::ADMIN)

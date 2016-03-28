@@ -34,7 +34,7 @@ require 'sinatra/activerecord/rake'
 
 task :doc do
   Rake::Task['yard'].invoke
-  YARD::CLI::Stats.run('--list-undoc')
+  # YARD::CLI::Stats.run('--list-undoc')
 end
 
 task :rackup do

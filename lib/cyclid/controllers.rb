@@ -9,6 +9,12 @@ require_relative 'sinatra/warden/strategies/api_token'
 require_relative 'sinatra/api_helpers'
 require_relative 'sinatra/auth_helpers'
 
+# Define some YARD macros that can be used to create the REST API documentation
+
+# @!macro [new] rest
+#   @!scope instance
+#   @api REST
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
