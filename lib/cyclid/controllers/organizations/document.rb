@@ -5,14 +5,51 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for a single Organization document
+      # @api REST
       module Document
+        # @!group Organizations
+
+        # @!method get_organizations_organization
+        # @overload GET /organizations/:organization
+        # @macro rest
+        # Get a specific organization. The RSA public key is in Base64 encoded
+        # DER format, and can be used to encrypt secrets that can be
+        # decrypted only by the server.
+        # @return [Object] The organization object.
+        # @return [404] The requested organization does not exist.
+        # @example Get the 'example' organization
+        #   GET /organizations/example => [{"id": 1,
+        #                                   "name": "example",
+        #                                   "owner_email": "admin@example.com",
+        #                                   "users": ["user1", "user2"],
+        #                                   "public_key": "<RSA public key>"}]
+        # @see get_organizations
+
+        # @!method put_organizations(body)
+        # @overload PUT /organizations/:organization
+        # @macro rest
+        # Modify an organization. The organizations name or public key can not
+        # be changed.
+        # If a list of users is provided, the current list will be *replaced*,
+        # so clients should first retrieve the full list of users, modify it,
+        # and then use this API to set the final list of users.
+        # @param [JSON] body New organization data.
+        # @option body [String] owner_email Email address of the organization owner
+        # @option body [Array<String>] users List of users who are organization members.
+        # @example Modify the 'example' organization to have user1 & user2 as members
+        #   POST /organizations/example <= {"users": ["user1", "user2"]}
+        # @example Modify the 'example' organization to change the owner email
+        #   POST /organizations/example <= {"owner_email": "bob@example.com"}
+        # @return [200] The organization was changed successfully.
+        # @return [404] The organization does not exist
+        # @return [404] A user in the list of members does not exist
+
+        # @!endgroup
+
         # Sinatra callback
         def self.registered(app)
           include Errors::HTTPErrors
 
-          # @method get_organizations_organization
-          # @param [String] name Name of the organization.
-          # @return [String] JSON represention of the requested organization.
           # Get a specific organization.
           app.get do
             authorized_for!(params[:name], Operations::READ)
@@ -33,8 +70,6 @@ module Cyclid
             return org_hash.to_json
           end
 
-          # @method put("/organizations/:name")
-          # @param [String] name Name of the organization.
           # Modify a specific organization.
           app.put do
             authorized_for!(params[:name], Operations::WRITE)
