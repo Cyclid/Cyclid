@@ -10,7 +10,7 @@ $ bundle exec test/db-loader.rb
 ```
 Cyclid requires a Redis server for Sidekiq; you can either run a Redis server on your local machine or run `bundle exec rake redis` to start one.
 
-You can start Cyclid under Webrick with `bundle exec rake rackup`, and then start Sidekiq with `bundle exec rake sidekiq`, or you can run both under Gaurd with `bundle exec rake guard`.
+You can start Cyclid under Webrick with `bundle exec rake rackup`, and then start Sidekiq with `bundle exec rake sidekiq`, or you can run both under Guard with `bundle exec rake guard`.
 
 You can use curl or wget with HTTP Basic authentication, or the `test/hmac-test.rb` command for GET's using HMAC authentication.
 
