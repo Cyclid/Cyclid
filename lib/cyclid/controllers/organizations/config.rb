@@ -5,16 +5,49 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for Organization specific configuration
+      # @api REST
       module Configs
+        # rubocop:disable Metrics/LineLength
+        # @!group Organizations
+
+        # @!method get_organizations_organization_configs_type_plugin
+        # @overload GET /organizations/:organization/configs/:type/:plugin
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] type The plugin type E.g. 'api' for an API plugin, 'source' for a
+        #   Source plugin etc.
+        # @param [String] plugin Name of the plugin.
+        # Get the current configuration for the given plugin.
+        # @return The plugin configuration for the given plugin.
+        # @return [404] The organization or plugin does not exist.
+        # @example Get the 'example' plugin configuration from the 'example' organization
+        #   GET /organizations/example/configs/type/example => {"id":1,
+        #                                                       "plugin":"example",
+        #                                                       "version":"1.0.0",
+        #                                                       "config":{<plugin specific object>},
+        #                                                       "organization_id":2,
+        #                                                       "schema":[<plugin configuration schema>]}
+
+        # @!method put_organizations_organization_configs_type_plugin
+        # @overload PUT /organizations/:organization/configs/:type/:plugin
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] type The plugin type E.g. 'api' for an API plugin, 'source' for a
+        #   Source plugin etc.
+        # @param [String] plugin Name of the plugin.
+        # Update the plugin configuration
+        # @return [200] The plugin configuration was updated.
+        # @return [404] The organization or plugin does not exist.
+
+        # @!endgroup
+        # rubocop:enable Metrics/LineLength
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
           include Constants::JobStatus
 
-          # @macro [attach] sinatra.get
-          #   @overload get "$1"
-          # @method get_organizations_organization_config_plugin
-          # @return [String] JSON represention of the plugin configuration for the given plugin.
           # Get the current configuration for the given plugin.
           app.get '/:plugin' do
             authorized_for!(params[:name], Operations::READ)
@@ -47,6 +80,7 @@ module Cyclid
             return config.to_json
           end
 
+          # Update the plugin configuration
           app.put '/:plugin' do
             authorized_for!(params[:name], Operations::ADMIN)
 

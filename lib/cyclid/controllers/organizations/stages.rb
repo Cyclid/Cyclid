@@ -5,15 +5,67 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for Organization Stages
+      # @api REST
       module Stages
+        # @!group Organizations
+
+        # @!method get_organizations_organization_stages
+        # @overload GET /organizations/:organization/stages
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # Get all of the stages.
+        # @return All the stages within the organization.
+        # @return [404] The organization does not exist
+
+        # @!method post_organizations_organization_stages(body)
+        # @overload POST /organizations/:organization/stages
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # Create a new stage.
+        # @param [JSON] body New stage
+        # @option body [String] name Name of the new stage
+        # @option body [String] version (0.0.1) Version of the new stage
+        # @option body [Array<Object>] steps List of steps for the stage
+        # @return [400] The definition for the stage is invalid.
+        # @return [404] The organization does not exist.
+        # @return [409] A stage with the same name & version already exists.
+        # @example Create a simple stage for 'example' organization
+        #   POST /organizations/example/stages <= {"name": "example",
+        #                                          "steps": [
+        #                                            {
+        #                                              "action": "command",
+        #                                              "cmd": "bundle install"
+        #                                            }
+        #                                          ]}
+
+        # @!method get_organizations_organization_stages_stage
+        # @overload GET /organizations/:organization/stages/:stage
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] stage Name of the stage.
+        # Get the details of the specified stage within the organization. Returns every defined
+        # version for the given stage.
+        # @return The requested stage.
+        # @return [404] The organization or stage does not exist
+
+        # @!method get_organizations_organization_stages_stage_version
+        # @overload GET /organizations/:organization/stages/:stage/:version
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] stage Name of the stage.
+        # @param [String] version Version of the stage.
+        # Get the details of the specified stage within the organization. Returns the specified
+        # version of the given stage.
+        # @return The requested stage.
+        # @return [404] The organization, stage or version of the stage does not exist
+
+        # @!endgroup
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
 
-          # @macro [attach] sinatra.get
-          #   @overload get "$1"
-          # @method get_organizations_organization_stages
-          # @return [String] JSON represention of all the stages with the organization.
           # Get all of the stages.
           app.get do
             authorized_for!(params[:name], Operations::READ)
@@ -38,9 +90,6 @@ module Cyclid
             return stages.to_json
           end
 
-          # @macro [attach] sinatra.post
-          #   @overload post "$1"
-          # @method post_organizations_organization_stages
           # Create a new stage.
           app.post do
             authorized_for!(params[:name], Operations::ADMIN)
@@ -81,11 +130,6 @@ module Cyclid
             end
           end
 
-          # @method get_organizations_organization_stages_stage
-          # @param [String] name Name of the organization.
-          # @param [String] stage Name of the stage.
-          # @return [String] JSON represention of the requested stage.
-          # Get the details of the specified stage within the organization.
           # Returns every defined version for the given stage.
           app.get '/:stage' do
             authorized_for!(params[:name], Operations::READ)
@@ -115,11 +159,6 @@ module Cyclid
             return stages.to_json
           end
 
-          # @method get_organizations_organization_stages_stage_version
-          # @param [String] name Name of the organization.
-          # @param [String] stage Name of the stage.
-          # @param [String] version Version of the stage.
-          # @return [String] JSON represention of the requested stage.
           # Get the details of the specified stage within the organization.
           # Returns the specified version of the given stage.
           app.get '/:stage/:version' do
@@ -162,6 +201,8 @@ module Cyclid
           # be unserialized back in to the desired object when it's needed
           # without the database having to be aware of every single
           # permutation of possible actions and arguments to them.
+          #
+          # @private
           def create_steps(stage_steps)
             sequence = 1
             stage_steps.map do |stage_step|
