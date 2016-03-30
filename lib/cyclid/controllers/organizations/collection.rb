@@ -13,7 +13,7 @@ module Cyclid
         # @overload GET /organizations
         # @macro rest
         # Get all of the organizations.
-        # @return [Array<Object>] List of organizations
+        # @return List of organizations
         # @example Get a list of organizations
         #   GET /organizations => [{"id": 1, "name": "example", "owner_email": "admin@example.com"}]
         # @see get_organizations_organization
@@ -26,6 +26,9 @@ module Cyclid
         # @option body [String] name Name of the new organization
         # @option body [String] owner_email Email address of the organization owner
         # @option body [Array<String>] users ([]) List of users to add to the organization
+        # @return [200] Organization was created successfully
+        # @return [404] A user in the list of members does not exist
+        # @return [409] An organization with that name already exists
         # @example Create a new organization with user1 & user2 as members
         #   POST /organizations <= {"name": "example",
         #                           "owner_email": "admin@example.com",
@@ -35,9 +38,6 @@ module Cyclid
         #   POST /organizations <= {"name": "example",
         #                           "owner_email": "admin@example.com"}
         #                           ***
-        # @return [200] Organization was created successfully
-        # @return [404] A user in the list of members does not exist
-        # @return [409] An organization with that name already exists
 
         # @!endgroup
 

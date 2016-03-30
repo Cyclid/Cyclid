@@ -5,15 +5,74 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for Organization Jobs
+      # @api REST
       module Jobs
+        # rubocop:disable Metrics/LineLength
+        # @!group Organizations
+
+        # @!method post_organizations_organization_jobs(body)
+        # @overload POST /organizations/:organization/jobs
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # Create and run a job. The job definition can be either a JSON or
+        # YAML document.
+        # @param [JSON] body Job definition
+        # @option body [String] name Name of the job.
+        # @option body [Object] environment Job runtime environment details. At a minimum this
+        #   must include the operating system name & version to use.
+        # @option body [Object] secrets ({}) Encrypted secret data for use by the job.
+        # @option body [Array<Object>] stages ([]) Ad-hoc stage definitions which are local to this job.
+        # @option body [Array<Object>] sequence ([]) List of stages to be run.
+        # @return [200] The job was created and successfully queued.
+        # @return [400] The job definition was invalid.
+        # @return [404] The organization does not exist.
+        # @example Create a simple job in the 'example' organization with no secrets or ad-hoc stages
+        #   POST /organizations/example/jobs <= {"name": "example",
+        #                                        "environment" : {
+        #                                          "os" : "ubuntu_trusty"
+        #                                         },
+        #                                         "sequence": [
+        #                                           {
+        #                                             "stage": "example_stage"
+        #                                           }
+        #                                         ]}
+
+        # @!method get_organizations_organization_job
+        # @overload GET /organizations/:organization/:job
+        # @param [String] organization Name of the organization.
+        # @param [Integer] job Job ID.
+        # @macro rest
+        # Get the complete JobRecord for the given job ID.
+        # @return The job record for the job ID.
+        # @return [404] The organization or job record does not exist.
+
+        # @!method get_organizations_organization_job_status
+        # @overload GET /organizations/:organization/:job/status
+        # @param [String] organization Name of the organization.
+        # @param [Integer] job Job ID.
+        # @macro rest
+        # Get the current status of the given job ID.
+        # @return The current job status for the job ID.
+        # @return [404] The organization or job record does not exist.
+
+        # @!method get_organizations_organization_job_log
+        # @overload GET /organizations/:organization/:job/log
+        # @param [String] organization Name of the organization.
+        # @param [Integer] job Job ID.
+        # @macro rest
+        # Get the current complete log of the given job ID.
+        # @return The job log for the job ID.
+        # @return [404] The organization or job record does not exist.
+
+        # @!endgroup
+        # rubocop:enable Metrics/LineLength
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
           include Constants::JobStatus
 
-          # @macro [attach] sinatra.post
-          #   @overload post "$1"
-          # @method post_organizations_organization_jobs
           # Create and run a job.
           app.post do
             authorized_for!(params[:name], Operations::WRITE)
@@ -34,10 +93,6 @@ module Cyclid
             return { job_id: job_id }.to_json
           end
 
-          # @macro [attach] sinatra.get
-          #   @overload get "$1"
-          # @method get_organizations_organization_job
-          # @return [String] JSON represention of the job record for the job ID.
           # Get the complete JobRecord for the given job ID.
           app.get '/:id' do
             authorized_for!(params[:name], Operations::READ)
@@ -56,8 +111,6 @@ module Cyclid
             return job_record.to_json
           end
 
-          # @method get_organizations_organization_job_status
-          # @return [String] JSON represention of the job status for the job ID.
           # Get the current status of the given job ID.
           app.get '/:id/status' do
             authorized_for!(params[:name], Operations::READ)
@@ -77,8 +130,6 @@ module Cyclid
             return hash.to_json
           end
 
-          # @method get_organizations_organization_job_log
-          # @return [String] JSON represention of the job log for the job ID.
           # Get the current complete log of the given job ID.
           app.get '/:id/log' do
             authorized_for!(params[:name], Operations::READ)

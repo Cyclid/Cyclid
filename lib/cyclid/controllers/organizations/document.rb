@@ -12,10 +12,11 @@ module Cyclid
         # @!method get_organizations_organization
         # @overload GET /organizations/:organization
         # @macro rest
+        # @param [String] organization Name of the organization.
         # Get a specific organization. The RSA public key is in Base64 encoded
         # DER format, and can be used to encrypt secrets that can be
         # decrypted only by the server.
-        # @return [Object] The organization object.
+        # @return The organization object.
         # @return [404] The requested organization does not exist.
         # @example Get the 'example' organization
         #   GET /organizations/example => [{"id": 1,
@@ -28,6 +29,7 @@ module Cyclid
         # @!method put_organizations(body)
         # @overload PUT /organizations/:organization
         # @macro rest
+        # @param [String] organization Name of the organization.
         # Modify an organization. The organizations name or public key can not
         # be changed.
         # If a list of users is provided, the current list will be *replaced*,
@@ -36,17 +38,18 @@ module Cyclid
         # @param [JSON] body New organization data.
         # @option body [String] owner_email Email address of the organization owner
         # @option body [Array<String>] users List of users who are organization members.
+        # @return [200] The organization was changed successfully.
+        # @return [404] The organization does not exist
+        # @return [404] A user in the list of members does not exist
         # @example Modify the 'example' organization to have user1 & user2 as members
         #   POST /organizations/example <= {"users": ["user1", "user2"]}
         # @example Modify the 'example' organization to change the owner email
         #   POST /organizations/example <= {"owner_email": "bob@example.com"}
-        # @return [200] The organization was changed successfully.
-        # @return [404] The organization does not exist
-        # @return [404] A user in the list of members does not exist
 
         # @!endgroup
 
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
 

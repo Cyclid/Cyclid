@@ -5,15 +5,45 @@ module Cyclid
     # Module for all Organization related API endpoints
     module Organizations
       # API endpoints for Organization members
+      # @api REST
       module Members
+        # @!group Organizations
+
+        # @!method get_organizations_organization_members_member
+        # @overload GET /organizations/:organization/members/:username
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] username Username of the member.
+        # Get the details of the specified user within the organization.
+        # @return The requested member.
+        # @return [404] The organization or user does not exist, or the user is not a member of
+        #   the organization.
+        # @example Get the 'user1' user from the 'example' organization
+        #   GET /organizations/example/members/test => {"id": 1,
+        #                                               "username": "user1",
+        #                                               "email":"test@example.com",
+        #                                               "permissions":{
+        #                                                 "admin":true,
+        #                                                 "write":true,
+        #                                                 "read":true
+        #                                                }}
+
+        # @!method put_organizations_organization_members_member
+        # @overload PUT /organizations/:name/members/:username
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # @param [String] username Username of the member.
+        # Modify the specified user within the organization.
+        # @return [200] The member was modified successfully.
+        # @return [404] The user does not exist, or is not a member of the organization.
+
+        # @!endgroup
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
 
-          # @method get_organizations_organization_members_member
-          # @param [String] name Name of the organization.
-          # @param [String] username Username of the member.
-          # @return [String] JSON represention of the requested member.
           # Get the details of the specified user within the organization.
           app.get '/:username' do
             authorized_for!(params[:name], Operations::READ)
@@ -50,9 +80,6 @@ module Cyclid
             end
           end
 
-          # @method put("/organizations/:name/members/:username")
-          # @param [String] name Name of the organization.
-          # @param [String] username Username of the member.
           # Modify the specified user within the organization.
           app.put '/:username' do
             authorized_for!(params[:name], Operations::WRITE)
