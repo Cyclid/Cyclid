@@ -5,8 +5,53 @@ module Cyclid
     # Module for all User related API endpoints
     module Users
       # API endpoints for the User collection
+      # @api REST
       module Collection
+        # @!group Users
+
+        # @!method users
+        # @overload GET /users
+        # @macro rest
+        # Get all of the users.
+        # @return List of users
+        # @example Get a list of users
+        #   GET /users => [{
+        #                     "id": 1,
+        #                     "username": "user1",
+        #                     "email": "user1@example.com"
+        #                   },
+        #                   {
+        #                     "id": 2,
+        #                     "username": "user2",
+        #                     "email": "user2@example.com"
+        #                   }]
+        # @see get_users_user
+
+        # @!method post_users(body)
+        # @overload POST /users
+        # @macro rest
+        # Create a new user. Note that only *one* of 'password' or 'new_password' should be
+        # passed.
+        # @param [JSON] body New user
+        # @option body [String] username Username of the new user
+        # @option body [String] email Users email address
+        # @option body [String] password Bcrypt2 encrypted password
+        # @option body [String] new_password Password in plain text, which will be encrypted
+        #   before being stored in the databaase.
+        # @option body [String] secret HMAC signing secret. This should be a suitably long
+        #   random string.
+        # @return [200] User was created successfully
+        # @return [400] The user definition is invalid
+        # @return [409] An user with that name already exists
+        # @example Create a new user with an encrypted password
+        #   POST /users <= {"username": "user1",
+        #                   "email": "user1@example.com",
+        #                   "password": "<Bcrypt2 encrypted password>"}
+
+        # @!endgroup
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
 

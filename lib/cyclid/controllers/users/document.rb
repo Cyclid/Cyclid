@@ -5,14 +5,49 @@ module Cyclid
     # Module for all User related API endpoints
     module Users
       # API endpoints for a single Organization document
+      # @api REST
       module Document
+        # @!group Users
+
+        # @!method get_users_user
+        # @overload GET /users/:username
+        # @macro rest
+        # @param [String] username Username of the user.
+        # Get a specific user.
+        # @return The requested user.
+        # @return [404] The user does not exist
+
+        # @!method put_users_user(body)
+        # @overload PUT /users/:username
+        # @macro rest
+        # @param [String] username Username of the user.
+        # Modify a specific user.
+        # @param [JSON] body User information
+        # @option body [String] email Users new email address
+        # @option body [String] password New Bcrypt2 encrypted password
+        # @option body [String] new_password New password in plain text, which will be
+        #   encrypted before being stored in the databaase.
+        # @option body [String] secret New HMAC signing secret. This should be a suitably
+        #   long random string.
+        # @return [200] User was modified successfully
+        # @return [400] The user definition is invalid
+        # @return [404] The user does not exist
+
+        # @!method delete_users_user
+        # @overload DELETE /users/:username
+        # @macro rest
+        # @param [String] username Username of the user.
+        # Delete a specific user.
+        # @return [200] User was deleted successfully
+        # @return [404] The user does not exist
+
+        # @!endgroup
+
         # Sinatra callback
+        # @private
         def self.registered(app)
           include Errors::HTTPErrors
 
-          # @method get_users_user
-          # @param [String] username Username of the user.
-          # @return [String] JSON represention of the requested users.
           # Get a specific user.
           app.get do
             authorized_as!(params[:username], Operations::READ)
@@ -23,7 +58,7 @@ module Cyclid
 
             Cyclid.logger.debug user.organizations
 
-            # Convert to a Hash and inject the Organization data
+            # Convert to a Hash and inject the User data
             user_hash = user.serializable_hash
             user_hash['organizations'] = user.organizations.map(&:name)
 
@@ -32,8 +67,6 @@ module Cyclid
             return user_hash.to_json
           end
 
-          # @method put("/users/:username")
-          # @param [String] username Username of the user.
           # Modify a specific user.
           app.put do
             authorized_as!(params[:username], Operations::WRITE)
@@ -59,8 +92,6 @@ module Cyclid
             return json_response(NO_ERROR, "user #{payload['username']} modified")
           end
 
-          # @method delete("/users/:username")
-          # @param [String] username Username of the user.
           # Delete a specific user.
           app.delete do
             authorized_as!(params[:username], Operations::ADMIN)

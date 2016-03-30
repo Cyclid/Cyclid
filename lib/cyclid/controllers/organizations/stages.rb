@@ -59,7 +59,7 @@ module Cyclid
         # @return The requested stage.
         # @return [404] The organization, stage or version of the stage does not exist
 
-       # @!endgroup
+        # @!endgroup
 
         # Sinatra callback
         # @private
