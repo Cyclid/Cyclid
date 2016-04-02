@@ -15,6 +15,11 @@ GIT
       spoon
 
 PATH
+  remote: ../Cyclid-core/
+  specs:
+    cyclid-core (0.1.0)
+
+PATH
   remote: ../Mist/
   specs:
     mist-client (0.2.0)
@@ -173,6 +178,7 @@ DEPENDENCIES
   activerecord
   awesome_print
   bcrypt
+  cyclid-core!
   ffi!
   guard
   guard-rack!

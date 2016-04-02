@@ -12,6 +12,7 @@ gem 'bcrypt'
 gem 'net-ssh'
 gem 'sidekiq'
 gem 'mist-client', path: '../Mist/'
+gem 'cyclid-core', path: '../Cyclid-core/'
 
 group :development, :test do
   gem 'rake'
