@@ -19,23 +19,31 @@ module Cyclid
         # @return [404] The organization or user does not exist, or the user is not a member of
         #   the organization.
         # @example Get the 'user1' user from the 'example' organization
-        #   GET /organizations/example/members/test => {"id": 1,
-        #                                               "username": "user1",
-        #                                               "email":"test@example.com",
-        #                                               "permissions":{
-        #                                                 "admin":true,
-        #                                                 "write":true,
-        #                                                 "read":true
-        #                                                }}
+        #   GET /organizations/example/members/user1 => {"id": 1,
+        #                                                "username": "user1",
+        #                                                "email":"test@example.com",
+        #                                                "permissions":{
+        #                                                  "admin":true,
+        #                                                  "write":true,
+        #                                                  "read":true
+        #                                                 }}
 
         # @!method put_organizations_organization_members_member
         # @overload PUT /organizations/:name/members/:username
         # @macro rest
         # @param [String] organization Name of the organization.
         # @param [String] username Username of the member.
-        # Modify the specified user within the organization.
+        # Modify the permissions of specified user within the organization.
+        # @param [JSON] body User permissions.
+        # @option body [Hash] permissions Permissions to apply for the user.
         # @return [200] The member was modified successfully.
         # @return [404] The user does not exist, or is not a member of the organization.
+        # @example Give the member 'user1' write & read permissions for the 'example' organization
+        #   PUT /organizations/example/members/user1 <= {"permissions": {
+        #                                                  "admin":false,
+        #                                                  "write":true,
+        #                                                  "read":true
+        #                                                 }}
 
         # @!endgroup
 
