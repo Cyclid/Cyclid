@@ -38,7 +38,7 @@ module Cyclid
         #                                         ]}
 
         # @!method get_organizations_organization_job
-        # @overload GET /organizations/:organization/:job
+        # @overload GET /organizations/:organization/jobs/:job
         # @param [String] organization Name of the organization.
         # @param [Integer] job Job ID.
         # @macro rest
@@ -47,7 +47,7 @@ module Cyclid
         # @return [404] The organization or job record does not exist.
 
         # @!method get_organizations_organization_job_status
-        # @overload GET /organizations/:organization/:job/status
+        # @overload GET /organizations/:organization/jobs/:job/status
         # @param [String] organization Name of the organization.
         # @param [Integer] job Job ID.
         # @macro rest
@@ -56,7 +56,7 @@ module Cyclid
         # @return [404] The organization or job record does not exist.
 
         # @!method get_organizations_organization_job_log
-        # @overload GET /organizations/:organization/:job/log
+        # @overload GET /organizations/:organization/jobs/:job/log
         # @param [String] organization Name of the organization.
         # @param [Integer] job Job ID.
         # @macro rest
