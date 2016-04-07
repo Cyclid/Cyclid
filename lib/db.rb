@@ -2,13 +2,16 @@ require 'active_record'
 require 'logger'
 
 begin
-  STDERR.puts ENV['RACK_ENV']
-
   case ENV['RACK_ENV']
   when 'development'
+    database = if defined? Cyclid
+                Cyclid.config.database
+               else
+                'sqlite3://development.db'
+               end
+
     ActiveRecord::Base.establish_connection(
-      adapter: 'sqlite3',
-      database: 'development.db'
+      database
     )
 
     ActiveRecord::Base.logger = if defined? Cyclid
@@ -16,11 +19,14 @@ begin
                                 else
                                   Logger.new(STDERR)
                                 end
+  when 'production'
+    ActiveRecord::Base.establish_connection(
+      Cyclid.config.database
+    )
+
+    ActiveRecord::Base.logger = Cyclid.logger
   when 'test'
     Cyclid.logger.info 'In test mode; not creating database connection'
-  when 'production'
-    Cyclid.logger.error 'No production database'
-    abort
   end
 
 rescue StandardError => ex

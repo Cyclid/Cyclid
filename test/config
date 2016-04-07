@@ -1,0 +1,4 @@
+database: sqlite3://database.db 
+log: stderr
+dispatcher: local
+builder: mist

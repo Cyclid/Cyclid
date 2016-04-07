@@ -18,7 +18,7 @@ PATH
   remote: ../Cyclid-core/
   specs:
     cyclid-core (0.1.0)
-      rack (~> 1.6.0)
+      rack (~> 1.6)
 
 PATH
   remote: ../Mist/

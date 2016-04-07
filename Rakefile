@@ -30,10 +30,11 @@ require_relative 'lib/db'
 
 require 'sinatra/activerecord/rake'
 
+ENV['CYCLID_CONFIG'] = File.join(%w(test config))
+
 task :doc do
   YARD::CLI::Yardoc.run('--hide-api', 'REST', '--output-dir', 'doc/api')
   YARD::CLI::Yardoc.run('--api', 'REST', '--output-dir', 'doc/rest')
-  # YARD::CLI::Stats.run('--list-undoc')
 end
 
 task :rackup do
