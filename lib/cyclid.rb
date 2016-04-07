@@ -16,7 +16,7 @@ module Cyclid
     Cyclid.plugins = API::Plugins::Registry.new
 
     begin
-      Cyclid.logger = if Cyclid.config.log.downcase == 'stderr'
+      Cyclid.logger = if Cyclid.config.log.casecmp('stderr').zero?
                         Logger.new(STDERR)
                       else
                         Logger.new(Cyclid.config.log)
