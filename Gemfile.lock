@@ -32,8 +32,8 @@ PATH
     cyclid (0.1.0)
       activerecord (~> 4.2)
       bcrypt (~> 3.1)
-      cyclid-core
-      mist-client
+      cyclid-core (~> 0)
+      mist-client (~> 0)
       net-ssh (~> 3.1)
       oj (~> 2.14)
       require_all (~> 1.3)
