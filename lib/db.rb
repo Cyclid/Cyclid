@@ -5,9 +5,9 @@ begin
   case ENV['RACK_ENV']
   when 'development'
     database = if defined? Cyclid
-                Cyclid.config.database
+                 Cyclid.config.database
                else
-                'sqlite3://development.db'
+                 'sqlite3:development.db'
                end
 
     ActiveRecord::Base.establish_connection(
