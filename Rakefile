@@ -7,6 +7,9 @@ end
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 
+require 'rubygems/tasks'
+Gem::Tasks.new
+
 begin
   require 'rubocop/rake_task'
 
@@ -30,7 +33,12 @@ require_relative 'lib/db'
 
 require 'sinatra/activerecord/rake'
 
-ENV['CYCLID_CONFIG'] = File.join(%w(test config))
+ENV['CYCLID_CONFIG'] = File.join(%w(config development))
+
+task :db_init do
+  Rake::Task['db:migrate'].invoke
+  system 'db/init.rb'
+end
 
 task :doc do
   YARD::CLI::Yardoc.run('--hide-api', 'REST', '--output-dir', 'doc/api')
