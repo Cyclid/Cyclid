@@ -1,3 +1,5 @@
+require 'net/http'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
