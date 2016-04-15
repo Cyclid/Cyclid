@@ -12,10 +12,10 @@ module Cyclid
           end
         end
 
-        # Return the information needed (hostname/IP, username, password if there
-        # is one) to create a Transport to this host, in a normalized form.
+        # Return the information needed (hostname/IP, username, password & key
+        # if there are any) to create a Transport to this host, in a normalized form.
         def connect_info
-          [self[:host], self[:username], self[:password]]
+          [self[:host], self[:username], self[:password], self[:key]]
         end
 
         # Return a list of acceptable Transports that can be used to connect to this

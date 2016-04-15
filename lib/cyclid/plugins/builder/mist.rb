@@ -1,3 +1,4 @@
+require 'mist/config'
 require 'mist/pool'
 require 'mist/client'
 
@@ -18,7 +19,8 @@ module Cyclid
       # Mist builder. Calls out to Mist to obtain a build host instance.
       class Mist < Builder
         def initialize
-          pool = ::Mist::Pool.get
+          @config = ::Mist::Config.new(File.join(%w(/ etc mist config)))
+          pool = ::Mist::Pool.get(@config.servers)
           @client = ::Mist::Client.new(pool)
         end
 
@@ -52,6 +54,7 @@ module Cyclid
                                      username: result['username'],
                                      workspace: "/home/#{result['username']}",
                                      password: nil,
+                                     key: @config.ssh_private_key,
                                      server: result['server'],
                                      distro: distro,
                                      release: release)

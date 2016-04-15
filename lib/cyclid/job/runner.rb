@@ -171,10 +171,11 @@ module Cyclid
         # connect them together
         def create_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
-          host, username, password = build_host.connect_info
+          host, username, password, key = build_host.connect_info
           Cyclid.logger.debug "create_transport: host: #{host} " \
                                             "username: #{username} " \
-                                            "password: #{password}"
+                                            "password: #{password} " \
+                                            "key: #{key}"
 
           # Try to match a transport that the host supports, to a transport we know how
           # to create; transports should be listed in the order they're preferred.
@@ -190,6 +191,7 @@ module Cyclid
           transport = transport_plugin.new(host: host,
                                            user: username,
                                            password: password,
+                                           key: key,
                                            log: log_buffer)
           raise 'failed to connect the transport' unless transport
 
