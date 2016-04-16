@@ -29,6 +29,8 @@ end
 require 'db'
 require 'cyclid/models'
 
+require_relative '../db/schema.rb'
+
 include Cyclid::API
 
 ADMINS_ORG = 'admins'.freeze

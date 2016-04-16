@@ -6,7 +6,9 @@ Gem::Specification.new do |s|
   s.description = 'The Cyclid CI system'
   s.authors     = ['Kristian Van Der Vliet']
   s.email       = 'vanders@liqwyd.com'
-  s.files       = Dir.glob('lib/**/*') + %w(LICENSE README.md)
+  s.files       = Dir.glob('lib/**/*') + Dir.glob('bin/*') + %w(db/schema.rb LICENSE README.md)
+  s.bindir      = 'bin'
+  s.executables << 'cyclid-db-init'
 
   s.add_runtime_dependency('oj', '~> 2.14')
   s.add_runtime_dependency('require_all', '~> 1.3')
