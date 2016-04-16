@@ -19,7 +19,9 @@ module Cyclid
       # Mist builder. Calls out to Mist to obtain a build host instance.
       class Mist < Builder
         def initialize
-          @config = ::Mist::Config.new(File.join(%w(/ etc mist config)))
+          mist_config_file = ENV.fetch('MIST_CONFIG', File.join(%w(/ etc mist config)))
+          @config = ::Mist::Config.new(mist_config_file)
+
           pool = ::Mist::Pool.get(@config.servers)
           @client = ::Mist::Client.new(pool)
         end
