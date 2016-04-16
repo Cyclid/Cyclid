@@ -25,6 +25,8 @@ begin
     )
 
     ActiveRecord::Base.logger = Cyclid.logger
+
+    Cyclid.logger.level = Logger::INFO
   when 'test'
     Cyclid.logger.info 'In test mode; not creating database connection'
   end
