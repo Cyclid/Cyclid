@@ -1,0 +1,4 @@
+client:
+  ssh_private_key: /path/to/key
+  servers:
+    - example.com:18800
