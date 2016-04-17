@@ -38,7 +38,7 @@ ENV['MIST_CONFIG'] = File.join(%w(config mist))
 
 task :db_init do
   Rake::Task['db:migrate'].invoke
-  system 'db/init.rb'
+  system 'bin/cyclid-db-init'
 end
 
 task :doc do
