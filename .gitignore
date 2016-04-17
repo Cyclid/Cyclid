@@ -7,6 +7,7 @@ doc
 dump.rdb
 *.swp
 coverage
+pkg
 
 # OS artifacts
 .DS_Store

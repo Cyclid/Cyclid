@@ -1,3 +1,17 @@
+# Copyright 2016 Liqwyd Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 require 'net/ssh'
 require 'cyclid/log_buffer'
 
@@ -20,6 +34,7 @@ module Cyclid
                               args.include? :log
 
           password = args[:password] if args.include? :password
+          keys = [args[:key]] if args.include? :key
 
           @log = args[:log]
 
@@ -29,7 +44,11 @@ module Cyclid
           start = Time.now
           loop do
             begin
-              @session = Net::SSH.start(args[:host], args[:user], password: password, timeout: 5)
+              @session = Net::SSH.start(args[:host],
+                                        args[:user],
+                                        password: password,
+                                        keys: keys,
+                                        timeout: 5)
               break unless @session.nil?
             rescue Net::SSH::AuthenticationFailed
               Cyclid.logger.debug 'SSH authentication failed'

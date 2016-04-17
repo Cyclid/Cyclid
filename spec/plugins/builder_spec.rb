@@ -39,7 +39,7 @@ describe Cyclid::API::Plugins::BuildHost do
     end
 
     it 'should return the connection information' do
-      expect(@buildhost.connect_info).to match_array(['example.com', 'test', 'xxtestxx'])
+      expect(@buildhost.connect_info).to match_array(['example.com', 'test', 'xxtestxx', nil])
     end
 
     it 'should store additional key/value pairs' do

@@ -7,6 +7,9 @@ end
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 
+require 'rubygems/tasks'
+Gem::Tasks.new
+
 begin
   require 'rubocop/rake_task'
 
@@ -30,10 +33,17 @@ require_relative 'lib/db'
 
 require 'sinatra/activerecord/rake'
 
+ENV['CYCLID_CONFIG'] = File.join(%w(config development))
+ENV['MIST_CONFIG'] = File.join(%w(config mist))
+
+task :db_init do
+  Rake::Task['db:migrate'].invoke
+  system 'bin/cyclid-db-init'
+end
+
 task :doc do
   YARD::CLI::Yardoc.run('--hide-api', 'REST', '--output-dir', 'doc/api')
   YARD::CLI::Yardoc.run('--api', 'REST', '--output-dir', 'doc/rest')
-  # YARD::CLI::Stats.run('--list-undoc')
 end
 
 task :rackup do

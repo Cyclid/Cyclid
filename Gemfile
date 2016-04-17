@@ -1,16 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'oj'
-gem 'awesome_print'
-gem 'require_all'
-gem 'sinatra'
-gem 'sinatra-contrib'
-gem 'warden'
-gem 'activerecord'
-gem 'sinatra-activerecord'
-gem 'bcrypt'
-gem 'net-ssh'
-gem 'sidekiq'
+gemspec
+
 gem 'mist-client', path: '../Mist/'
 gem 'cyclid-core', path: '../Cyclid-core/'
 
@@ -28,4 +19,5 @@ group :development, :test do
   gem 'yard'
   gem 'sqlite3'
   gem 'webmock'
+  gem 'rubygems-tasks'
 end
