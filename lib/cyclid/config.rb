@@ -12,17 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Top level module for the core Cyclid code.
+require 'yaml'
+
 module Cyclid
-  # Module for the Cyclid API
   module API
-    # Model for Steps
-    class Step < ActiveRecord::Base
-      Cyclid.logger.debug('In the Step model')
+    # Cyclid API configuration
+    class Config
+      attr_reader :database, :log, :dispatcher, :builder
 
-      validates :sequence, presence: true
+      def initialize(path)
+        @config = YAML.load_file(path)
 
-      belongs_to :stage
+        @database = @config['database']
+        @log = @config['log'] || File.join(%w(/ var log cyclid))
+        @dispatcher = @config['dispatcher']
+        @builder = @config['builder']
+      rescue StandardError => ex
+        abort "Failed to load configuration file #{path}: #{ex}"
+      end
     end
   end
 end

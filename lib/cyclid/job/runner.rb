@@ -1,3 +1,17 @@
+# Copyright 2016 Liqwyd Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -171,10 +185,11 @@ module Cyclid
         # connect them together
         def create_transport(build_host, log_buffer)
           # Create a Transport & connect it to the build host
-          host, username, password = build_host.connect_info
+          host, username, password, key = build_host.connect_info
           Cyclid.logger.debug "create_transport: host: #{host} " \
                                             "username: #{username} " \
-                                            "password: #{password}"
+                                            "password: #{password} " \
+                                            "key: #{key}"
 
           # Try to match a transport that the host supports, to a transport we know how
           # to create; transports should be listed in the order they're preferred.
@@ -190,6 +205,7 @@ module Cyclid
           transport = transport_plugin.new(host: host,
                                            user: username,
                                            password: password,
+                                           key: key,
                                            log: log_buffer)
           raise 'failed to connect the transport' unless transport
 

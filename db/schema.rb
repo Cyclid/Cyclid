@@ -32,8 +32,8 @@ ActiveRecord::Schema.define(version: 20160325120748) do
   create_table "organizations", force: :cascade do |t|
     t.string "name",                              null: false
     t.string "owner_email",                       null: false
-    t.binary "rsa_private_key", default: "x'30'", null: false
-    t.binary "rsa_public_key",  default: "x'30'", null: false
+    t.binary "rsa_private_key",                   null: false
+    t.binary "rsa_public_key",                    null: false
     t.string "salt",            default: "0",     null: false
   end
 

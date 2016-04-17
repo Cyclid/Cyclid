@@ -6,7 +6,7 @@ Cyclid
 $ rbenv install 2.3.0
 $ bundle install --path vendor/bundle
 $ bundle exec rake db:migrate
-$ bundle exec test/db-loader.rb
+$ CYCLID_CONFIG=config/development bundle exec bin/cyclid-db-init
 ```
 Cyclid requires a Redis server for Sidekiq; you can either run a Redis server on your local machine or run `bundle exec rake redis` to start one.
 

@@ -9,7 +9,8 @@
           "build-essential",
           "git",
           "zlib1g-dev",
-          "libsqlite3-dev"
+          "libsqlite3-dev",
+          "libmysqlclient-dev"
         ]
       },
    "secrets":
