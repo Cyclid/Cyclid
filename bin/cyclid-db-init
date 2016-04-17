@@ -11,6 +11,8 @@ ENV['RACK_ENV'] = ENV['RACK_ENV'] || 'development'
 
 require 'cyclid/config'
 
+# Top level module for the core Cyclid code; just stub out to provide the
+# bare minimum required to inject data via. the models.
 module Cyclid
   class << self
     attr_accessor :logger, :config
@@ -38,9 +40,9 @@ RSA_KEY_LENGTH = 2048
 
 def generate_password
   (('a'..'z').to_a.concat \
-   ('A'..'Z').to_a.concat \
-   ('0'..'9').to_a.concat \
-   %w($ % ^ & * _)).shuffle[0,8].join
+    ('A'..'Z').to_a.concat \
+      ('0'..'9').to_a.concat \
+        %w($ % ^ & * _)).sample(8).join
 end
 
 def create_admin_user

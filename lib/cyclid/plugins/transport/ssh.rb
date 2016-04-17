@@ -30,7 +30,11 @@ module Cyclid
           start = Time.now
           loop do
             begin
-              @session = Net::SSH.start(args[:host], args[:user], password: password, keys: keys, timeout: 5)
+              @session = Net::SSH.start(args[:host],
+                                        args[:user],
+                                        password: password,
+                                        keys: keys,
+                                        timeout: 5)
               break unless @session.nil?
             rescue Net::SSH::AuthenticationFailed
               Cyclid.logger.debug 'SSH authentication failed'
