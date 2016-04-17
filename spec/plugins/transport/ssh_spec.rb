@@ -10,7 +10,11 @@ describe Cyclid::API::Plugins::Ssh do
   end
 
   it 'should create a new instance' do
-    expect(@ssh).to receive(:start).with('localhost', 'test', password: nil, keys: nil, timeout: 5).ordered
+    expect(@ssh).to receive(:start).with('localhost',
+                                         'test',
+                                         password: nil,
+                                         keys: nil,
+                                         timeout: 5).ordered
     expect do
       Cyclid::API::Plugins::Ssh.new(host: 'localhost',
                                     user: 'test',
