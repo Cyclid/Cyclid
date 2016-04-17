@@ -1,5 +1,0 @@
-test:
-  username: test
-  email: test@example.com
-  password: $2a$10$VuxJ9qCodE6e493ogJRjbeOaUZqOCFuHqO5SIQa5Q9dC8cU.UUFHK
-  secret: aasecret55
