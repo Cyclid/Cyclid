@@ -42,6 +42,7 @@ PATH
       sinatra (~> 1.4)
       sinatra-activerecord (~> 2.0)
       sinatra-contrib (~> 1.4)
+      slack-notifier (~> 1.5.1)
       warden (~> 1.2)
 
 GEM
@@ -166,13 +167,14 @@ GEM
     sinatra-activerecord (2.0.9)
       activerecord (>= 3.2)
       sinatra (~> 1.0)
-    sinatra-contrib (1.4.6)
+    sinatra-contrib (1.4.7)
       backports (>= 2.0)
       multi_json
       rack-protection
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
+    slack-notifier (1.5.1)
     slop (3.6.0)
     spoon (0.0.4)
       ffi
