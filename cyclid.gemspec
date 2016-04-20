@@ -1,7 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'cyclid'
   s.version     = '0.1.0'
-  s.licenses    = ['Apache-2.0']
   s.summary     = 'Cyclid CI API'
   s.description = 'The Cyclid CI system'
   s.authors     = ['Kristian Van Der Vliet']
@@ -21,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('net-ssh', '~> 3.1')
   s.add_runtime_dependency('sidekiq', '~> 4.1')
   s.add_runtime_dependency('mysql', '~> 2.9')
+  s.add_runtime_dependency('slack-notifier', '~> 1.5.1')
 
   s.add_runtime_dependency('cyclid-core', '~> 0')
   s.add_runtime_dependency('mist-client', '~> 0')
