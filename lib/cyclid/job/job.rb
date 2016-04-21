@@ -29,6 +29,7 @@ module Cyclid
 
           @name = job[:name]
           @version = job[:version] || '1.0.0'
+          @organization = org.name
           @environment = job[:environment]
           @sources = job[:sources] || []
           @secrets = setec_astronomy(org, (job[:secrets] || {}))
@@ -40,6 +41,7 @@ module Cyclid
         # Return everything, serialized into a hash
         def to_hash
           hash = {}
+          hash[:organization] = @organization
           hash[:name] = @name
           hash[:version] = @version
           hash[:environment] = @environment
