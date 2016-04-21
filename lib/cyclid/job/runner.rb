@@ -27,9 +27,6 @@ module Cyclid
           # buffer
           @notifier = notifier
 
-          # Create an initial job context (more will be added as the job runs)
-          @ctx = { job_id: job_id }
-
           # Un-serialize the job
           begin
             @job = Oj.load(job_definition, symbol_keys: true)
@@ -42,9 +39,13 @@ module Cyclid
             raise 'job failed'
           end
 
-          @ctx[:organization] = @job[:organization]
+          # Create an initial job context (more will be added as the job runs)
+          @ctx = @job[:context]
+
+          @ctx[:job_id] = job_id
           @ctx[:job_name] = @job[:name]
           @ctx[:job_version] = @job[:version]
+          @ctx[:organization] = @job[:organization]
           @ctx.merge! environment
           @ctx.merge! secrets
 

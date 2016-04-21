@@ -23,12 +23,14 @@ module Cyclid
       class JobView
         attr_reader :name, :version
 
-        def initialize(job, org)
+        def initialize(job, context, org)
           # Job is a hash (converted from JSON or YAML)
           job.symbolize_keys!
 
           @name = job[:name]
           @version = job[:version] || '1.0.0'
+
+          @context = context
           @organization = org.name
           @environment = job[:environment]
           @sources = job[:sources] || []
@@ -41,9 +43,10 @@ module Cyclid
         # Return everything, serialized into a hash
         def to_hash
           hash = {}
-          hash[:organization] = @organization
           hash[:name] = @name
           hash[:version] = @version
+          hash[:context] = @context
+          hash[:organization] = @organization
           hash[:environment] = @environment
           hash[:sources] = @sources
           hash[:secrets] = @secrets
