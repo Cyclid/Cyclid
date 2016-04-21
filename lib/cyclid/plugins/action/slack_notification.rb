@@ -27,20 +27,22 @@ module Cyclid
 
           raise 'a slack_notification action requires a message' unless args.include? :message
 
-          # XXX Right now it also requires the Webhook URL to be set in the step, but we should
-          # fall back to a default once issue #14 is resolved
-          raise 'a slack_notification action requires a URL' unless args.include? :url
-
           @message = args[:message]
-          @url = args[:url]
+          @url = args[:url] if args.include? :url
           @color = args[:color] || 'good'
           @note = args[:note] if args.include? :note
         end
 
         def perform(log)
           begin
+            plugin_config = self.class.get_config(@ctx[:organization])
+            Cyclid.logger.debug "using plugin config #{plugin_config}"
+            config = plugin_config['config']
+
             message = @message % @ctx
-            url = @url % @ctx
+            url = (@url || config['webhook_url']) % @ctx
+
+            Cyclid.logger.debug "sending notification to #{url}"
 
             # Send the notification to the Slack webhook
             notifier = Slack::Notifier.new url
@@ -68,6 +70,30 @@ module Cyclid
 
         # Register this plugin
         register_plugin 'slack_notification'
+
+        # Static methods for handling plugin config data
+        class << self
+          def update_config(current, new)
+            current.merge! new
+          end
+
+          def default_config
+            config = {}
+            config['webhook_url'] = nil
+
+            return config
+          end
+
+          def config_schema
+            schema = []
+            schema << { name: 'webhook_url',
+                        type: 'string',
+                        description: 'Slack incoming webhook URL for your team',
+                        default: nil }
+
+            return schema
+          end
+        end
       end
     end
   end
