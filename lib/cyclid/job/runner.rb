@@ -42,9 +42,10 @@ module Cyclid
             raise 'job failed'
           end
 
-          @ctx[:name] = @job[:name]
-          @ctx[:version] = @job[:version]
-          @ctx[:environment] = environment
+          @ctx[:organization] = @job[:organization]
+          @ctx[:job_name] = @job[:name]
+          @ctx[:job_version] = @job[:version]
+          @ctx.merge! environment
           @ctx.merge! secrets
 
           begin
