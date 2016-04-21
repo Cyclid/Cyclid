@@ -43,12 +43,12 @@ module Cyclid
             url = @url % @ctx
 
             # Send the notification to the Slack webhook
-            notifier = Slack::Notifier.new @url
+            notifier = Slack::Notifier.new url
             notifier.username = 'Cyclid'
 
             if @note
               text = @note % @ctx
-              note = { fallback: text, text: text, color: @color}
+              note = { fallback: text, text: text, color: @color }
 
               res = notifier.ping message, attachments: [note]
             else
@@ -61,9 +61,9 @@ module Cyclid
             log.write "#{ex.message}\n"
             success = false
             rc = 0
-          end 
+          end
 
-          [success, rc] 
+          [success, rc]
         end
 
         # Register this plugin
