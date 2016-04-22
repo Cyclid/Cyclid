@@ -42,6 +42,8 @@ module Cyclid
             message = @message % @ctx
             url = (@url || config['webhook_url']) % @ctx
 
+            raise 'no webhook URL given' if url.nil?
+
             Cyclid.logger.debug "sending notification to #{url}"
 
             # Send the notification to the Slack webhook
