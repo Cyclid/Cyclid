@@ -89,12 +89,10 @@ describe 'an organization stage' do
       expect(last_response.status).to eq(200)
 
       res_json = JSON.parse(last_response.body)
-      expect(res_json).to match_array([{ 'id' => 1,
-                                         'name' => 'test',
+      expect(res_json).to match_array([{ 'name' => 'test',
                                          'version' => '0.0.1',
                                          'steps' => [] },
-                                       { 'id' => 2,
-                                         'name' => 'test',
+                                       { 'name' => 'test',
                                          'version' => '9.9.9',
                                          'steps' => [] }])
     end
@@ -105,12 +103,10 @@ describe 'an organization stage' do
       expect(last_response.status).to eq(200)
 
       res_json = JSON.parse(last_response.body)
-      expect(res_json).to match_array([{ 'id' => 1,
-                                         'name' => 'test',
+      expect(res_json).to match_array([{ 'name' => 'test',
                                          'version' => '0.0.1',
                                          'steps' => [] },
-                                       { 'id' => 2,
-                                         'name' => 'test',
+                                       { 'name' => 'test',
                                          'version' => '9.9.9',
                                          'steps' => [] }])
     end
@@ -121,8 +117,7 @@ describe 'an organization stage' do
       expect(last_response.status).to eq(200)
 
       res_json = JSON.parse(last_response.body)
-      expect(res_json).to match_array('id' => 2,
-                                      'name' => 'test',
+      expect(res_json).to match_array('name' => 'test',
                                       'version' => '9.9.9',
                                       'steps' => [])
     end
