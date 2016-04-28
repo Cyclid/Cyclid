@@ -24,15 +24,31 @@ module Cyclid
         # Clean up stage data
         def sanitize_stage(stage)
           stage.delete_if do |key, _value|
-            key == 'organization_id'
+            key == 'organization_id' || key == 'id'
           end
         end
 
         # Clean up step data
         def sanitize_step(step)
-          step.delete_if do |key, _value|
-            key == 'stage_id'
-          end
+          Cyclid.logger.debug step.inspect
+
+          # Re-factor the step definition back into the original. The internal
+          # representation carries a lot of extra metadata that users don't
+          # need to worry about; the original definition is actually the
+          # 'action' object inside of the step. The original 'action' key can
+          # be reversed from the Action object name, without having to
+          # unserialize the object
+          #
+          # Note that we use JSON and not Oj; if we try to use Oj it will
+          # attempt to unserialise the object, which is not what we want.
+          action = JSON.parse(step['action'])
+
+          # Reverse the action name from the object name and remove the object
+          # name
+          action['action'] = action['^o'].split('::').last.downcase
+          action.delete('^o')
+
+          return action
         end
 
         # Remove sensitive data from the organization data
