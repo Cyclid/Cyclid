@@ -35,9 +35,9 @@ module Cyclid
 
         def perform(log)
           begin
-            plugin_config = self.class.get_config(@ctx[:organization])
-            Cyclid.logger.debug "using plugin config #{plugin_config}"
-            config = plugin_config['config']
+            plugin_data = self.class.get_config(@ctx[:organization])
+            Cyclid.logger.debug "using plugin config #{plugin_data}"
+            config = plugin_data['config']
 
             subject = @subject % @ctx
 
@@ -47,11 +47,7 @@ module Cyclid
             url = url % @ctx
             Cyclid.logger.debug "sending notification to #{url}"
 
-            message_text = if @message
-                             @message % @ctx
-                           else
-                             nil
-                           end
+            message_text = @message % @ctx if @message
 
             # Create a binding for the template
             bind = binding
