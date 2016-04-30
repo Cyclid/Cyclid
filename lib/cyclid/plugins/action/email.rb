@@ -59,7 +59,7 @@ module Cyclid
             bind.local_variable_set(:ctx, @ctx)
             bind.local_variable_set(:message, message)
 
-            # Generate text email from a templete
+            # Generate text email from a template
             template_path = File.expand_path(File.join(__FILE__, '..', 'email', 'text.erb'))
             template = ERB.new(File.read(template_path), nil, '%<>-')
 
@@ -115,24 +115,84 @@ module Cyclid
 
         private
 
-        # Load the config for the email plugi and set defaults if they're not
+        # Load the config for the email plugin and set defaults if they're not
         # in the config
         def load_email_config(config)
           config.symbolize_keys!
 
-          email_config = config[:email] || {}
-          Cyclid.logger.debug "config=#{email_config}"
+          server_config = config[:email] || {}
+          Cyclid.logger.debug "config=#{server_config}"
 
-          email_config.symbolize_keys!
+          server_config.symbolize_keys!
 
-          email_config[:server] ||= 'localhost'
-          email_config[:port] ||= 587
-          email_config[:from] ||= 'cyclid@cyclid.io'
+          # Set defaults where no server configuration is set
+          server_config[:server] ||= 'localhost'
+          server_config[:port] ||= 587
+          server_config[:from] ||= 'cyclid@cyclid.io'
 
-          email_config[:username] ||= nil
-          email_config[:password] ||= nil
+          server_config[:username] ||= nil
+          server_config[:password] ||= nil
+
+          # Load any organization specific configuration
+          plugin_data = self.class.get_config(@ctx[:organization])
+          Cyclid.logger.debug "using plugin config #{plugin_data}"
+          plugin_config = plugin_data['config']
+
+          # Merge the plugin configuration onto the server configuration (I.e.
+          # plugin configuration over-rides server configuration) to produce
+          # the final configuration
+          email_config[:server] = plugin_config[:server] || server_config[:server]
+          email_config[:port] = plugin_config[:port] || server_config[:port]
+          email_config[:from] = plugin_config[:from] || server_config[:from]
+
+          email_config[:username] = plugin_config[:username] || server_config[:username]
+          email_config[:password] = plugin_config[:password] || server_config[:password]
 
           return email_config
+        end
+
+        # Static methods for handling plugin config data
+        class << self
+          def update_config(current, new)
+            current.merge! new
+          end
+
+          def default_config
+            config = {}
+            config['server'] = nil
+            config['port'] = nil
+            config['from'] = nil
+            config['username'] = nil
+            config['password'] = nil
+
+            return config
+          end
+
+          def config_schema
+            schema = []
+            schema << { name: 'server',
+                        type: 'string',
+                        description: 'SMTP server for outgoing emails',
+                        default: nil }
+            schema << { name: 'port',
+                        type: 'integer',
+                        description: 'SMTP server port to connect to',
+                        default: nil }
+            schema << { name: 'from',
+                        type: 'string',
+                        description: 'Sender email address',
+                        default: nil }
+            schema << { name: 'username',
+                        type: 'string',
+                        description: 'SMTP server username',
+                        default: nil }
+            schema << { name: 'password',
+                        type: 'string',
+                        description: 'SMTP server password',
+                        default: nil }
+
+            return schema
+          end
         end
       end
     end
