@@ -46,25 +46,30 @@ module Cyclid
             Cyclid.logger.debug "sending via. #{email_config[:server]}:#{email_config[:port]} " \
                                 "as #{email_config[:from]}"
 
-            Cyclid.logger.debug "to=#{@to} subject=#{@subject} message=#{@message} color=#{@color}"
-
             # Add the job context
             to = @to % @ctx
             subject = @subject % @ctx
             message = @message % @ctx
 
-            # Generate the HTML email from the template
-            info = { color: @color, title: @subject }
+            # Create a binding for the text & HTML ERB templates
+            info = { color: @color, title: subject }
 
-            template_path = File.expand_path(File.join(__FILE__, '..', 'email', 'template.erb'))
-            template = ERB.new(File.read(template_path))
+            bind = binding
+            bind.local_variable_set(:info, info)
+            bind.local_variable_set(:ctx, @ctx)
+            bind.local_variable_set(:message, message)
 
-            b = binding
-            b.local_variable_set(:info, info)
-            b.local_variable_set(:ctx, @ctx)
-            b.local_variable_set(:message, message)
+            # Generate text email from a templete
+            template_path = File.expand_path(File.join(__FILE__, '..', 'email', 'text.erb'))
+            template = ERB.new(File.read(template_path), nil, '%<>-')
 
-            html = template.result(b)
+            text_body = template.result(bind)
+
+            # Generate the HTML email from a template
+            template_path = File.expand_path(File.join(__FILE__, '..', 'email', 'html.erb'))
+            template = ERB.new(File.read(template_path), nil, '%<>-')
+
+            html = template.result(bind)
 
             # Run the HTML through Premailer to inline the styles
             premailer = Premailer.new(html,
@@ -77,16 +82,19 @@ module Cyclid
             mail.from = email_config[:from]
             mail.to = to
             mail.subject = subject
-            mail.body = message
+            mail.text_part do
+              body text_body
+            end
             mail.html_part do
               content_type 'text/html; charset=UTF8'
               body html_body
             end
-
             Cyclid.logger.debug mail.to_s
 
             # Deliver the email via. the configured server, using
             # authentication if a username & password were provided.
+            log.write("sending email to #{@to}")
+
             mail.delivery_method :smtp, address: email_config[:server],
                                         port: email_config[:port],
                                         user_name: email_config[:username],
