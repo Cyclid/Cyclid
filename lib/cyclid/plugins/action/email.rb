@@ -96,9 +96,9 @@ module Cyclid
             log.write("sending email to #{@to}")
 
             mail.delivery_method :smtp, address: email_config[:server],
-                                        port: email_config[:port],
-                                        user_name: email_config[:username],
-                                        password: email_config[:password]
+                                 port: email_config[:port],
+                                 user_name: email_config[:username],
+                                 password: email_config[:password]
             mail.deliver
 
             success = true
@@ -141,6 +141,7 @@ module Cyclid
           # Merge the plugin configuration onto the server configuration (I.e.
           # plugin configuration over-rides server configuration) to produce
           # the final configuration
+          email_config = {}
           email_config[:server] = plugin_config[:server] || server_config[:server]
           email_config[:port] = plugin_config[:port] || server_config[:port]
           email_config[:from] = plugin_config[:from] || server_config[:from]
