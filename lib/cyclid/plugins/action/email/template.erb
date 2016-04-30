@@ -1,0 +1,58 @@
+<html>
+<head>
+<title><%= info[:title] %></title>
+<style>
+body {
+  font-family: Sans-Serif;
+}
+table {
+  width: 100%;
+  border: 1px solid black;
+  border-collapse: separate;
+  border-radius: 3px;
+}
+th {
+  border-radius: 3px;
+  height: 50px;
+  color: white;
+  font-size: x-large;
+  background: <%= info[:color] %>;
+}
+td {
+  padding: 4px;
+  /*font-size: smaller;*/
+}
+td.title {
+  font-weight: bold;
+  width: 10%;
+}
+td.data {
+  width: 90%;
+}
+td.header {
+  border-radius: 3px;
+  height: 35px;
+  background: lightgray;
+  font-size: large;
+  font-weight: bold;
+  color: black; 
+}
+</style>
+</head>
+<body>
+<table>
+<th colspan="2"><%= info[:title] %></th>
+<tr><td class="title">Job ID:</td><td class="data"><%= ctx[:job_id] %></td></tr>
+<tr><td class="title">Job name:</td><td class="data"><%= ctx[:job_name] %></td></tr>
+<tr><td class="title">Organization:</td><td class="data"><%= ctx[:organization] %></td></tr>
+<tr><td class="title">Started:</td><td class="data"><%= ctx[:start] %></td></tr>
+<tr><td class="title">Ended:</td><td class="data"><%= ctx[:end] %></td></tr>
+<tr><td class="header" colspan="2">Message</td></tr>
+<tr><td class="data" colspan="2"><%= message %></td></tr>
+<tr><td class="header" colspan="2">Context</td></tr>
+<% ctx.each do |ctx_key, ctx_val| %>
+<tr><td class="title"><%= ctx_key %><td class="data"><%= ctx_val %></td></tr>
+<% end %>
+</table>
+</body>
+</html>

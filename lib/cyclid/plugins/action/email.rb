@@ -13,6 +13,8 @@
 # limitations under the License.
 
 require 'mail'
+require 'erb'
+require 'premailer'
 
 # Top level module for the core Cyclid code.
 module Cyclid
@@ -32,6 +34,7 @@ module Cyclid
           @to = args[:to]
 
           @subject = args[:subject] || 'Cyclid notification'
+          @color = args[:color] || 'dodgerblue'
         end
 
         def perform(log)
@@ -43,12 +46,31 @@ module Cyclid
             Cyclid.logger.debug "sending via. #{email_config[:server]}:#{email_config[:port]} " \
                                 "as #{email_config[:from]}"
 
-            Cyclid.logger.debug "to=#{@to} subject=#{@subject} message=#{@message}"
+            Cyclid.logger.debug "to=#{@to} subject=#{@subject} message=#{@message} color=#{@color}"
 
             # Add the job context
             to = @to % @ctx
             subject = @subject % @ctx
             message = @message % @ctx
+
+            # Generate the HTML email from the template
+            info = { color: @color, title: @subject }
+
+            template_path = File.expand_path(File.join(__FILE__, '..', 'email', 'template.erb'))
+            template = ERB.new(File.read(template_path))
+
+            b = binding
+            b.local_variable_set(:info, info)
+            b.local_variable_set(:ctx, @ctx)
+            b.local_variable_set(:message, message)
+
+            html = template.result(b)
+
+            # Run the HTML through Premailer to inline the styles
+            premailer = Premailer.new(html,
+                                      with_html_string: true,
+                                      warn_level: Premailer::Warnings::SAFE)
+            html_body = premailer.to_inline_css
 
             # Create the email
             mail = Mail.new
@@ -56,8 +78,11 @@ module Cyclid
             mail.to = to
             mail.subject = subject
             mail.body = message
-            # XXX We could send a multi-part email with an HTML body and the
-            # message rendered in via. a template.
+            mail.html_part do
+              content_type 'text/html; charset=UTF8'
+              body html_body
+            end
+
             Cyclid.logger.debug mail.to_s
 
             # Deliver the email via. the configured server, using
