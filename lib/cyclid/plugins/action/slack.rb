@@ -25,12 +25,12 @@ module Cyclid
         def initialize(args = {})
           args.symbolize_keys!
 
-          raise 'a slack action requires a message' unless args.include? :message
+          raise 'a slack action requires a subject' unless args.include? :subject
 
-          @message = args[:message]
+          @subject = args[:subject]
           @url = args[:url] if args.include? :url
           @color = args[:color] || 'good'
-          @note = args[:note] if args.include? :note
+          @message = args[:message] if args.include? :message
         end
 
         def perform(log)
@@ -39,25 +39,49 @@ module Cyclid
             Cyclid.logger.debug "using plugin config #{plugin_config}"
             config = plugin_config['config']
 
-            message = @message % @ctx
-            url = (@url || config['webhook_url']) % @ctx
+            subject = @subject % @ctx
 
+            url = @url || config['webhook_url']
             raise 'no webhook URL given' if url.nil?
 
+            url = url % @ctx
             Cyclid.logger.debug "sending notification to #{url}"
 
+            message_text = if @message
+                             @message % @ctx
+                           else
+                             nil
+                           end
+
+            # Create a binding for the template
+            bind = binding
+            bind.local_variable_set(:ctx, @ctx)
+
+            # Generate the context information from a templete
+            template_path = File.expand_path(File.join(__FILE__, '..', 'slack', 'note.erb'))
+            template = ERB.new(File.read(template_path), nil, '%<>-')
+
+            context_text = template.result(bind)
+
+            # Create a "note" and send it as part of the message
+            fields = if @message
+                       [{ title: 'Message', value: message_text }]
+                     else
+                       []
+                     end
+            fields << { title: 'Information',
+                        value: context_text,
+                        short: false }
+
+            note = { fallback: message_text || subject,
+                     color: @color,
+                     fields: fields }
+
             # Send the notification to the Slack webhook
-            notifier = Slack::Notifier.new url
+            notifier = ::Slack::Notifier.new url
             notifier.username = 'Cyclid'
 
-            if @note
-              text = @note % @ctx
-              note = { fallback: text, text: text, color: @color }
-
-              res = notifier.ping message, attachments: [note]
-            else
-              res = notifier.ping message
-            end
+            res = notifier.ping subject, attachments: [note]
 
             rc = res.code
             success = rc == '200'
