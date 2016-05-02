@@ -7,6 +7,7 @@ class Hash
     end
   end
 
+  # Interpolate the data in the ctx hash into any String values
   def interpolate(ctx)
     hmap do |key, value|
       if value.is_a? String
@@ -20,6 +21,7 @@ end
 
 # Add a method to Array
 class Array
+  # Interpolate the data in the ctx hash for each String & Hash item
   def interpolate(ctx)
     map do |entry|
       if entry.is_a? Hash

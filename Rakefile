@@ -42,8 +42,8 @@ task :db_init do
 end
 
 task :doc do
-  YARD::CLI::Yardoc.run('--hide-api', 'REST', '--output-dir', 'doc/api')
-  YARD::CLI::Yardoc.run('--api', 'REST', '--output-dir', 'doc/rest')
+  YARD::CLI::Yardoc.run('--list-undoc', '--hide-api', 'REST', '--output-dir', 'doc/api')
+  YARD::CLI::Yardoc.run('--list-undoc', '--api', 'REST', '--output-dir', 'doc/rest')
 end
 
 task :rackup do

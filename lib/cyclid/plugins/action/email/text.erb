@@ -1,0 +1,13 @@
+Job ID: <%= ctx[:job_id] %>
+Job name: <%= ctx[:job_name] %>
+Organization: <%= ctx[:organization] %>
+Started: <%= ctx[:start] %>
+Ended: <%= ctx[:end] %>
+
+<%= message %>
+
+Context
+
+<% ctx.each do |ctx_key, ctx_val| -%>
+<%= ctx_key %>: <%= ctx_val %>
+<% end -%>

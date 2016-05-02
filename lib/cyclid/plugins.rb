@@ -39,6 +39,10 @@ module Cyclid
 
           # Get the configuration for the given org
           def get_config(org)
+            # If the organization was passed by name, convert it into an Organization object
+            org = Organization.find_by(name: org) if org.is_a? String
+            raise 'organization does not exist' if org.nil?
+
             # XXX Plugins of different types can have the same name; we need to
             # add a 'type' field and also find by the type.
             config = org.plugin_configs.find_by(plugin: @name)

@@ -45,7 +45,7 @@ describe Cyclid::API::Plugins::Local do
       job_def = { name: 'test', environment: {}, sources: [], sequence: {} }
 
       job_view = nil
-      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
+      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
 
       expect do
         @dispatcher.dispatch(job_view, @job_record)
@@ -56,7 +56,7 @@ describe Cyclid::API::Plugins::Local do
       job_def = { name: 'test', environment: {}, sources: [], sequence: {} }
 
       job_view = nil
-      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
+      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
 
       expect do
         @dispatcher.dispatch(job_view, @job_record, TestCallback.new)

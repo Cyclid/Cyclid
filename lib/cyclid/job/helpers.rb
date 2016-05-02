@@ -21,7 +21,7 @@ module Cyclid
       # Useful methods for dealing with Jobs
       module Helpers
         # Create & dispatch a Job from the job definition
-        def job_from_definition(definition, callback = nil)
+        def job_from_definition(definition, callback = nil, context = {})
           # This function will only ever be called from a Sinatra context
           org = Organization.find_by(name: params[:name])
           halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
@@ -43,7 +43,7 @@ module Cyclid
           current_user.job_records << job_record if user
 
           begin
-            job = ::Cyclid::API::Job::JobView.new(definition, org)
+            job = ::Cyclid::API::Job::JobView.new(definition, context, org)
             Cyclid.logger.debug job.to_hash
 
             job_id = Cyclid.dispatcher.dispatch(job, job_record, callback)

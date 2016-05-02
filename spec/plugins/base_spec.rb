@@ -6,6 +6,10 @@ describe Cyclid::API::Plugins::Base do
   end
 
   context 'without a configuration' do
+    before do
+      new_database
+    end
+
     it 'should return an empty default config' do
       expect(Cyclid::API::Plugins::Base.default_config).to be {}
     end
@@ -16,6 +20,10 @@ describe Cyclid::API::Plugins::Base do
 
     it 'will refuse to store a change to the config' do
       expect(Cyclid::API::Plugins::Base.update_config({}, a: 1, b: 2)).to be false
+    end
+
+    it 'should return a default config' do
+      expect(Cyclid::API::Plugins::Base.get_config('admins')).to be {}
     end
   end
 
