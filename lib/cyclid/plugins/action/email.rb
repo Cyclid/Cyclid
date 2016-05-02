@@ -96,9 +96,9 @@ module Cyclid
             log.write("sending email to #{@to}")
 
             mail.delivery_method :smtp, address: email_config[:server],
-                                 port: email_config[:port],
-                                 user_name: email_config[:username],
-                                 password: email_config[:password]
+                                        port: email_config[:port],
+                                        user_name: email_config[:username],
+                                        password: email_config[:password]
             mail.deliver
 
             success = true
