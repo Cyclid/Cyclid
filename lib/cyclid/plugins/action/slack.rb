@@ -33,6 +33,9 @@ module Cyclid
           @message = args[:message] if args.include? :message
         end
 
+        # Send a Slack notification to the configured endpoint; the message is
+        # rendered via. an ERB template which inserts additional information
+        # from the context and is attached as a Slack message note
         def perform(log)
           begin
             plugin_data = self.class.get_config(@ctx[:organization])
@@ -95,10 +98,12 @@ module Cyclid
 
         # Static methods for handling plugin config data
         class << self
+          # Update the plugin configuration
           def update_config(current, new)
             current.merge! new
           end
 
+          # Default configuration for the Slack plugin
           def default_config
             config = {}
             config['webhook_url'] = nil
@@ -106,6 +111,7 @@ module Cyclid
             return config
           end
 
+          # Config schema for the Slack plugin
           def config_schema
             schema = []
             schema << { name: 'webhook_url',

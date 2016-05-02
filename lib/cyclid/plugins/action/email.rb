@@ -37,6 +37,9 @@ module Cyclid
           @color = args[:color] || 'dodgerblue'
         end
 
+        # Send an email to the configured recipient; the message is rendered
+        # into text & HTML via. an ERB template which inserts additional
+        # information from the context
         def perform(log)
           begin
             # Retrieve the server-wide email configuration
@@ -89,7 +92,6 @@ module Cyclid
               content_type 'text/html; charset=UTF8'
               body html_body
             end
-            Cyclid.logger.debug mail.to_s
 
             # Deliver the email via. the configured server, using
             # authentication if a username & password were provided.
@@ -154,10 +156,12 @@ module Cyclid
 
         # Static methods for handling plugin config data
         class << self
+          # Update the plugin configuration
           def update_config(current, new)
             current.merge! new
           end
 
+          # Default configuration for the email plugin
           def default_config
             config = {}
             config['server'] = nil
@@ -169,6 +173,7 @@ module Cyclid
             return config
           end
 
+          # Config schema for the email plugin
           def config_schema
             schema = []
             schema << { name: 'server',
