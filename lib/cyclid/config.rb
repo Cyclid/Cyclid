@@ -18,7 +18,7 @@ module Cyclid
   module API
     # Cyclid API configuration
     class Config
-      attr_reader :database, :log, :dispatcher, :builder
+      attr_reader :database, :log, :dispatcher, :builder, :plugins
 
       def initialize(path)
         @config = YAML.load_file(path)
@@ -27,6 +27,7 @@ module Cyclid
         @log = @config['log'] || File.join(%w(/ var log cyclid))
         @dispatcher = @config['dispatcher']
         @builder = @config['builder']
+        @plugins = @config['plugins'] || {}
       rescue StandardError => ex
         abort "Failed to load configuration file #{path}: #{ex}"
       end

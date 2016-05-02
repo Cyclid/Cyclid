@@ -56,7 +56,12 @@ describe Cyclid::API::Job::Runner do
   end
 
   it 'creates a job given a valid job definition' do
-    job_json = { name: 'test', environment: {}, secrets: {}, sources: [], sequence: {} }.to_json
+    job_json = { name: 'test',
+                 environment: {},
+                 context: {},
+                 secrets: {},
+                 sources: [],
+                 sequence: {} }.to_json
 
     expect{ Cyclid::API::Job::Runner.new(1, job_json, @notifier) }.to_not raise_error
   end
@@ -65,7 +70,7 @@ describe Cyclid::API::Job::Runner do
     job_def = { name: 'test', environment: {}, sequence: {} }
 
     job_view = nil
-    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
+    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
 
     job_json = nil
     expect{ job_json = job_view.to_hash.to_json }.to_not raise_error
@@ -86,7 +91,7 @@ describe Cyclid::API::Job::Runner do
                 sequence: sequence }
 
     job_view = nil
-    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
+    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
 
     job_json = nil
     expect{ job_json = job_view.to_hash.to_json }.to_not raise_error
@@ -107,7 +112,7 @@ describe Cyclid::API::Job::Runner do
                 sequence: sequence }
 
     job_view = nil
-    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, @org) }.to_not raise_error
+    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
 
     job_json = nil
     expect{ job_json = job_view.to_hash.to_json }.to_not raise_error

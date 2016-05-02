@@ -7,9 +7,9 @@ GIT
 
 GIT
   remote: http://github.com/dblock/guard-rack
-  revision: 7820ef51135df4221e08e2b134fc4df8106699e9
+  revision: 279586ffd94e980f212ab6abada2b21da276f2aa
   specs:
-    guard-rack (2.2.0)
+    guard-rack (2.2.1)
       ffi
       guard (~> 2.3)
       spoon
@@ -33,15 +33,19 @@ PATH
       activerecord (~> 4.2)
       bcrypt (~> 3.1)
       cyclid-core (~> 0)
+      hpricot (~> 0.8.6)
+      mail (~> 2.6.4)
       mist-client (~> 0)
       mysql (~> 2.9)
       net-ssh (~> 3.1)
       oj (~> 2.14)
+      premailer (~> 1.8.6)
       require_all (~> 1.3)
       sidekiq (~> 4.1)
       sinatra (~> 1.4)
       sinatra-activerecord (~> 2.0)
       sinatra-contrib (~> 1.4)
+      slack-notifier (~> 1.5.1)
       warden (~> 1.2)
 
 GEM
@@ -72,6 +76,8 @@ GEM
     cool.io (1.4.3)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
+    css_parser (1.4.1)
+      addressable
     diff-lcs (1.2.5)
     docile (1.1.5)
     formatador (0.2.5)
@@ -88,19 +94,26 @@ GEM
       guard (>= 2)
       sidekiq
     hashdiff (0.3.0)
+    hpricot (0.8.6)
+    htmlentities (4.3.4)
     i18n (0.7.0)
     json (1.8.3)
-    listen (3.0.6)
+    listen (3.1.1)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
     lumberjack (1.0.10)
+    mail (2.6.4)
+      mime-types (>= 1.16, < 4)
     method_source (0.8.2)
+    mime-types (3.0)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0221)
     minitest (5.8.4)
     msgpack (0.5.12)
     msgpack-rpc (0.5.4)
       cool.io (~> 1.4.3)
       msgpack (~> 0.5.10)
-    multi_json (1.11.2)
+    multi_json (1.11.3)
     mysql (2.9.1)
     nenv (0.3.0)
     net-ssh (3.1.1)
@@ -111,6 +124,9 @@ GEM
     parser (2.3.0.7)
       ast (~> 2.2)
     powerpack (0.1.1)
+    premailer (1.8.6)
+      css_parser (>= 1.3.6)
+      htmlentities (>= 4.0.0)
     pry (0.10.3)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -125,7 +141,7 @@ GEM
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
-    redis (3.2.2)
+    redis (3.3.0)
     require_all (1.3.3)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
@@ -166,13 +182,14 @@ GEM
     sinatra-activerecord (2.0.9)
       activerecord (>= 3.2)
       sinatra (~> 1.0)
-    sinatra-contrib (1.4.6)
+    sinatra-contrib (1.4.7)
       backports (>= 2.0)
       multi_json
       rack-protection
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
+    slack-notifier (1.5.1)
     slop (3.6.0)
     spoon (0.0.4)
       ffi
@@ -182,10 +199,10 @@ GEM
     tilt (2.0.2)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    unicode-display_width (1.0.2)
+    unicode-display_width (1.0.3)
     warden (1.2.6)
       rack (>= 1.0)
-    webmock (1.24.2)
+    webmock (1.24.5)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
