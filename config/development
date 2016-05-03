@@ -2,3 +2,8 @@ database: sqlite3:development.db
 log: stderr
 dispatcher: local
 builder: mist
+plugins:
+  email:
+    server: smtp.gmail.com
+    username: vanders.kristian@gmail.com
+    password: zz9pluralz

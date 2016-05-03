@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/LineLength
 require 'spec_helper'
 
 describe Cyclid::API::Plugins::Script do
@@ -15,7 +16,7 @@ describe Cyclid::API::Plugins::Script do
       true
     end
 
-    def upload(io, path)
+    def upload(io, _path)
       @upl = io.read
     end
 
