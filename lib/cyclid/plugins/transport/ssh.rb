@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'net/ssh'
+require 'net/scp'
 require 'cyclid/log_buffer'
 
 # Top level module for the core Cyclid code.
@@ -102,6 +103,18 @@ module Cyclid
           @session.loop
 
           @exit_code == 0 && @exit_signal.nil? ? true : false
+        end
+
+        # Copy data from a local IO object to a remote file via. SCP
+        def upload(io, path)
+          channel = @session.scp.upload io, path
+          channel.wait
+        end
+
+        # Copy a data from remote file to a local IO object
+        def download(io, path)
+          channel = @session.scp.download path, io
+          channel.wait
         end
 
         # Close the SSH connection

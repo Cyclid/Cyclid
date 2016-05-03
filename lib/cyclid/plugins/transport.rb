@@ -41,6 +41,16 @@ module Cyclid
           false
         end
 
+        # Copy data from a local IO object to a remote file.
+        def upload(_io, _path)
+          false
+        end
+
+        # Copy a data from remote file to a local IO object
+        def download(_io, _path)
+          false
+        end
+
         # Disconnect the transport
         def close
         end
