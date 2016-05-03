@@ -25,7 +25,7 @@ module Cyclid
         def initialize(args = {})
           args.symbolize_keys!
 
-          # At a bear minimum there has to be a command to execute.
+          # At a bare minimum there has to be a command to execute.
           raise 'a command action requires a command' unless args.include? :cmd
 
           # The command & arguments can either be passed seperately, with the
