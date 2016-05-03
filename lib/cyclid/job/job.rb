@@ -130,7 +130,7 @@ module Cyclid
             # on_success or on_failure stages are not already in the sequence,
             # append them to the end.
             job_sequence << { stage: job_stage[:on_success] } \
-              unless job_stage[:on_success].nil? or\
+              unless job_stage[:on_success].nil? or \
                      job_sequence.include? job_stage[:on_success]
             stage_view.on_success = job_stage[:on_success]
 

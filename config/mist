@@ -1,4 +1,9 @@
 client:
-  ssh_private_key: /path/to/key
+  ssh_private_key: ~/.ssh/id_rsa_build
   servers:
-    - example.com:18800
+    - brix01:18800
+    - brix01:18801
+    - brix01:18802
+    - brix01:18803
+    - brix01:18804
+    - brix01:18805

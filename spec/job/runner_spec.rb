@@ -106,7 +106,7 @@ describe Cyclid::API::Job::Runner do
     stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] },
               { name: 'success', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] },
               { name: 'failure', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
-    sequence = [{ stage: 'test', 'on_success': 'success', 'on_failure': 'failure' }]
+    sequence = [{ stage: 'test', on_success: 'success', on_failure: 'failure' }]
     job_def = { name: 'test',
                 environment: {},
                 sources: [],

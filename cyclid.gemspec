@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('sinatra-activerecord', '~> 2.0')
   s.add_runtime_dependency('bcrypt', '~> 3.1')
   s.add_runtime_dependency('net-ssh', '~> 3.1')
+  s.add_runtime_dependency('net-scp', '~> 1.2')
   s.add_runtime_dependency('sidekiq', '~> 4.1')
   s.add_runtime_dependency('mysql', '~> 2.9')
   s.add_runtime_dependency('slack-notifier', '~> 1.5.1')
