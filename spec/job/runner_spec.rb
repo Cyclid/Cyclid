@@ -101,6 +101,29 @@ describe Cyclid::API::Job::Runner do
     expect{ job.run }.to_not raise_error
   end
 
+  # Issue #5
+  it 'runs a job with a defined sequence that has success & failure handlers' do
+    stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] },
+              { name: 'success', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] },
+              { name: 'failure', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
+    sequence = [{ stage: 'test', 'on_success': 'success', 'on_failure': 'failure' }]
+    job_def = { name: 'test',
+                environment: {},
+                sources: [],
+                stages: stages,
+                sequence: sequence }
+
+    job_view = nil
+    expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
+
+    job_json = nil
+    expect{ job_json = job_view.to_hash.to_json }.to_not raise_error
+
+    job = nil
+    expect{ job = Cyclid::API::Job::Runner.new(3, job_json, @notifier) }.to_not raise_error
+    expect{ job.run }.to_not raise_error
+  end
+
   it 'checks out sources' do
     sources = [{ type: 'test', data: 'test' }]
     stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
