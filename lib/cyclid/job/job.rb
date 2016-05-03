@@ -95,7 +95,8 @@ module Cyclid
           # stages because we created on as an ad-hoc stage, or we need to load
           # it from the database, create a JobStage from it, and add it to the
           # list of stages
-          job[:sequence].each do |job_stage|
+          job_sequence = job[:sequence]
+          job_sequence.each do |job_stage|
             job_stage.symbolize_keys!
 
             raise ArgumentError, 'invalid stage definition' \
@@ -125,8 +126,17 @@ module Cyclid
               stage_view = StageView.new(stage)
             end
 
-            # Merge in the options specified in this job stage
+            # Merge in the options specified in this job stage. If the
+            # on_success or on_failure stages are not already in the sequence,
+            # append them to the end.
+            job_sequence << { stage: job_stage[:on_success] } \
+              unless job_stage[:on_success].nil? or\
+                     job_sequence.include? job_stage[:on_success]
             stage_view.on_success = job_stage[:on_success]
+
+            job_sequence << { stage: job_stage[:on_failure] } \
+              unless job_stage[:on_failure].nil? or \
+                     job_sequence.include? job_stage[:on_failure]
             stage_view.on_failure = job_stage[:on_failure]
 
             # Store the modified StageView
