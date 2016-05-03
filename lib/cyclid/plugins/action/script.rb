@@ -22,7 +22,7 @@ module Cyclid
     module Plugins
       # Script plugin
       class Script < Action
-         def initialize(args = {})
+        def initialize(args = {})
           args.symbolize_keys!
 
           # At a bare minimum there has to be a script to execute.
