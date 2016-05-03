@@ -21,5 +21,13 @@ describe Cyclid::API::Plugins::Transport do
     it 'should not execute a command' do
       expect(@transport.exec('/bin/true')).to be false
     end
+
+    it 'should not upload a file' do
+      expect(@transport.upload(nil, '/tmp/file')).to be false
+    end
+
+    it 'should not download a file' do
+      expect(@transport.download(nil, '/tmp/file')).to be false
+    end
   end
 end
