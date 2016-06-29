@@ -47,6 +47,7 @@ PATH
       sinatra (~> 1.4)
       sinatra-activerecord (~> 2.0)
       sinatra-contrib (~> 1.4)
+      sinatra-cross_origin (~> 0.3)
       slack-notifier (~> 1.5)
       warden (~> 1.2)
 
@@ -125,7 +126,7 @@ GEM
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    oj (2.16.0)
+    oj (2.16.1)
     parser (2.3.0.7)
       ast (~> 2.2)
     powerpack (0.1.1)
@@ -194,6 +195,7 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
+    sinatra-cross_origin (0.3.2)
     slack-notifier (1.5.1)
     slop (3.6.0)
     spoon (0.0.4)
