@@ -37,6 +37,7 @@ module Cyclid
         # @param [String] username Username of the user.
         # Modify a specific user.
         # @param [JSON] body User information
+        # @option body [String] name Users real name
         # @option body [String] email Users new email address
         # @option body [String] password New Bcrypt2 encrypted password
         # @option body [String] new_password New password in plain text, which will be
@@ -93,6 +94,7 @@ module Cyclid
               if user.nil?
 
             begin
+              user.name = payload['name'] if payload.key? 'name'
               user.email = payload['email'] if payload.key? 'username'
               user.password = payload['password'] if payload.key? 'password'
               user.secret = payload['secret'] if payload.key? 'secret'
