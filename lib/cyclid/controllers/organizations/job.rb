@@ -27,8 +27,18 @@ module Cyclid
         # @!method get_organizations_organization_jobs
         # @overload GET /organizations/:organization/jobs
         # @param [String] organization Name of the organization.
+        # @param [Boolean] stats_only Do not return the job records; just the count
+        # @param [Integer] limit Maxiumum number of records to return.
+        # @param [Integer] offset Offset to start returning records.
+        # @param [String] s_name Name of the job to search on.
+        # @param [Integer] s_status Status to search on.
+        # @param [String] s_from Date & time to search from.
+        # @param [String] s_to Date & time to search to.
         # @macro rest
-        # Get a list of jobs that have been run for the organization.
+        # Get a list of jobs that have been run for the organization. Jobs can be
+        # filtered using the s_name, s_status, s_from and s_to search parameters. If
+        # s_from & s_to are given, only jobs which started between the two times will
+        # be returned.
         # @return The list of job details.
         # @return [404] The organization does not exist.
 
@@ -105,7 +115,7 @@ module Cyclid
 
             # Get any search terms that we'll need to find the appropriate jobs
             search = {}
-            search[:job_name] = params[:s_name] if params[:s_name]
+            search[:job_name] = URI.decode(params[:s_name]) if params[:s_name]
             search[:status] = params[:s_status] if params[:s_status]
 
             # search_from & search_to should be some parsable format
