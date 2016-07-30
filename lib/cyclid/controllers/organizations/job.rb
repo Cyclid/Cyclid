@@ -103,25 +103,58 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
-            count = org.job_records.count
+            # Get any search terms that we'll need to find the appropriate jobs
+            search = {}
+            search[:job_name] = params[:s_name] if params[:s_name]
+            search[:status] = params[:s_status] if params[:s_status]
+
+            # search_from & search_to should be some parsable format
+            if params[:s_from] and params[:s_to]
+              from = Time.parse(params[:s_from])
+              to = Time.parse(params[:s_to])
+
+              # ActiveRecord understands a range
+              search[:started] = from..to
+            end
+
+            Cyclid.logger.debug "search=#{search.inspect}"
+
+            # Find the number of matching jobs
+            count = if search.empty?
+                      org.job_records.count
+                    else
+                      org.job_records
+                      .where(search)
+                      .count
+                    end
+
+            Cyclid.logger.debug "count=#{count}"
 
             stats_only = params[:stats_only] || false
             limit = params[:limit] || 100
-            offset = params[:offset] || 0 #[count - limit, 0].max
+            offset = params[:offset] || 0
 
             job_data = {'total' => count,
                         'offset' => offset,
                         'limit' => limit}
 
             if not stats_only
-              # Get all available job records, but be terse with the
+              # Get the available job records, but be terse with the
               # information returned; there is no need to return a full job log
               # with every job, for example.
-              job_records = org.job_records
-                            .all
-                            .select('id, job_name, job_version, started, ended, status')
-                            .offset(offset)
-                            .limit(limit)
+              job_records = if search.empty?
+                              org.job_records
+                                .all
+                                .select('id, job_name, job_version, started, ended, status')
+                                .offset(offset)
+                                .limit(limit)
+                            else
+                              org.job_records
+                                .where(search)
+                                .select('id, job_name, job_version, started, ended, status')
+                                .offset(offset)
+                                .limit(limit)
+                            end
 
               job_data['records'] = job_records
             end
