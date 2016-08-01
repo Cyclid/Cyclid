@@ -23,6 +23,7 @@ describe 'a user document' do
       expect(res_json).to eq('id' => 1,
                              'username' => 'admin',
                              'email' => 'admin@example.com',
+                             'name' => 'Admin Test',
                              'organizations' => ['admins'])
     end
 
@@ -41,6 +42,7 @@ describe 'a user document' do
       # Create a test user
       new_user = { 'username' => 'test',
                    'email' => 'test@example.com',
+                   'name' => 'Test Test',
                    'new_password' => 'password' }
 
       authorize 'admin', 'password'
@@ -63,6 +65,7 @@ describe 'a user document' do
       expect(res_json).to eq('id' => 2,
                              'username' => 'test',
                              'email' => 'test@example.com',
+                             'name' => 'Test Test',
                              'organizations' => [])
     end
 

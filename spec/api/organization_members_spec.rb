@@ -19,6 +19,7 @@ describe 'an organization member' do
       expect(res_json).to eq('id' => 1,
                              'username' => 'admin',
                              'email' => 'admin@example.com',
+                             'name' => 'Admin Test',
                              'permissions' => {
                                'admin' => true,
                                'write' => true,
@@ -50,6 +51,7 @@ describe 'an organization member' do
       expect(res_json).to eq('id' => 1,
                              'username' => 'admin',
                              'email' => 'admin@example.com',
+                             'name' => 'Admin Test',
                              'permissions' => {
                                'admin' => true,
                                'write' => true,
