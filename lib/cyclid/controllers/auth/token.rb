@@ -55,8 +55,8 @@ module Cyclid
             token_hash = {token: token}
             return token_hash.to_json
           end
-        end 
+        end
       end
     end
   end
-end 
+end
