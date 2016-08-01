@@ -69,6 +69,26 @@ describe 'a user document' do
                              'organizations' => [])
     end
 
+    it 'changes the users name' do
+      modified_user = { 'name' => 'Bob Dobbs' }
+
+      authorize 'test', 'password'
+      put_json '/users/test', modified_user.to_json
+      expect(last_response.status).to eq(200)
+
+      # Retrieve the user record and check that it changed
+      authorize 'test', 'password'
+      get '/users/test'
+      expect(last_response.status).to eq(200)
+
+      res_json = JSON.parse(last_response.body)
+      expect(res_json).to eq('id' => 2,
+                             'username' => 'test',
+                             'email' => 'test@example.com',
+                             'name' => 'Bob Dobbs',
+                             'organizations' => [])
+    end
+
     it 'changes the users password' do
       # rubocop:disable Metrics/LineLength
       modified_user = { 'password' => '$2a$10$/aFTQ84PZUPhiN8mz0q5l.Q18qMkJyXuQqva8PDrycfz9FnnbWldS' }
