@@ -42,7 +42,7 @@ module Cyclid
             fail! 'invalid user' if user.nil?
 
             # Decode the token
-            token_data = JWT.decode token, user.secret, true, {algorithm: 'HS256'}
+            token_data = JWT.decode token, user.secret, true, algorithm: 'HS256'
             claims = token_data.first
             if claims['sub'] == user.username
               success! user

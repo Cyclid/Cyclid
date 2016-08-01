@@ -134,8 +134,8 @@ module Cyclid
                       org.job_records.count
                     else
                       org.job_records
-                      .where(search)
-                      .count
+                         .where(search)
+                         .count
                     end
 
             Cyclid.logger.debug "count=#{count}"
@@ -144,26 +144,26 @@ module Cyclid
             limit = params[:limit] || 100
             offset = params[:offset] || 0
 
-            job_data = {'total' => count,
-                        'offset' => offset,
-                        'limit' => limit}
+            job_data = { 'total' => count,
+                         'offset' => offset,
+                         'limit' => limit }
 
-            if not stats_only
+            unless stats_only
               # Get the available job records, but be terse with the
               # information returned; there is no need to return a full job log
               # with every job, for example.
               job_records = if search.empty?
                               org.job_records
-                                .all
-                                .select('id, job_name, job_version, started, ended, status')
-                                .offset(offset)
-                                .limit(limit)
+                                 .all
+                                 .select('id, job_name, job_version, started, ended, status')
+                                 .offset(offset)
+                                 .limit(limit)
                             else
                               org.job_records
-                                .where(search)
-                                .select('id, job_name, job_version, started, ended, status')
-                                .offset(offset)
-                                .limit(limit)
+                                 .where(search)
+                                 .select('id, job_name, job_version, started, ended, status')
+                                 .offset(offset)
+                                 .limit(limit)
                             end
 
               job_data['records'] = job_records
@@ -204,7 +204,7 @@ module Cyclid
               job_record = org.job_records.find(params[:id])
               halt_with_json_response(404, INVALID_JOB, 'job does not exist') \
                 if job_record.nil?
-            rescue StandardError => ex
+            rescue StandardError
               halt_with_json_response(404, INVALID_JOB, 'job does not exist')
             end
 

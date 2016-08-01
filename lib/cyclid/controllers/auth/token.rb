@@ -45,14 +45,14 @@ module Cyclid
             payload.delete_if{ |k, _v| %w(iss aud jti iat sub).include? k }
 
             # If 'exp' was not set, set it now. Default is +6 hours.
-            payload['exp'] = Time.now.to_i + 21600000 unless payload.key? 'exp'
+            payload['exp'] = Time.now.to_i + 21_600_000 unless payload.key? 'exp'
             # Subject is this user
             payload['sub'] = params[:username]
 
             # Create the token; use the users HMAC key as the signing key
             token = JWT.encode payload, user.secret, 'HS256'
 
-            token_hash = {token: token}
+            token_hash = { token: token }
             return token_hash.to_json
           end
         end

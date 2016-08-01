@@ -55,14 +55,15 @@ module Cyclid
         set :allow_origin, :any
         set :allow_methods, [:get, :put, :post, :options]
         set :allow_credentials, true
-        set :max_age, "1728000"
+        set :max_age, '1728000'
         set :expose_headers, ['Content-Type']
         disable :show_exceptions
       end
 
       options '*' do
         response.headers['Allow'] = 'HEAD,GET,PUT,POST,DELETE,OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Cache-Control, Accept, Authorization'
+        response.headers['Access-Control-Allow-Headers'] =
+          'Content-Type, Cache-Control, Accept, Authorization'
         200
       end
 
