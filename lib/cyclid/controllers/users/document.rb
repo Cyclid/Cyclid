@@ -95,7 +95,7 @@ module Cyclid
 
             begin
               user.name = payload['name'] if payload.key? 'name'
-              user.email = payload['email'] if payload.key? 'username'
+              user.email = payload['email'] if payload.key? 'email'
               user.password = payload['password'] if payload.key? 'password'
               user.secret = payload['secret'] if payload.key? 'secret'
               user.new_password = payload['new_password'] if payload.key? 'new_password'
