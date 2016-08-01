@@ -50,7 +50,7 @@ describe 'a user document' do
     end
 
     it 'changes the users email address' do
-      modified_user = { 'email' => 'test@example.com' }
+      modified_user = { 'email' => 'testuser@example.com' }
 
       authorize 'test', 'password'
       put_json '/users/test', modified_user.to_json
@@ -64,7 +64,7 @@ describe 'a user document' do
       res_json = JSON.parse(last_response.body)
       expect(res_json).to eq('id' => 2,
                              'username' => 'test',
-                             'email' => 'test@example.com',
+                             'email' => 'testuser@example.com',
                              'name' => 'Test Test',
                              'organizations' => [])
     end
@@ -84,7 +84,7 @@ describe 'a user document' do
       res_json = JSON.parse(last_response.body)
       expect(res_json).to eq('id' => 2,
                              'username' => 'test',
-                             'email' => 'test@example.com',
+                             'email' => 'testuser@example.com',
                              'name' => 'Bob Dobbs',
                              'organizations' => [])
     end
