@@ -9,5 +9,8 @@ dump.rdb
 coverage
 pkg
 
+config/development
+config/mist
+
 # OS artifacts
 .DS_Store
