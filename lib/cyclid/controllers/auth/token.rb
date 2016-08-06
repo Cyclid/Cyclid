@@ -20,8 +20,25 @@ module Cyclid
   module API
     # Module for all Auth related API endpoints
     module Auth
+      # API endpoints for managing API tokens
       # @api REST
       module Token
+        # rubocop:disable Metrics/LineLength
+        # @!group Organizations
+
+        # @!method post_token_username
+        # @overload POST /token/:username
+        # @param [String] username Username of the user to generate a token for.
+        # @macro rest
+        # Generate a JSON Web Token for use with the Token authentication scheme.
+        # The user must authenticate using one of the other available methods
+        # (HTTP Basic or HMAC) to obtain a token.
+        # @return A JWT token.
+        # @return [404] The user does not exist
+
+        # @!endgroup
+        # rubocop:enable Metrics/LineLength
+
         # Sinatra callback
         # @private
         def self.registered(app)
