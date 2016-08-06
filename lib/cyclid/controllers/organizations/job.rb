@@ -141,8 +141,8 @@ module Cyclid
             Cyclid.logger.debug "count=#{count}"
 
             stats_only = params[:stats_only] || false
-            limit = params[:limit] || 100
-            offset = params[:offset] || 0
+            limit = (params[:limit] || 100).to_i
+            offset = (params[:offset] || 0).to_i
 
             job_data = { 'total' => count,
                          'offset' => offset,
