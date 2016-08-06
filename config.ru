@@ -18,7 +18,10 @@ end
 
 configure :development do
   map '/' do
-    run Cyclid::API::App
+    app = Cyclid::API::App
+    app.set :bind, '127.0.0.1'
+    app.set :port, 8092
+    app.run!
   end
 
   map '/sidekiq' do

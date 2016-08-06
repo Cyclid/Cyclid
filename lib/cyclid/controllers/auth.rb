@@ -12,26 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'yaml'
+require_rel 'auth/*.rb'
 
+# Top level module for all of the core Cyclid code.
 module Cyclid
+  # Module for the Cyclid API
   module API
-    # Cyclid API configuration
-    class Config
-      attr_reader :database, :log, :dispatcher, :builder, :plugins
+    # Controller for all Auth related API endpoints
+    class AuthController < ControllerBase
+      register Sinatra::Namespace
 
-      def initialize(path)
-        config = YAML.load_file(path)
-        server = config['server']
-
-        @database = server['database']
-        @log = server['log'] || File.join(%w(/ var log cyclid server))
-        @dispatcher = server['dispatcher']
-        @builder = server['builder']
-        @plugins = server['plugins'] || {}
-      rescue StandardError => ex
-        abort "Failed to load configuration file #{path}: #{ex}"
+      namespace '/token' do
+        register Auth::Token
       end
     end
+
+    # Register this controller
+    Cyclid.controllers << AuthController
   end
 end

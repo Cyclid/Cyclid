@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'warden'
+require 'jwt'
 
 # Top level module for the core Cyclid code.
 module Cyclid
@@ -38,12 +39,19 @@ module Cyclid
             end
 
             user = User.find_by(username: username)
-            if user.nil?
-              fail! 'invalid user'
-            elsif user.secret == token
-              success! user
-            else
-              fail! 'invalid user'
+            fail! 'invalid user' if user.nil?
+
+            begin
+              # Decode the token
+              token_data = JWT.decode token, user.secret, true, algorithm: 'HS256'
+              claims = token_data.first
+              if claims['sub'] == user.username
+                success! user
+              else
+                fail! 'invalid user'
+              end
+            rescue
+              fail! 'invalid API token'
             end
           end
         end
