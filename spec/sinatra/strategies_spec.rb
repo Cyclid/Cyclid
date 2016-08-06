@@ -154,15 +154,23 @@ describe 'authentication strategies' do
   end
 
   context 'using token authentication' do
+    let :token do
+      authorize 'admin', 'password'
+      post_json '/token/admin', '{}'
+
+      res_json = JSON.parse(last_response.body)
+      res_json['token']
+    end
+
     it 'authenticates successfully with a valid username & token' do
-      authorization = 'Token admin:aasecret55'
+      authorization = "Token admin:#{token}"
 
       get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization
       expect(last_response.status).to eq(200)
     end
 
     it 'fails to authenticate with an invalid username' do
-      authorization = 'Token nobody:aasecret55'
+      authorization = "Token nobody:#{token}"
 
       get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization
       expect(last_response.status).to eq(401)
@@ -170,6 +178,21 @@ describe 'authentication strategies' do
 
     it 'fails to authenticate with an invalid token' do
       authorization = 'Token admin:abcdefgh'
+
+      get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization
+      expect(last_response.status).to eq(401)
+    end
+
+    it 'fails to authenticate with an expired token' do
+      #{"exp": 1451606400,"sub": "admin"}
+      authorization = 'Token admin:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0NTE2MDY0MDAsInN1YiI6ImFkbWluIn0.w92ekihhF_cei7gem0HWyt2xAc441nAR4KAJq8ttCRY'
+
+      get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization
+      expect(last_response.status).to eq(401)
+    end
+
+    it 'fails to authenticate with another users token' do
+      authorization = 'Token admin:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0OTIwODE1NzYsInN1YiI6Im5vYm9keSJ9.k1y_H8c19cIVkKURaujKI6PRMC3WYge_Ai29fTvejIU'
 
       get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization
       expect(last_response.status).to eq(401)
