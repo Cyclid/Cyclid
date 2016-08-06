@@ -23,8 +23,7 @@ module Cyclid
       # API endpoints for managing API tokens
       # @api REST
       module Token
-        # rubocop:disable Metrics/LineLength
-        # @!group Organizations
+        # @!group Tokens
 
         # @!method post_token_username
         # @overload POST /token/:username
@@ -37,7 +36,6 @@ module Cyclid
         # @return [404] The user does not exist
 
         # @!endgroup
-        # rubocop:enable Metrics/LineLength
 
         # Sinatra callback
         # @private
