@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/LineLength
 require 'spec_helper'
 require 'json'
 
@@ -121,13 +122,13 @@ describe 'an organization job' do
       new_record('test_failed', Cyclid::API::Constants::JobStatus::FAILED, Time.now, Time.now + 1.hour)
 
       # Some different dates
-      time = 1451606400 # 2016-01-01 00:00
+      time = 1_451_606_400 # 2016-01-01 00:00
       new_record("test_#{time}", Cyclid::API::Constants::JobStatus::SUCCEEDED, Time.at(time), Time.at(time) + 1.hour)
-      time = 1470009600 # 2016-08-01 00:00
+      time = 1_470_009_600 # 2016-08-01 00:00
       new_record("test_#{time}", Cyclid::API::Constants::JobStatus::SUCCEEDED, Time.at(time), Time.at(time) + 1.hour)
-      time = 1470052800 # 2016-08-01 12:00
+      time = 1_470_052_800 # 2016-08-01 12:00
       new_record("test_#{time}", Cyclid::API::Constants::JobStatus::SUCCEEDED, Time.at(time), Time.at(time) + 1.hour)
-      time = 1470096000 # 2016-08-02 00:00
+      time = 1_470_096_000 # 2016-08-02 00:00
       new_record("test_#{time}", Cyclid::API::Constants::JobStatus::SUCCEEDED, Time.at(time), Time.at(time) + 1.hour)
     end
 
@@ -205,8 +206,8 @@ describe 'an organization job' do
       end
 
       it 'searches between two times' do
-        from = Time.at(1470009600).to_s # 2016-08-01 00:00 
-        to = Time.at(1470096000).to_s   # 2016-08-02 00:00
+        from = Time.at(1_470_009_600).to_s # 2016-08-01 00:00
+        to = Time.at(1_470_096_000).to_s   # 2016-08-02 00:00
 
         authorize 'admin', 'password'
         get URI.encode "/organizations/admins/jobs?s_from=#{from}&s_to=#{to}"
@@ -216,9 +217,24 @@ describe 'an organization job' do
         expect(res_json).to match('total' => 3, 'offset' => 0, 'limit' => 100, 'records' => a_kind_of(Array))
 
         records = res_json['records']
-        expect(records).to match([{"id"=>7, "job_name"=>"test_1470009600", "job_version"=>nil, "started"=>"2016-08-01T00:00:00.000Z", "ended"=>"2016-08-01T01:00:00.000Z", "status"=>10},
-                                  {"id"=>8, "job_name"=>"test_1470052800", "job_version"=>nil, "started"=>"2016-08-01T12:00:00.000Z", "ended"=>"2016-08-01T13:00:00.000Z", "status"=>10},
-                                  {"id"=>9, "job_name"=>"test_1470096000", "job_version"=>nil, "started"=>"2016-08-02T00:00:00.000Z", "ended"=>"2016-08-02T01:00:00.000Z", "status"=>10}])
+        expect(records).to match([{ 'id' => 7,
+                                    'job_name' => 'test_1470009600',
+                                    'job_version' => nil,
+                                    'started' => '2016-08-01T00:00:00.000Z',
+                                    'ended' => '2016-08-01T01:00:00.000Z',
+                                    'status' => 10 },
+                                  { 'id' => 8,
+                                    'job_name' => 'test_1470052800',
+                                    'job_version' => nil,
+                                    'started' => '2016-08-01T12:00:00.000Z',
+                                    'ended' => '2016-08-01T13:00:00.000Z',
+                                    'status' => 10 },
+                                  { 'id' => 9,
+                                    'job_name' => 'test_1470096000',
+                                    'job_version' => nil,
+                                    'started' => '2016-08-02T00:00:00.000Z',
+                                    'ended' => '2016-08-02T01:00:00.000Z',
+                                    'status' => 10 }])
       end
 
       it 'returns an empty set when no records match' do

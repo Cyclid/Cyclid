@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/LineLength
 require 'spec_helper'
 
 describe 'authentication strategies' do
@@ -184,7 +185,7 @@ describe 'authentication strategies' do
     end
 
     it 'fails to authenticate with an expired token' do
-      #{"exp": 1451606400,"sub": "admin"}
+      # {"exp": 1451606400,"sub": "admin"}
       authorization = 'Token admin:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0NTE2MDY0MDAsInN1YiI6ImFkbWluIn0.w92ekihhF_cei7gem0HWyt2xAc441nAR4KAJq8ttCRY'
 
       get '/organizations', {}, 'HTTP_AUTHORIZATION' => authorization

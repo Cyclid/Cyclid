@@ -19,7 +19,10 @@ describe 'the users collection' do
     expect(last_response.status).to eq(200)
 
     res_json = JSON.parse(last_response.body)
-    expect(res_json).to eq([{ 'id' => 1, 'username' => 'admin', 'email' => 'admin@example.com', 'name' => 'Admin Test' }])
+    expect(res_json).to eq([{ 'id' => 1,
+                              'username' => 'admin',
+                              'email' => 'admin@example.com',
+                              'name' => 'Admin Test' }])
   end
 
   context 'creating a new user' do

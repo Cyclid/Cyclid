@@ -24,9 +24,9 @@ describe 'an API token' do
     end
 
     it 'honors valid claims in the token' do
-      nbf = 1577836800
-      exp = 1893456000
-      claims = {'nbf' => nbf, 'exp' => exp}
+      nbf = 1_577_836_800
+      exp = 1_893_456_000
+      claims = { 'nbf' => nbf, 'exp' => exp }
 
       authorize 'admin', 'password'
       post_json '/token/admin', claims.to_json
@@ -36,10 +36,10 @@ describe 'an API token' do
       expect(res_json).to match('token' => /\A(.*)\.(.*)\.(.*)\z/)
 
       # Decode the 'claims' section of the token
-      match = res_json['token'].match /\A(.*)\.(.*)\.(.*)\z/
-      res_header = match[1]
+      match = res_json['token'].match(/\A(.*)\.(.*)\.(.*)\z/)
+      # res_header = match[1]
       res_claims = match[2]
-      res_signature = match[3]
+      # res_signature = match[3]
 
       # nbf & exp should be the same as the request
       claims = JSON.parse(Base64.decode64(res_claims))
@@ -47,8 +47,8 @@ describe 'an API token' do
     end
 
     it 'sets the exp claim if none is given' do
-      nbf = 1577836800
-      claims = {'nbf' => nbf}
+      nbf = 1_577_836_800
+      claims = { 'nbf' => nbf }
 
       authorize 'admin', 'password'
       post_json '/token/admin', claims.to_json
@@ -58,23 +58,22 @@ describe 'an API token' do
       expect(res_json).to match('token' => /\A(.*)\.(.*)\.(.*)\z/)
 
       # Decode the 'claims' section of the token
-      match = res_json['token'].match /\A(.*)\.(.*)\.(.*)\z/
-      res_header = match[1]
+      match = res_json['token'].match(/\A(.*)\.(.*)\.(.*)\z/)
+      # res_header = match[1]
       res_claims = match[2]
-      res_signature = match[3]
+      # res_signature = match[3]
 
       # nbf & exp should be the same as the request
       claims = JSON.parse(Base64.decode64(res_claims))
       expect(claims).to match('nbf' => nbf, 'exp' => a_kind_of(Integer), 'sub' => 'admin')
-
     end
 
     it 'strips claims' do
-      claims = {'iss' => 'test',
-                'aud' => 'test',
-                'jti' => 'test',
-                'iat' => 'test',
-                'sub' => 'test'}
+      claims = { 'iss' => 'test',
+                 'aud' => 'test',
+                 'jti' => 'test',
+                 'iat' => 'test',
+                 'sub' => 'test' }
 
       authorize 'admin', 'password'
       post_json '/token/admin', claims.to_json
@@ -84,10 +83,10 @@ describe 'an API token' do
       expect(res_json).to match('token' => /\A(.*)\.(.*)\.(.*)\z/)
 
       # Decode the 'claims' section of the token
-      match = res_json['token'].match /\A(.*)\.(.*)\.(.*)\z/
-      res_header = match[1]
+      match = res_json['token'].match(/\A(.*)\.(.*)\.(.*)\z/)
+      # res_header = match[1]
       res_claims = match[2]
-      res_signature = match[3]
+      # res_signature = match[3]
 
       # All of the claims given in the initial request should have been
       # stripped
