@@ -23,6 +23,7 @@ describe 'a user document' do
       expect(res_json).to eq('id' => 1,
                              'username' => 'admin',
                              'email' => 'admin@example.com',
+                             'name' => 'Admin Test',
                              'organizations' => ['admins'])
     end
 
@@ -41,6 +42,7 @@ describe 'a user document' do
       # Create a test user
       new_user = { 'username' => 'test',
                    'email' => 'test@example.com',
+                   'name' => 'Test Test',
                    'new_password' => 'password' }
 
       authorize 'admin', 'password'
@@ -48,7 +50,7 @@ describe 'a user document' do
     end
 
     it 'changes the users email address' do
-      modified_user = { 'email' => 'test@example.com' }
+      modified_user = { 'email' => 'testuser@example.com' }
 
       authorize 'test', 'password'
       put_json '/users/test', modified_user.to_json
@@ -62,7 +64,28 @@ describe 'a user document' do
       res_json = JSON.parse(last_response.body)
       expect(res_json).to eq('id' => 2,
                              'username' => 'test',
-                             'email' => 'test@example.com',
+                             'email' => 'testuser@example.com',
+                             'name' => 'Test Test',
+                             'organizations' => [])
+    end
+
+    it 'changes the users name' do
+      modified_user = { 'name' => 'Bob Dobbs' }
+
+      authorize 'test', 'password'
+      put_json '/users/test', modified_user.to_json
+      expect(last_response.status).to eq(200)
+
+      # Retrieve the user record and check that it changed
+      authorize 'test', 'password'
+      get '/users/test'
+      expect(last_response.status).to eq(200)
+
+      res_json = JSON.parse(last_response.body)
+      expect(res_json).to eq('id' => 2,
+                             'username' => 'test',
+                             'email' => 'testuser@example.com',
+                             'name' => 'Bob Dobbs',
                              'organizations' => [])
     end
 

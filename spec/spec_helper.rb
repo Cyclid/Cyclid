@@ -58,6 +58,7 @@ def create_admin_user
   user = Cyclid::API::User.new
   user.username = 'admin'
   user.email = 'admin@example.com'
+  user.name = 'Admin Test'
   user.secret = 'aasecret55'
   user.new_password = 'password'
   user.save!

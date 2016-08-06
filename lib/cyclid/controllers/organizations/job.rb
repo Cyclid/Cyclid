@@ -24,6 +24,24 @@ module Cyclid
         # rubocop:disable Metrics/LineLength
         # @!group Organizations
 
+        # @!method get_organizations_organization_jobs
+        # @overload GET /organizations/:organization/jobs
+        # @param [String] organization Name of the organization.
+        # @param [Boolean] stats_only Do not return the job records; just the count
+        # @param [Integer] limit Maxiumum number of records to return.
+        # @param [Integer] offset Offset to start returning records.
+        # @param [String] s_name Name of the job to search on.
+        # @param [Integer] s_status Status to search on.
+        # @param [String] s_from Date & time to search from.
+        # @param [String] s_to Date & time to search to.
+        # @macro rest
+        # Get a list of jobs that have been run for the organization. Jobs can be
+        # filtered using the s_name, s_status, s_from and s_to search parameters. If
+        # s_from & s_to are given, only jobs which started between the two times will
+        # be returned.
+        # @return The list of job details.
+        # @return [404] The organization does not exist.
+
         # @!method post_organizations_organization_jobs(body)
         # @overload POST /organizations/:organization/jobs
         # @macro rest
@@ -87,6 +105,73 @@ module Cyclid
           include Errors::HTTPErrors
           include Constants::JobStatus
 
+          # Return a list of jobs
+          app.get do
+            authorized_for!(params[:name], Operations::READ)
+
+            org = Organization.find_by(name: params[:name])
+            halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+              if org.nil?
+
+            # Get any search terms that we'll need to find the appropriate jobs
+            search = {}
+            search[:job_name] = URI.decode(params[:s_name]) if params[:s_name]
+            search[:status] = params[:s_status] if params[:s_status]
+
+            # search_from & search_to should be some parsable format
+            if params[:s_from] and params[:s_to]
+              from = Time.parse(params[:s_from])
+              to = Time.parse(params[:s_to])
+
+              # ActiveRecord understands a range
+              search[:started] = from..to
+            end
+
+            Cyclid.logger.debug "search=#{search.inspect}"
+
+            # Find the number of matching jobs
+            count = if search.empty?
+                      org.job_records.count
+                    else
+                      org.job_records
+                         .where(search)
+                         .count
+                    end
+
+            Cyclid.logger.debug "count=#{count}"
+
+            stats_only = params[:stats_only] || false
+            limit = (params[:limit] || 100).to_i
+            offset = (params[:offset] || 0).to_i
+
+            job_data = { 'total' => count,
+                         'offset' => offset,
+                         'limit' => limit }
+
+            unless stats_only
+              # Get the available job records, but be terse with the
+              # information returned; there is no need to return a full job log
+              # with every job, for example.
+              job_records = if search.empty?
+                              org.job_records
+                                 .all
+                                 .select('id, job_name, job_version, started, ended, status')
+                                 .offset(offset)
+                                 .limit(limit)
+                            else
+                              org.job_records
+                                 .where(search)
+                                 .select('id, job_name, job_version, started, ended, status')
+                                 .offset(offset)
+                                 .limit(limit)
+                            end
+
+              job_data['records'] = job_records
+            end
+
+            return job_data.to_json
+          end
+
           # Create and run a job.
           app.post do
             authorized_for!(params[:name], Operations::WRITE)
@@ -115,14 +200,21 @@ module Cyclid
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
 
-            job_record = org.job_records.find(params[:id])
-            halt_with_json_response(404, INVALID_JOB, 'job does not exist') \
-              if job_record.nil?
+            begin
+              job_record = org.job_records.find(params[:id])
+              halt_with_json_response(404, INVALID_JOB, 'job does not exist') \
+                if job_record.nil?
+            rescue StandardError
+              halt_with_json_response(404, INVALID_JOB, 'job does not exist')
+            end
+
+            job = job_record.serializable_hash
+            job[:job_id] = job.delete :id
 
             # XXX The "job" itself is a serialised internal representation and
             # probably not very useful to the user, so we might want to process
             # it into something more helpful here.
-            return job_record.to_json
+            return job.to_json
           end
 
           # Get the current status of the given job ID.

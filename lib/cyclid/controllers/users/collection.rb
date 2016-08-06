@@ -48,6 +48,7 @@ module Cyclid
         # passed.
         # @param [JSON] body New user
         # @option body [String] username Username of the new user
+        # @option body [String] name Users real name
         # @option body [String] email Users email address
         # @option body [String] password Bcrypt2 encrypted password
         # @option body [String] new_password Password in plain text, which will be encrypted
@@ -108,6 +109,7 @@ module Cyclid
               user = User.new
               user.username = payload['username']
               user.email = payload['email']
+              user.name = payload['name'] if payload.key? 'name'
               user.password = payload['password'] if payload.key? 'password'
               user.secret = payload['secret'] if payload.key? 'secret'
               user.new_password = payload['new_password'] if payload.key? 'new_password'
