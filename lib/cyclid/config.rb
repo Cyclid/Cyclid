@@ -21,13 +21,14 @@ module Cyclid
       attr_reader :database, :log, :dispatcher, :builder, :plugins
 
       def initialize(path)
-        @config = YAML.load_file(path)
+        config = YAML.load_file(path)
+        server = config['server']
 
-        @database = @config['database']
-        @log = @config['log'] || File.join(%w(/ var log cyclid))
-        @dispatcher = @config['dispatcher']
-        @builder = @config['builder']
-        @plugins = @config['plugins'] || {}
+        @database = server['database']
+        @log = server['log'] || File.join(%w(/ var log cyclid server))
+        @dispatcher = server['dispatcher']
+        @builder = server['builder']
+        @plugins = server['plugins'] || {}
       rescue StandardError => ex
         abort "Failed to load configuration file #{path}: #{ex}"
       end
