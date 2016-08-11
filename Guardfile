@@ -21,5 +21,5 @@ guard 'rack' do
 end
 
 guard 'sidekiq', require: './init.rb' do
-  watch(%r{^lib/plugins/dispatcher/.*})
+  watch(%r{^app/cyclid/plugins/dispatcher/.*})
 end

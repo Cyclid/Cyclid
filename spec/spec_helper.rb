@@ -6,10 +6,10 @@ SimpleCov.start do
   add_filter '/test/'
   add_filter '/db/'
 
-  add_group 'Controllers', 'lib/cyclid/controller'
-  add_group 'Models', 'lib/cyclid/models'
-  add_group 'Job', 'lib/cyclid/job'
-  add_group 'Plugins', 'lib/cyclid/plugins'
+  add_group 'Controllers', 'app/cyclid/controller'
+  add_group 'Models', 'app/cyclid/models'
+  add_group 'Job', 'app/cyclid/job'
+  add_group 'Plugins', 'app/cyclid/plugins'
 end
 
 # Configure RSpec
@@ -32,7 +32,7 @@ def app
 end
 
 # Pull in the code
-require_relative '../lib/cyclid'
+require_relative '../app/cyclid'
 
 # Turn down log output
 Cyclid.logger.level = Logger::FATAL
