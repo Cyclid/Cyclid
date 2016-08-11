@@ -60,6 +60,9 @@ module Cyclid
             @notifier.write "#{Time.now} : Obtaining build host...\n"
             @build_host = request_build_host(@builder, environment)
 
+            # We have a build host
+            @notifier.status = STARTED
+
             # Add some build host details to the build context
             @ctx.merge! @build_host.context_info
 
@@ -102,8 +105,6 @@ module Cyclid
         # on_success & on_failure handlers to the next stage. If no
         # handler is defined, stop.
         def run
-          status = STARTED
-          @notifier.status = status
           @notifier.write "#{'=' * 79}\n#{Time.now} : Job started. " \
                           "Context: #{@ctx.stringify_keys}\n"
 
@@ -145,9 +146,11 @@ module Cyclid
           # (at least one of) the stages failed, and thus the job failed
           if status == FAILING
             @notifier.status = FAILED
+            @notifier.ended = Time.now
             success = false
           else
             @notifier.status = SUCCEEDED
+            @notifier.ended = Time.now
             success = true
           end
 
