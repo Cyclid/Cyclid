@@ -32,6 +32,8 @@ def app
 end
 
 # Pull in the code
+$LOAD_PATH.push File.expand_path('../../app', __FILE__)
+
 require_relative '../app/cyclid'
 
 # Turn down log output
