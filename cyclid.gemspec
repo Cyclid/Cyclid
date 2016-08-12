@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = 'The Cyclid CI system'
   s.authors     = ['Kristian Van Der Vliet']
   s.email       = 'vanders@liqwyd.com'
-  s.files       = Dir.glob('lib/**/*') + Dir.glob('bin/*') + %w(db/schema.rb LICENSE README.md)
+  s.files       = Dir.glob('app/**/*') + Dir.glob('lib/**/*') + Dir.glob('bin/*') + %w(db/schema.rb LICENSE README.md)
   s.bindir      = 'bin'
   s.executables << 'cyclid-db-init'
 

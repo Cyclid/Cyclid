@@ -20,6 +20,6 @@ guard 'rack' do
   watch(%r{^(config|lib|app)/.*})
 end
 
-guard 'sidekiq', require: './init.rb' do
-  watch(%r{^lib/plugins/dispatcher/.*})
+guard 'sidekiq', require: File.expand_path('../lib/cyclid/app.rb', __FILE__) do
+  watch(%r{^app/cyclid/plugins/dispatcher/.*})
 end

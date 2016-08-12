@@ -5,7 +5,8 @@
 # Authors: Kristian Van Der Vliet <vanders@liqwyd.com>
 require 'sinatra'
 require 'sidekiq/web'
-require File.dirname(__FILE__) + '/init'
+
+require 'cyclid/app'
 
 configure :production do
   map '/' do
