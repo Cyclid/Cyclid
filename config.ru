@@ -12,7 +12,7 @@ configure :production do
   map '/' do
     app = Cyclid::API::App
     app.set :bind, '0.0.0.0'
-    app.set :port, 80
+    app.set :port, 8361
     app.run!
   end
 end
@@ -21,7 +21,7 @@ configure :development do
   map '/' do
     app = Cyclid::API::App
     app.set :bind, '127.0.0.1'
-    app.set :port, 8092
+    app.set :port, 8361
     app.run!
   end
 
