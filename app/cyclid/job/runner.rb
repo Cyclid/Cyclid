@@ -30,7 +30,6 @@ module Cyclid
           # Un-serialize the job
           begin
             @job = Oj.load(job_definition, symbol_keys: true)
-            Cyclid.logger.debug "job=#{@job.inspect}"
 
             environment = @job[:environment]
             secrets = @job[:secrets]
@@ -105,6 +104,8 @@ module Cyclid
         # on_success & on_failure handlers to the next stage. If no
         # handler is defined, stop.
         def run
+          status = STARTED
+
           @notifier.write "#{'=' * 79}\n#{Time.now} : Job started. " \
                           "Context: #{@ctx.stringify_keys}\n"
 
