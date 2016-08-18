@@ -1,9 +1,4 @@
 client:
   ssh_private_key: ~/.ssh/id_rsa_build
   servers:
-    - brix01:18800
-    - brix01:18801
-    - brix01:18802
-    - brix01:18803
-    - brix01:18804
-    - brix01:18805
+    - localhost:18800

@@ -10,7 +10,6 @@ coverage
 pkg
 
 config/local
-config/mist
 
 # OS artifacts
 .DS_Store
