@@ -9,7 +9,7 @@ dump.rdb
 coverage
 pkg
 
-config/development
+config/local
 config/mist
 
 # OS artifacts
