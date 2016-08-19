@@ -20,6 +20,8 @@ module Cyclid
   # Module for the Cyclid API
   module API
     module Health
+      # Helper methods to isolate the plugins from the implementation details
+      # of the healthcheck framework
       module Helpers
         STATUSES = {
           ok: SinatraHealthCheck::Status::SEVERITIES[:ok],
@@ -27,6 +29,7 @@ module Cyclid
           error: SinatraHealthCheck::Status::SEVERITIES[:error]
         }.freeze
 
+        # Produce a SinatraHealthCheck object from the given status & message
         def health_status(status, message)
           SinatraHealthCheck::Status.new(status, message)
         end

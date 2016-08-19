@@ -52,13 +52,17 @@ module Cyclid
         def self.status
           stats = Sidekiq::Stats.new
           if stats.processes_size.zero?
-            health_status(:error, 'no Sidekiq process is running')
+            health_status(:error,
+                          'no Sidekiq process is running')
           elsif stats.enqueued > 10
-            health_status(:warning, "Sidekiq queue length is too high: #{stats.enqueued}")
+            health_status(:warning,
+                          "Sidekiq queue length is too high: #{stats.enqueued}")
           elsif stats.default_queue_latency > 60
-            health_status(:warning, "Sidekiq queue latency is too high: #{stats.default_queue_latency}")
+            health_status(:warning,
+                          "Sidekiq queue latency is too high: #{stats.default_queue_latency}")
           else
-            health_status(:ok, 'sidekiq is okay')
+            health_status(:ok,
+                          'sidekiq is okay')
           end
         end
 

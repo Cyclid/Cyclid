@@ -60,6 +60,7 @@ module Cyclid
 
     # Healthchecks
     module Health
+      # Internal database connection health check
       module Database
         def self.status
           connected = begin

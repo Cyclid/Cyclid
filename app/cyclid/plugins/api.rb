@@ -140,12 +140,12 @@ module Cyclid
           # if the endpoint would be authenticated, or not to call it in which
           # case the method would be unauthenticated.
           def authorize(method)
-            operation = if method.downcase == 'get'
+            operation = if method.casecmp 'get'
                           Operations::READ
-                        elsif method.downcase == 'put'
+                        elsif method.casecmp 'put'
                           Operations::WRITE
-                        elsif method.downcase == 'post' or
-                              method.downcase == 'delete'
+                        elsif method.casecmp 'post' or
+                              method.casecmp 'delete'
                           Operations::ADMIN
                         else
                           raise "invalid method '#{method}'"
