@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('warden', '~> 1.2')
   s.add_runtime_dependency('activerecord', '~> 4.2')
   s.add_runtime_dependency('sinatra-activerecord', '~> 2.0')
+  s.add_runtime_dependency('sinatra-health-check', '~> 0.2.0')
   s.add_runtime_dependency('bcrypt', '~> 3.1')
   s.add_runtime_dependency('net-ssh', '~> 3.1')
   s.add_runtime_dependency('net-scp', '~> 1.2')
@@ -30,7 +31,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('slack-notifier', '~> 1.5')
   s.add_runtime_dependency('mail', '~> 2.6')
   s.add_runtime_dependency('premailer', '~> 1.8')
-  s.add_runtime_dependency('hpricot', '~> 0.8')
+  #s.add_runtime_dependency('hpricot', '~> 0.8')
+  s.add_runtime_dependency('nokogiri', '~> 1.6')
   s.add_runtime_dependency('jwt', '~> 1.5')
 
   s.add_runtime_dependency('cyclid-core', '~> 0')
