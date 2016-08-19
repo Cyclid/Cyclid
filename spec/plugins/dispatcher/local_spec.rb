@@ -63,6 +63,56 @@ describe Cyclid::API::Plugins::Local do
       end.to change(Cyclid::API::Plugins::Worker::Local.jobs, :size).by(1)
     end
   end
+
+  context 'health checks' do
+    let :fakestats do
+      instance_double(Sidekiq::Stats)
+    end
+
+    before do
+      allow(Sidekiq::Stats).to receive(:new).and_return(fakestats)
+    end
+
+    it 'returns an OK response when the stats are in range' do
+      allow(fakestats).to receive(:processes_size).and_return(1)
+      allow(fakestats).to receive(:enqueued).and_return(0)
+      allow(fakestats).to receive(:default_queue_latency).and_return(0)
+
+      status = nil
+      expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
+      expect(status.level).to be(:ok)
+    end
+
+    it 'returns an error response when Sidekiq is not running' do
+      allow(fakestats).to receive(:processes_size).and_return(0)
+      allow(fakestats).to receive(:enqueued).and_return(0)
+      allow(fakestats).to receive(:default_queue_latency).and_return(0)
+
+      status = nil
+      expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
+      expect(status.level).to be(:error)
+    end
+
+    it 'returns an warning response when the queue is too long' do
+      allow(fakestats).to receive(:processes_size).and_return(1)
+      allow(fakestats).to receive(:enqueued).and_return(99)
+      allow(fakestats).to receive(:default_queue_latency).and_return(0)
+
+      status = nil
+      expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
+      expect(status.level).to be(:warning)
+    end
+
+    it 'returns an error response when the queue latency is too high' do
+      allow(fakestats).to receive(:processes_size).and_return(1)
+      allow(fakestats).to receive(:enqueued).and_return(0)
+      allow(fakestats).to receive(:default_queue_latency).and_return(99)
+
+      status = nil
+      expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
+      expect(status.level).to be(:warning)
+    end
+  end
 end
 
 describe Cyclid::API::Plugins::Notifier::Local do
