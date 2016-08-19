@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +21,7 @@ module Cyclid
     # their own position. It's unlike a file enough to not be derived from IO.
     class StringFIFO
       def initialize
-        @buffer = ''
+        @buffer = String.new
         @write_pos = 0
         @read_pos = 0
       end
