@@ -23,6 +23,7 @@ module Cyclid
       # Helper methods to isolate the plugins from the implementation details
       # of the healthcheck framework
       module Helpers
+        # Health statuses
         STATUSES = {
           ok: SinatraHealthCheck::Status::SEVERITIES[:ok],
           warning: SinatraHealthCheck::Status::SEVERITIES[:warning],

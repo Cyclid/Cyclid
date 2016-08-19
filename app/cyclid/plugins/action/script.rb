@@ -52,6 +52,7 @@ module Cyclid
           Cyclid.logger.debug "script: '#{@script}' path: #{@path}"
         end
 
+        # Run the script action
         def perform(log)
           begin
             # Export the environment data to the build host, if necesary

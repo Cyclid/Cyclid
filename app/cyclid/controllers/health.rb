@@ -20,6 +20,7 @@ module Cyclid
   # Module for the Cyclid API
   module API
     # Controller for all Health related API endpoints
+    # @api REST
     class HealthController < ControllerBase
       include Errors::HTTPErrors
 
@@ -39,20 +40,33 @@ module Cyclid
         end
       end
 
+      # @!group Health
+
+      # @!method get_health_status
+      # @overload GET /health/status
+      # @macro rest
       # Return either 200 (healthy) or 503 (unhealthy) based on the status of
       # the healthchecks. This is intended to be used by things like load
       # balancers and active monitors.
+      # @return [200] Application is healthy.
+      # @return [503] Application is unhealthy.
       get '/health/status' do
         @checker.healthy? ? 200 : 503
       end
 
+      # @!method get_health_info
+      # @overload GET /health/info
+      # @macro rest
       # Return verbose information on the status of the individual checks;
       # note that this method always returns 200 with a message body, so it is
       # not suitable for general health checks unless the caller intends to
       # parse the message body for the health status.
+      # @return JSON description of the individual health check statuses.
       get '/health/info' do
         @checker.status.to_json
       end
+
+      # @!endgroup
     end
 
     # Register this controller
@@ -62,6 +76,7 @@ module Cyclid
     module Health
       # Internal database connection health check
       module Database
+        # Check that ActiveRecord can connect to the database
         def self.status
           connected = begin
                         ActiveRecord::Base.connection_pool.with_connection(&:active?)

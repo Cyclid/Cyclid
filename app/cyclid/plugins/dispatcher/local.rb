@@ -49,6 +49,10 @@ module Cyclid
         require 'sidekiq/api'
         extend Health::Helpers
 
+        # Perform a health check; for this plugin that means:
+        #
+        # Is Sidekiq running?
+        # Is the queue size healthy?
         def self.status
           stats = Sidekiq::Stats.new
           if stats.processes_size.zero?
