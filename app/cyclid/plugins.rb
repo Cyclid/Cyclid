@@ -15,6 +15,8 @@
 require 'require_all'
 require 'active_support/core_ext'
 
+require_relative 'health_helpers'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API

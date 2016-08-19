@@ -61,10 +61,10 @@ module Cyclid
         end
 
         # Return a list of all plugins of a certain type
-        def all(type)
+        def all(type = nil)
           list = []
           @plugins.each do |plugin|
-            list << plugin if plugin.superclass == type
+            list << plugin if plugin.superclass == type or type.nil?
           end
           return list
         end

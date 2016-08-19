@@ -44,6 +44,23 @@ module Cyclid
           return record.id
         end
 
+        # Healthcheck; ensure that Sinatra is available and not under duress
+        require 'sidekiq/api'
+        extend Health::Helpers
+
+        def self.status
+          stats = Sidekiq::Stats.new
+          if stats.processes_size == 0
+            health_status(:error, 'no Sidekiq process is running')
+          elsif stats.enqueued > 10
+            health_status(:warning, "Sidekiq queue length is too high: #{stats.enqueued}")
+          elsif stats.default_queue_latency > 60
+            health_status(:warning, "Sidekiq queue latency is too high: #{stats.default_queue_latency}")
+          else
+            health_status(:ok, 'sidekiq is okay')
+          end
+        end
+
         # Register this plugin
         register_plugin 'local'
       end
