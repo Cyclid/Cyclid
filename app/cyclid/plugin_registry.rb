@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,10 +62,10 @@ module Cyclid
         end
 
         # Return a list of all plugins of a certain type
-        def all(type)
+        def all(type = nil)
           list = []
           @plugins.each do |plugin|
-            list << plugin if plugin.superclass == type
+            list << plugin if plugin.superclass == type or type.nil?
           end
           return list
         end

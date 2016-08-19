@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +43,31 @@ module Cyclid
 
           # The JobRecord ID is as good a job identifier as anything
           return record.id
+        end
+
+        # Healthcheck; ensure that Sinatra is available and not under duress
+        require 'sidekiq/api'
+        extend Health::Helpers
+
+        # Perform a health check; for this plugin that means:
+        #
+        # Is Sidekiq running?
+        # Is the queue size healthy?
+        def self.status
+          stats = Sidekiq::Stats.new
+          if stats.processes_size.zero?
+            health_status(:error,
+                          'no Sidekiq process is running')
+          elsif stats.enqueued > 10
+            health_status(:warning,
+                          "Sidekiq queue length is too high: #{stats.enqueued}")
+          elsif stats.default_queue_latency > 60
+            health_status(:warning,
+                          "Sidekiq queue latency is too high: #{stats.default_queue_latency}")
+          else
+            health_status(:ok,
+                          'sidekiq is okay')
+          end
         end
 
         # Register this plugin

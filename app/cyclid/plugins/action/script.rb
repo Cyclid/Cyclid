@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +52,7 @@ module Cyclid
           Cyclid.logger.debug "script: '#{@script}' path: #{@path}"
         end
 
+        # Run the script action
         def perform(log)
           begin
             # Export the environment data to the build host, if necesary

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,16 +140,15 @@ module Cyclid
           # if the endpoint would be authenticated, or not to call it in which
           # case the method would be unauthenticated.
           def authorize(method)
-            method.downcase!
-            operation = if method == 'get'
+            operation = if method.casecmp 'get'
                           Operations::READ
-                        elsif method == 'put'
+                        elsif method.casecmp 'put'
                           Operations::WRITE
-                        elsif method == 'post' or
-                              method == 'delete'
+                        elsif method.casecmp 'post' or
+                              method.casecmp 'delete'
                           Operations::ADMIN
                         else
-                          raise "invalid method #{method}"
+                          raise "invalid method '#{method}'"
                         end
 
             authorized_for!(params[:name], operation)

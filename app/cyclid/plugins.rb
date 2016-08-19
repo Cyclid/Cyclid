@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +15,8 @@
 
 require 'require_all'
 require 'active_support/core_ext'
+
+require_relative 'health_helpers'
 
 # Top level module for the core Cyclid code.
 module Cyclid

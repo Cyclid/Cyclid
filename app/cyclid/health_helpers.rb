@@ -13,36 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Top level module for the core Cyclid code.
+require 'sinatra-health-check'
+
+# Top level module for all of the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
   module API
-    # Module for Cyclid Plugins
-    module Plugins
-      # Base class for Action plugins
-      class Action < Base
-        def initialize(args = {})
-        end
+    module Health
+      # Helper methods to isolate the plugins from the implementation details
+      # of the healthcheck framework
+      module Helpers
+        # Health statuses
+        STATUSES = {
+          ok: SinatraHealthCheck::Status::SEVERITIES[:ok],
+          warning: SinatraHealthCheck::Status::SEVERITIES[:warning],
+          error: SinatraHealthCheck::Status::SEVERITIES[:error]
+        }.freeze
 
-        # Return the 'human' name for the plugin type
-        def self.human_name
-          'action'
-        end
-
-        # Provide any additional run-time data, such as the transport &
-        # context, that the plugin will require for perform() but didn't get
-        # during initialize.
-        def prepare(args = {})
-          @transport = args[:transport]
-          @ctx = args[:ctx]
-        end
-
-        # Run the Action.
-        def perform(log)
+        # Produce a SinatraHealthCheck object from the given status & message
+        def health_status(status, message)
+          SinatraHealthCheck::Status.new(status, message)
         end
       end
     end
   end
 end
-
-require_rel 'action/*.rb'

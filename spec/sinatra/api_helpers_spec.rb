@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # rubocop:disable Style/GlobalVars
 require 'spec_helper'
 require 'json'
@@ -88,7 +89,7 @@ describe Cyclid::API::APIHelpers do
         $request = TestRequest.new(body, 'application/json')
 
         expect{ parse_request_body }.to \
-          raise_error('400:expected true at line 1, column 2 [parse.c:148]')
+          raise_error(/\A400:expected true at line 1, column 2/)
       end
     end
 

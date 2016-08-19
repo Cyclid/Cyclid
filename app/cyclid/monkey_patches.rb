@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Add two methods to Hash
 class Hash
   # http://chrisholtz.com/blog/lets-make-a-ruby-hash-map-method-that-returns-a-hash-instead-of-an-array/

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,13 +133,13 @@ module Cyclid
             stage_success = { stage: job_stage[:on_success] }
             job_sequence << stage_success \
               unless job_stage[:on_success].nil? or \
-                     has_stage?(job_sequence, job_stage[:on_success])
+                     stage?(job_sequence, job_stage[:on_success])
             stage_view.on_success = job_stage[:on_success]
 
             stage_failure = { stage: job_stage[:on_failure] }
             job_sequence << stage_failure \
               unless job_stage[:on_failure].nil? or \
-                     has_stage?(job_sequence, job_stage[:on_failure])
+                     stage?(job_sequence, job_stage[:on_failure])
             stage_view.on_failure = job_stage[:on_failure]
 
             # Store the modified StageView
@@ -149,7 +150,7 @@ module Cyclid
         end
 
         # Search for a stage in the sequence, by name
-        def has_stage?(sequence, name)
+        def stage?(sequence, name)
           found = false
           sequence.each do |stage|
             found = stage[:stage] == name || stage['stage'] == name

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # rubocop:disable Metrics/LineLength
 require 'spec_helper'
 require 'mail'
@@ -117,7 +118,7 @@ describe Cyclid::API::Plugins::Email do
       expect(mail.to).to match_array(['test@example.com'])
       expect(mail.parts.first.mime_type).to eq('text/plain')
       expect(mail.parts.last.mime_type).to eq('text/html')
-      expect(mail.parts.last.to_s).to match(/background: fuchsia;/)
+      expect(mail.parts.last.to_s).to match(/bgcolor="fuchsia"/)
     end
   end
 
