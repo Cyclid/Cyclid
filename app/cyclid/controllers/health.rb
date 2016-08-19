@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,9 +62,11 @@ module Cyclid
     module Health
       module Database
         def self.status
-          connected = ActiveRecord::Base.connection_pool.with_connection do |con|
-            con.active?
-          end rescue false
+          connected = begin
+                        ActiveRecord::Base.connection_pool.with_connection(&:active?)
+                      rescue
+                        false
+                      end
 
           if connected
             SinatraHealthCheck::Status.new(:ok, 'database connection is okay')

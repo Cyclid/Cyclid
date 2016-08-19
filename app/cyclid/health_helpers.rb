@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +22,9 @@ module Cyclid
     module Health
       module Helpers
         STATUSES = {
-          :ok       => SinatraHealthCheck::Status::SEVERITIES[:ok],
-          :warning  => SinatraHealthCheck::Status::SEVERITIES[:warning],
-          :error    => SinatraHealthCheck::Status::SEVERITIES[:error]
+          ok: SinatraHealthCheck::Status::SEVERITIES[:ok],
+          warning: SinatraHealthCheck::Status::SEVERITIES[:warning],
+          error: SinatraHealthCheck::Status::SEVERITIES[:error]
         }.freeze
 
         def health_status(status, message)

@@ -28,7 +28,7 @@ module Cyclid
 
       # Append data to the buffer & update the write position
       def write(data)
-        @buffer << data
+        @buffer += data
         @write_pos += data.length
       end
 

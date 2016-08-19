@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # rubocop:disable Style/GlobalVars
 require 'spec_helper'
 require 'json'

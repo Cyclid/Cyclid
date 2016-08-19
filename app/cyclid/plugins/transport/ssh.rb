@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,7 +103,7 @@ module Cyclid
           # Run the SSH even loop; this blocks until the command has completed
           @session.loop
 
-          @exit_code == 0 && @exit_signal.nil? ? true : false
+          @exit_code.zero? && @exit_signal.nil? ? true : false
         end
 
         # Copy data from a local IO object to a remote file via. SCP

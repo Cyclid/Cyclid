@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +51,7 @@ module Cyclid
 
         def self.status
           stats = Sidekiq::Stats.new
-          if stats.processes_size == 0
+          if stats.processes_size.zero?
             health_status(:error, 'no Sidekiq process is running')
           elsif stats.enqueued > 10
             health_status(:warning, "Sidekiq queue length is too high: #{stats.enqueued}")

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'sidekiq/testing'
 
@@ -78,7 +79,6 @@ describe Cyclid::API::Plugins::Local do
       allow(fakestats).to receive(:enqueued).and_return(0)
       allow(fakestats).to receive(:default_queue_latency).and_return(0)
 
-      status = nil
       expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to be(:ok)
     end
@@ -88,7 +88,6 @@ describe Cyclid::API::Plugins::Local do
       allow(fakestats).to receive(:enqueued).and_return(0)
       allow(fakestats).to receive(:default_queue_latency).and_return(0)
 
-      status = nil
       expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to be(:error)
     end
@@ -98,7 +97,6 @@ describe Cyclid::API::Plugins::Local do
       allow(fakestats).to receive(:enqueued).and_return(99)
       allow(fakestats).to receive(:default_queue_latency).and_return(0)
 
-      status = nil
       expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to be(:warning)
     end
@@ -108,7 +106,6 @@ describe Cyclid::API::Plugins::Local do
       allow(fakestats).to receive(:enqueued).and_return(0)
       allow(fakestats).to receive(:default_queue_latency).and_return(99)
 
-      status = nil
       expect(status = Cyclid::API::Plugins::Local.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to be(:warning)
     end

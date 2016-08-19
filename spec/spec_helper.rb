@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'bundler/setup'
 require 'simplecov'
 
@@ -54,7 +55,7 @@ def setup_database
 end
 
 # Helpers for setting up a single admin user & admins organization
-ADMINS_ORG = 'admins'.freeze
+ADMINS_ORG = 'admins'
 
 def create_admin_user
   user = Cyclid::API::User.new

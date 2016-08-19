@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 Gem::Specification.new do |s|
   s.name        = 'cyclid'
   s.version     = '0.2.0'
@@ -31,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('slack-notifier', '~> 1.5')
   s.add_runtime_dependency('mail', '~> 2.6')
   s.add_runtime_dependency('premailer', '~> 1.8')
-  #s.add_runtime_dependency('hpricot', '~> 0.8')
+  # s.add_runtime_dependency('hpricot', '~> 0.8')
   s.add_runtime_dependency('nokogiri', '~> 1.6')
   s.add_runtime_dependency('jwt', '~> 1.5')
 

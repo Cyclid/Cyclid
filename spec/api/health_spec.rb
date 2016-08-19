@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'json'
 
@@ -80,7 +81,6 @@ describe Cyclid::API::Health::Database do
     it 'returns an OK response when the database is connected' do
       allow(fakeconn).to receive(:active?).and_return true
 
-      status = nil
       expect(status = Cyclid::API::Health::Database.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to eq(:ok)
       expect(status.message).to eq('database connection is okay')
@@ -89,7 +89,6 @@ describe Cyclid::API::Health::Database do
     it 'returns an error response when the database is not connected' do
       allow(fakeconn).to receive(:active?).and_return false
 
-      status = nil
       expect(status = Cyclid::API::Health::Database.status).to be_a(SinatraHealthCheck::Status)
       expect(status.level).to eq(:error)
       expect(status.message).to eq('database is not connected')
