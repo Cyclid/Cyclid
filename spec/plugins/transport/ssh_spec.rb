@@ -24,24 +24,28 @@ describe Cyclid::API::Plugins::Ssh do
   end
 
   it 'should execute a command' do
-    transport = nil
+    if ENV['RUN_SSH_TESTS']
+      transport = nil
 
-    story do |session|
-      channel = session.opens_channel
-      channel.sends_exec '/bin/true'
-      channel.gets_data 0
+      story do |session|
+        channel = session.opens_channel
+        channel.sends_exec '/bin/true'
+        channel.gets_data 0
+      end
+
+      # XXX And, um, how in the hell do we create a usable Session from that script? The stub for
+      # Net::SSH.start currently returns 'true'. Amazingly, there is no Net::SSH::Test::Session;
+      # just a Channel, but _that's_ supposed to be returned by session.open_channel, and if we
+      # create a mock class how does that connect to the story defined above?
+      expect do
+        transport = Cyclid::API::Plugins::Ssh.new(host: 'localhost',
+                                                  user: 'test',
+                                                  log: nil)
+      end.to_not raise_error
+
+      expect(transport.exec('/bin/true')).to be true
+    else
+      skip 'SSH Transport tests not yet implemented'
     end
-
-    # XXX And, um, how in the hell do we create a usable Session from that script? The stub for
-    # Net::SSH.start currently returns 'true'. Amazingly, there is no Net::SSH::Test::Session;
-    # just a Channel, but _that's_ supposed to be returned by session.open_channel, and if we
-    # create a mock class how does that connect to the story defined above?
-    expect do
-      transport = Cyclid::API::Plugins::Ssh.new(host: 'localhost',
-                                                user: 'test',
-                                                log: nil)
-    end.to_not raise_error
-
-    expect(transport.exec('/bin/true')).to be true
   end
 end
