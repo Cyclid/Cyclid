@@ -3,30 +3,34 @@
    "environment":
       {
         "os": "ubuntu_trusty",
+        "repos": [
+          {
+            "url": "ppa:brightbox/ruby-ng"
+          }
+        ],
         "packages": [
-          "ruby2.0",
-          "ruby2.0-dev",
+          "ruby2.3",
+          "ruby2.3-dev",
           "build-essential",
           "git",
           "zlib1g-dev",
           "libsqlite3-dev",
+          "mysql-client",
           "libmysqlclient-dev"
         ]
-      },
-   "secrets":
-      {
-          "github_token": "NST5WwAL7b0JFjO94C9q3mv5F3jus69dBr6o9gwGUG177kk7Y/5spP5P+um+VyhrPwJ44WCuwhr7wCR/UiuBZvoq89tsYXg7uEtCJ9uJP18WHHCW9iguTLyXUxDSfWihP2fPHvEka+8K8A2r1Z0FOvZjXSw4+E/COdUdWLQp4GQTHePvZGV8FS/onoz5V/SYvozHkH6+tw+ZH0k4mkMKVGBl+VPH+RV4PbL9UfhY4/8ZMoaiSLiWg469a49W80qcimnfR3AP+v6vronoHg+d5mqWH+i0LpUeavMzoQnocQmD7axBs+lfVOKbKa2dPwPxLBdaxs2LPhL+ETwDMWCwaw=="
       },
    "sources": [
       {
         "type": "git",
-        "url": "https://github.com/Liqwyd/Mist",
-        "token": "%{github_token}"
+        "url": "https://github.com/Liqwyd/Mist"
       },
       {
         "type": "git",
-        "url": "https://github.com/Liqwyd/Cyclid-core",
-        "token": "%{github_token}"
+        "url": "https://github.com/Liqwyd/Cyclid-core"
+      },
+      {
+        "type": "git",
+        "url": "https://github.com/Liqwyd/Cyclid"
       }
    ],
    "stages" : [
@@ -35,7 +39,7 @@
         "steps" : [
           {
             "action" : "command", 
-            "cmd" : "sudo gem2.0 install bundler --no-ri --no-doc"
+            "cmd" : "sudo gem install bundler --no-ri --no-doc"
           },
           {
             "action" : "command",
@@ -55,7 +59,7 @@
         ]
       },
       {
-        "name": "test",
+        "name": "rspec",
         "steps": [
           {
             "action" : "command",
@@ -73,6 +77,27 @@
             "path" : "%{workspace}/Cyclid"
           }
         ]
+      },
+      {
+        "name": "success",
+        "steps": [
+          {
+            "action" : "slack",
+            "subject" : "%{job_name} succeeded",
+            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) completed successfully."
+          }
+        ]
+      },
+      {
+        "name": "failure",
+        "steps": [
+          {
+            "action" : "slack",
+            "subject" : "%{job_name} failed",
+            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) failed.",
+            "color" : "danger"
+          }
+        ]
       }
    ],
    "sequence" : [
@@ -83,11 +108,11 @@
       },
       {
         "stage" : "lint",
-        "on_success" : "test",
+        "on_success" : "rspec",
         "on_failure" : "failure"
       },
       {
-        "stage" : "test",
+        "stage" : "rspec",
         "on_success" : "docs",
         "on_failure" : "failure"
       },
@@ -95,12 +120,6 @@
         "stage" : "docs",
         "on_success" : "success",
         "on_failure" : "failure"
-      },
-      {
-         "stage" : "success"
-      },
-      {
-         "stage" : "failure"
       }
    ]
 }
