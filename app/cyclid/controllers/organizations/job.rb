@@ -233,6 +233,8 @@ module Cyclid
             hash = {}
             hash[:job_id] = job_record.id
             hash[:status] = job_record.status
+            hash[:started] = job_record.started if job_record.started
+            hash[:ended] = job_record.ended if job_record.ended
 
             return hash.to_json
           end
