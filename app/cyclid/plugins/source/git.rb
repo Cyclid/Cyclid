@@ -44,18 +44,18 @@ module Cyclid
             return false unless success
 
             # If a branch was given, check it out
-            if source.key? :branch
-              branch = source[:branch]
+            next unless source.key? :branch
 
-              match = url.path.match(%r{^.*\/(\w*)})
-              source_dir = "#{ctx[:workspace]}/#{match[1]}"
+            branch = source[:branch]
 
-              success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
-              return false unless success
+            match = url.path.match(%r{^.*\/(\w*)})
+            source_dir = "#{ctx[:workspace]}/#{match[1]}"
 
-              success = transport.exec("git checkout #{branch}", source_dir)
-              return false unless success
-            end
+            success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
+            return false unless success
+
+            success = transport.exec("git checkout #{branch}", source_dir)
+            return false unless success
           end
 
           return true
