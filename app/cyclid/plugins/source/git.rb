@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'octokit'
-
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -74,22 +72,41 @@ module Cyclid
         # 2. Find all of the definitions for a given URL and merge them
         def normalize_and_dedup(sources)
           normalized_sources = normalize(sources)
+          Cyclid.logger.debug "normalized_sources=#{normalized_sources}"
           deduped_sources = dedup(normalized_sources)
-
           Cyclid.logger.debug("deduped_sources=#{deduped_sources}")
 
           return deduped_sources
         end
 
-        # Standardise the Git URLs
-        # XXX This is only going to work for Github URLs...
+        # Standardise the Git URLs. Git urls can be of the form:
+        #
+        # git://github.com/user/project.git#commit-ish
+        # git+ssh://user@hostname:project.git#commit-ish
+        # git+ssh://user@hostname/project.git#commit-ish
+        # git+http://user@hostname/project/blah.git#commit-ish
+        # git+https://user@hostname/project/blah.git#commit-ish
+        #
+        # 1. We won't support SSH; HTTP(s) only
+        # 2. Extract the user and treat it as the token parameter
+        # 3. Extract the fragment and treat it as the branch parameter
+        #
+        # So:
+        #
+        # http[s]://[user@]hostname/project/blah.git[#commit-ish]
+        #
         def normalize(sources)
-          sources.map do |source|
-            repo_url = Octokit::Repository.from_url source[:url].gsub(/.git$/, '')
-            repo = Octokit::Client.new.repository(repo_url.slug)
+          normalized = sources.map do |source|
+            uri = URI.parse(source[:url])
+            next unless uri.scheme =~ /\Ahttps?\z/
 
-            source.update(url: repo.clone_url)
+            s = {}
+            s[:url] = "#{uri.scheme}://#{uri.host}#{uri.path.gsub(/.git$/, '')}"
+            s[:token] = uri.user if uri.user
+            s[:branch] = uri.fragment if uri.fragment
+            source.merge(s)
           end
+          normalized.compact
         end
 
         # Merge any duplicate source definitions
@@ -98,7 +115,7 @@ module Cyclid
             all = sources.select { |el| el[:url] == source[:url] }
             all.inject(&:merge)
           end
-          merged.uniq!
+          merged.uniq
         end
       end
     end
