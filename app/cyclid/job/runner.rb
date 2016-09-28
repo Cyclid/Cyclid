@@ -237,13 +237,22 @@ module Cyclid
         # Find and create a suitable source plugin instance for each source and have it check out
         # the given source using the transport.
         def checkout_sources(transport, ctx, sources)
+          # Group each entry by type
+          groups = {}
           sources.each do |job_source|
             raise 'no type given in source definition' unless job_source.key? :type
 
-            source = Cyclid.plugins.find(job_source[:type], Cyclid::API::Plugins::Source)
-            raise "can't find a plugin for #{job_source[:type]} source" if source.nil?
+            type = job_source[:type]
+            groups[type] = [] unless groups.key? type
+            groups[type] << job_source
+          end
 
-            success = source.new.checkout(transport, ctx, job_source)
+          # Find the appropriate plugin for each type and pass it the list of repositories
+          groups.each do |group, group_sources|
+            plugin = Cyclid.plugins.find(group, Cyclid::API::Plugins::Source)
+            raise "can't find a plugin for #{group} source" if plugin.nil?
+
+            success = plugin.new.checkout(transport, ctx, group_sources)
             raise 'failed to check out source' unless success
           end
         end
