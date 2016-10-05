@@ -79,6 +79,16 @@
         ]
       },
       {
+        "name": "build",
+        "steps": [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake build",
+            "path" : "%{workspace}/Cyclid"
+          }
+        ]
+      },
+      {
         "name": "success",
         "steps": [
           {
@@ -118,6 +128,11 @@
       },
       {
         "stage" : "docs",
+        "on_success" : "build",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "build",
         "on_success" : "success",
         "on_failure" : "failure"
       }
