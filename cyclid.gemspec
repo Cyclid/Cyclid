@@ -6,7 +6,7 @@ require 'cyclid/version'
 
 Gem::Specification.new do |s|
   s.name        = 'cyclid'
-  s.version     = Cyclid::VERSION
+  s.version     = Cyclid::Api::VERSION
   s.licenses    = ['Apache-2.0']
   s.summary     = 'Cyclid CI API'
   s.description = 'The Cyclid CI system'

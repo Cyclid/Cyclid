@@ -1,3 +1,5 @@
 module Cyclid
-  VERSION = '0.2.1'
+  module Api
+    VERSION = '0.2.1'
+  end
 end
