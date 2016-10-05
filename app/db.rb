@@ -19,20 +19,20 @@ require 'logger'
 begin
   case ENV['RACK_ENV']
   when 'development'
-    database = unless defined? Rake
-                 Cyclid.config.database
-               else
+    database = if defined? Rake
                  'sqlite3:development.db'
+               else
+                 Cyclid.config.database
                end
 
     ActiveRecord::Base.establish_connection(
       database
     )
 
-    ActiveRecord::Base.logger = unless defined? Rake
-                                  Cyclid.logger
-                                else
+    ActiveRecord::Base.logger = if defined? Rake
                                   Logger.new(STDERR)
+                                else
+                                  Cyclid.logger
                                 end
   when 'production'
     ActiveRecord::Base.establish_connection(
