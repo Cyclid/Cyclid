@@ -123,3 +123,8 @@ module Cyclid
 end
 
 require_rel 'plugins/*.rb'
+
+# Load all plugins from Gems
+Gem.find_files('cyclid/plugins/**/*.rb').each do |path|
+  require path
+end
