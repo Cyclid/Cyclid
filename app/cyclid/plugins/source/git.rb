@@ -48,7 +48,7 @@ module Cyclid
 
             branch = source[:branch]
 
-            match = url.path.match(%r{^.*\/(\w*)})
+            match = url.path.match(%r{^.*\/([^\.]*)})
             source_dir = "#{ctx[:workspace]}/#{match[1]}"
 
             success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
