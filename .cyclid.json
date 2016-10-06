@@ -22,15 +22,15 @@
    "sources": [
       {
         "type": "git",
-        "url": "https://github.com/Liqwyd/Mist"
+        "url": "https://github.com/Cyclid/Mist"
       },
       {
         "type": "git",
-        "url": "https://github.com/Liqwyd/Cyclid-core"
+        "url": "https://github.com/Cyclid/Cyclid-core"
       },
       {
         "type": "git",
-        "url": "https://github.com/Liqwyd/Cyclid"
+        "url": "https://github.com/Cyclid/Cyclid"
       }
    ],
    "stages" : [
