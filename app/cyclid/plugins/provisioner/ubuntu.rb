@@ -46,11 +46,12 @@ module Cyclid
             raise 'failed to update repositories' unless success
           end
 
-          env[:packages].each do |package|
+          if env.key? :packages
             success = transport.exec \
-              "sudo -E apt-get install -y #{package}"
-            raise "failed to install package #{package}" unless success
-          end if env.key? :packages
+              "sudo -E apt-get install -y #{env[:packages].join(' ')}" \
+
+            raise "failed to install packages #{env[:packages].join(' ')}" unless success
+          end
         rescue StandardError => ex
           Cyclid.logger.error "failed to provision #{buildhost[:name]}: #{ex}"
           raise
