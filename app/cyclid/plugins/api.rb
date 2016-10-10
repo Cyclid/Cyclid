@@ -26,64 +26,52 @@ module Cyclid
         class Controller < Module
           attr_reader :plugin_methods
 
-          def initialize(methods = nil)
+          def initialize(methods = nil, custom_routes = nil)
             @plugin_methods = methods
+
+            # Provide default routes for the four basic HTTP verbs; for most
+            # plugins they only need to implement the matching method for the
+            # verb(s) they'll respond too.
+            default_routes = [{verb: :get, path: nil, func: 'get'},
+                              {verb: :post, path: nil, func: 'post'},
+                              {verb: :put, path: nil, func: 'put'},
+                              {verb: :delete, path: nil, func: 'delete'}]
+
+            # ...but more complex plugins can add additional routes with their
+            # own paths & methods, if required.
+            @routes = default_routes.concat custom_routes
           end
 
           # Sinatra callback
           def registered(app)
             include Errors::HTTPErrors
 
-            app.get do
-              Cyclid.logger.debug 'ApiExtension::Controller::get'
+            @routes.each do |route|
+              Cyclid.logger.debug "#{route.inspect}"
 
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
+              verb = route[:verb]
+              path = route[:path]
+              func = route[:func]
 
-              config = controller_plugin.get_config(org)
+              app.send(verb, path) do
+                Cyclid.logger.debug "ApiExtension::Controller::#{verb} #{path}"
 
-              get(http_headers(request.env), config['config'])
-            end
+                payload = case verb
+                          when :post, :put
+                            parse_request_body
+                          else
+                            nil
+                          end
 
-            app.post do
-              Cyclid.logger.debug 'ApiExtension::Controller::post'
+                org = Organization.find_by(name: params[:name])
+                halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                  if org.nil?
 
-              payload = parse_request_body
+                config = controller_plugin.get_config(org)
 
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              post(payload, http_headers(request.env), config['config'])
-            end
-
-            app.put do
-              Cyclid.logger.debug 'ApiExtension::Controller::put'
-
-              payload = parse_request_body
-
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              put(payload, http_headers(request.env), config['config'])
-            end
-
-            app.delete do
-              Cyclid.logger.debug 'ApiExtension::Controller::delete'
-
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              delete(http_headers(request.env), config['config'])
+                meth = self.method(func)
+                meth.call(http_headers(request.env), config['config'], payload)
+              end
             end
 
             app.helpers do
@@ -100,26 +88,26 @@ module Cyclid
         # to indicate which methods we do support, but that'd be all four of
         # them...
         module Methods
-          # GET callback
-          def get(_headers, _config)
+         # GET callback
+          def get(_headers, _config, _data)
             authorize('get')
             return_failure(405, 'not implemented')
           end
 
           # POST callback
-          def post(_data, _headers, _config)
+          def post(_headers, _config, _data)
             authorize('post')
             return_failure(405, 'not implemented')
           end
 
           # PUT callback
-          def put(_data, _headers, _config)
+          def put(_headers, _config, _data)
             authorize('put')
             return_failure(405, 'not implemented')
           end
 
           # DELETE callback
-          def delete(_headers, _config)
+          def delete(_headers, _config, _data)
             authorize('delete')
             return_failure(405, 'not implemented')
           end

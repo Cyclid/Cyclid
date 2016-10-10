@@ -31,6 +31,51 @@ module Cyclid
             Cyclid.plugins.find('github', Cyclid::API::Plugins::Api)
           end
 
+          # Begin the OAuth authentication flow
+          def oauth_request(_headers, config, _data)
+            Cyclid.logger.debug('OAuth request')
+            #authorize('get')
+
+            # Retrieve the plugin configuration
+            plugins_config = Cyclid.config.plugins
+            github_config = load_github_config(plugins_config)
+
+            client_id = github_config[:client_id]
+
+            org_name = params[:name]
+            # XXX The "base" URL needs to be configurable
+            redirect_uri = "https://api.cyclid.io/organizations/#{org_name}/plugins/github/oauth/callback"
+            # XXX This isn't very useful as we'd need to know what this was
+            # when the callback is called; we need something that's generated
+            # computationally, like a secure hash of the organization name.
+            state = SecureRandom.hex(32) 
+
+            u = URI.parse('https://github.com/login/oauth/authorize')
+            u.query = URI.encode_www_form({client_id: client_id,
+                                           state: state,
+                                           redirect_uri: redirect_uri})
+
+            Cyclid.logger.debug "u=#{u}"
+
+            redirect u
+          end
+
+          # OAuth authentication callback
+          def oauth_callback(_headers, _config, _data)
+            Cyclid.logger.debug('OAuth callback')
+          end
+
+          # Load the config for the Github plugin and set defaults if they're not
+          # in the config
+          def load_github_config(config)
+            config.symbolize_keys!
+
+            server_config = config[:github] || {}
+            Cyclid.logger.debug "config=#{server_config}"
+
+            server_config.symbolize_keys
+          end
+
           # HTTP POST callback
           def post(data, headers, config)
             return_failure(400, 'no event specified') \

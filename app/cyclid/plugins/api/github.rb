@@ -27,7 +27,10 @@ module Cyclid
       class Github < Api
         # Return an instance of the Github API controller
         def self.controller
-          return ApiExtension::Controller.new(ApiExtension::GithubMethods)
+          routes = [{verb: :get, path: '/oauth/request', func: 'oauth_request'},
+                    {verb: :get, path: '/oauth/callback', func: 'oauth_callback'}]
+
+          return ApiExtension::Controller.new(ApiExtension::GithubMethods, routes)
         end
 
         class << self
