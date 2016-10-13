@@ -61,6 +61,9 @@ module Cyclid
                 auth_token = entry['token'] if entry_url.host == html_url.host && \
                                                entry_url.path == html_url.path
               end
+              # If we didn't find a token specifically for this repository, use
+              # the organization OAuth token
+              auth_token = config['oauth_token'] if auth_token.nil?
 
               # XXX We probably don't want to be logging auth tokens in plain text
               Cyclid.logger.debug "auth token=#{auth_token}"

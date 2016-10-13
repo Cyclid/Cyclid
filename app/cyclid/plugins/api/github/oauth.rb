@@ -41,11 +41,12 @@ module Cyclid
                 # XXX This isn't very useful as we'd need to know what this was
                 # when the callback is called; we need something that's generated
                 # computationally, like a secure hash of the organization name.
-                state = SecureRandom.hex(32) 
+                # state = SecureRandom.hex(32) 
 
                 # Redirect the user to the Github OAuth authorization endpoint
                 u = URI.parse('https://github.com/login/oauth/authorize')
                 u.query = URI.encode_www_form({client_id: github_config[:client_id],
+                                               scope: 'repo',
                                                #state: state,
                                                redirect_uri: redirect_uri})
                 redirect u

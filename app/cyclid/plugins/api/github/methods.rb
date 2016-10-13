@@ -40,7 +40,8 @@ module Cyclid
           end
 
           # HTTP POST callback
-          def post(data, headers, config)
+          def post(headers, config, data)
+
             return_failure(400, 'no event specified') \
               unless headers.include? 'X-Github-Event'
 
