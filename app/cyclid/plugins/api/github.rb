@@ -25,15 +25,15 @@ module Cyclid
     module Plugins
       # API extension for Github hooks
       class Github < Api
-        # Return an instance of the Github API controller
-        def self.controller
-          routes = [{verb: :get, path: '/oauth/request', func: 'oauth_request'},
-                    {verb: :get, path: '/oauth/callback', func: 'oauth_callback'}]
-
-          return ApiExtension::Controller.new(ApiExtension::GithubMethods, routes)
-        end
-
         class << self
+          # Return an instance of the Github API controller
+          def controller
+            routes = [{verb: :get, path: '/oauth/request', func: 'oauth_request'},
+                      {verb: :get, path: '/oauth/callback', func: 'oauth_callback'}]
+
+            return ApiExtension::Controller.new(ApiExtension::GithubMethods, routes)
+          end
+
           # Merge the given config into the current config & validate
           def update_config(config, new)
             Cyclid.logger.debug "config=#{config} new=#{new}"
@@ -78,6 +78,11 @@ module Cyclid
               config['hmac_secret'] = new['hmac_secret']
             end
 
+            if new.key? 'oauth_token'
+              Cyclid.logger.debug 'updating OAuth token'
+              config['oauth_token'] = new['oauth_token']
+            end
+
             return config
           end
 
@@ -86,6 +91,7 @@ module Cyclid
             config = {}
             config['repository_tokens'] = []
             config['hmac_secret'] = nil
+            config['oauth_token'] = nil
 
             return config
           end
@@ -95,11 +101,15 @@ module Cyclid
             schema = []
             schema << { name: 'repository_tokens',
                         type: 'hash-list',
-                        description: 'Repository OAuth tokens',
+                        description: 'Individual repository personal OAuth tokens',
                         default: [] }
             schema << { name: 'hmac_secret',
                         type: 'string',
                         description: 'Github HMAC signing secret',
+                        default: nil }
+            schema << { name: 'oauth_token',
+                        type: 'string',
+                        description: 'Organization Github OAuth token',
                         default: nil }
 
             return schema

@@ -161,6 +161,14 @@ module Cyclid
 
             return http_headers
           end
+
+          # Find & return the Organization model
+          def retrieve_organization(name)
+            org = Organization.find_by(name: name)
+            halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+              if org.nil?
+            return org
+          end
         end
       end
 
