@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require_relative 'helpers'
 require_relative 'config'
 require_relative 'oauth'
 require_relative 'pull_request'
@@ -29,6 +30,7 @@ module Cyclid
         module GithubMethods
           include Methods
 
+          include Helpers
           include Config
           include OAuth
           include PullRequest
@@ -40,8 +42,7 @@ module Cyclid
           end
 
           # HTTP POST callback
-          def post(headers, config, data)
-
+          def post(headers, config)
             return_failure(400, 'no event specified') \
               unless headers.include? 'X-Github-Event'
 
@@ -56,7 +57,7 @@ module Cyclid
 
             case event
             when 'pull_request'
-              result = gh_pull_request(data, config)
+              result = event_pull_request(config)
             when 'ping'
               result = true
             when 'status'

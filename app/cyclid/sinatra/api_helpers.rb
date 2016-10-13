@@ -22,6 +22,12 @@ module Cyclid
   module API
     # Sinatra helpers
     module APIHelpers
+      # Return the raw request body
+      def request_body
+        request.body.rewind
+        request.body.read
+      end
+
       # Safely parse & validate the request body
       def parse_request_body
         # Parse the the request

@@ -56,13 +56,6 @@ module Cyclid
               app.send(verb, path) do
                 Cyclid.logger.debug "ApiExtension::Controller::#{verb} #{path}"
 
-                payload = case verb
-                          when :post, :put
-                            parse_request_body
-                          else
-                            nil
-                          end
-
                 org = Organization.find_by(name: params[:name])
                 halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
                   if org.nil?
@@ -70,7 +63,7 @@ module Cyclid
                 config = controller_plugin.get_config(org)
 
                 meth = self.method(func)
-                meth.call(http_headers(request.env), config['config'], payload)
+                meth.call(http_headers(request.env), config['config'])
               end
             end
 
@@ -89,25 +82,25 @@ module Cyclid
         # them...
         module Methods
          # GET callback
-          def get(_headers, _config, _data)
+          def get(_headers, _config)
             authorize('get')
             return_failure(405, 'not implemented')
           end
 
           # POST callback
-          def post(_headers, _config, _data)
+          def post(_headers, _config)
             authorize('post')
             return_failure(405, 'not implemented')
           end
 
           # PUT callback
-          def put(_headers, _config, _data)
+          def put(_headers, _config)
             authorize('put')
             return_failure(405, 'not implemented')
           end
 
           # DELETE callback
-          def delete(_headers, _config, _data)
+          def delete(_headers, _config)
             authorize('delete')
             return_failure(405, 'not implemented')
           end
