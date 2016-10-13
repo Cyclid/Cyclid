@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require_relative 'config'
+require_relative 'oauth'
+require_relative 'pull_request'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -25,103 +29,14 @@ module Cyclid
         module GithubMethods
           include Methods
 
+          include Config
+          include OAuth
+          include PullRequest
+
           # Return a reference to the plugin that is associated with this
           # controller; used by the lower level code.
           def controller_plugin
             Cyclid.plugins.find('github', Cyclid::API::Plugins::Api)
-          end
-
-          # Begin the OAuth authentication flow
-          def oauth_request(_headers, config, _data)
-            Cyclid.logger.debug('OAuth request')
-            #authorize('get')
-
-            begin
-              # Retrieve the plugin configuration
-              plugins_config = Cyclid.config.plugins
-              github_config = load_github_config(plugins_config)
-
-              org_name = params[:name]
-              api_url = github_config[:api_url]
-              redirect_uri = "#{api_url}/organizations/#{org_name}/plugins/github/oauth/callback"
-              # XXX This isn't very useful as we'd need to know what this was
-              # when the callback is called; we need something that's generated
-              # computationally, like a secure hash of the organization name.
-              state = SecureRandom.hex(32) 
-
-              # Redirect the user to the Github OAuth authorization endpoint
-              u = URI.parse('https://github.com/login/oauth/authorize')
-              u.query = URI.encode_www_form({client_id: github_config[:client_id],
-                                             #state: state,
-                                             redirect_uri: redirect_uri})
-              redirect u
-            rescue StandardError => ex
-              Cyclid.logger.debug "OAuth redirect failed: #{ex}"
-              return_failure(500, 'OAuth redirect failed')
-            end
-          end
-
-          # OAuth authentication callback
-          def oauth_callback(_headers, _config, _data)
-            Cyclid.logger.debug('OAuth callback')
-
-            return_failure(500, 'Github OAuth response does not provide a code') \
-              unless params.key? 'code'
-
-            begin
-              # Retrieve the plugin configuration
-              # XXX Needs to be genericised/cached
-              plugins_config = Cyclid.config.plugins
-              github_config = load_github_config(plugins_config)
-
-              # Exchange the code for a bearer token
-              u = URI.parse('https://github.com/login/oauth/access_token')
-              u.query = URI.encode_www_form({client_id: github_config[:client_id],
-                                             client_secret: github_config[:client_secret],
-                                             #state: state,
-                                             code: params['code']})
-
-              request = Net::HTTP::Post.new(u)
-              request['Accept'] = 'application/json'
-              http = Net::HTTP.new(u.hostname, u.port)
-              http.use_ssl = (u.scheme == 'https')
-              response = http.request(request)
-            rescue StandardError => ex
-              Cyclid.logger.debug "failed to request OAuth token: #{ex}"
-              return_failure(500, 'could not complete OAuth token exchange')
-            end
-
-            return_failure(500, "couldn't get OAuth token") \
-              unless response.code == '200'
-
-            # Parse the response and extract the OAuth token
-            begin
-              token = JSON.parse(response.body, {symbolize_names: true})
-              access_token = token[:access_token]
-              Cyclid.logger.debug "access_token=#{access_token}"
-            rescue StandardError => ex
-              Cyclid.logger.debug "failed to parse OAuth response: #{ex}"
-              return_failure(500, 'failed to parse OAuth response')
-            end
-
-            # XXX Encrypt the token
-            begin
-              org = retrieve_organization(params[:name])
-              controller_plugin.set_config({oauth_token: access_token}, org)
-            rescue Exception => ex
-              Cyclid.logger.debug "failed to set plugin configuration: #{ex}"
-            end
-          end
-
-          # Load the config for the Github plugin and set defaults if they're not
-          # in the config
-          def load_github_config(config)
-            config.symbolize_keys!
-
-            server_config = config[:github] || {}
-            Cyclid.logger.debug "config=#{server_config}"
-
-            server_config.symbolize_keys
           end
 
           # HTTP POST callback
@@ -150,142 +65,6 @@ module Cyclid
             end
 
             return result
-          end
-
-          # Handle a Github Pull Request event
-          def gh_pull_request(data, config)
-            action = data['action'] || nil
-            pr = data['pull_request'] || nil
-
-            Cyclid.logger.debug "action=#{action}"
-            return true unless action == 'opened' \
-                            or action == 'reopened' \
-                            or action == 'synchronize'
-
-            # Get the list of files in the root of the repository in the
-            # Pull Request branch
-            html_url = URI(pr['base']['repo']['html_url'])
-            pr_sha = pr['head']['sha']
-            ref = pr['head']['ref']
-
-            Cyclid.logger.debug "sha=#{pr_sha} ref=#{ref}"
-
-            # Get some useful endpoints & interpolate the SHA for this PR
-            url = pr['head']['repo']['statuses_url']
-            statuses = url.gsub('{sha}', pr_sha)
-
-            url = pr['head']['repo']['trees_url']
-            trees = url.gsub('{/sha}', "/#{pr_sha}")
-
-            # Get an OAuth token, if one is set for this repo
-            Cyclid.logger.debug "attempting to find auth token for #{html_url}"
-            auth_token = nil
-            config['repository_tokens'].each do |entry|
-              entry_url = URI(entry['url'])
-              auth_token = entry['token'] if entry_url.host == html_url.host && \
-                                             entry_url.path == html_url.path
-            end
-
-            # XXX We probably don't want to be logging auth tokens in plain text
-            Cyclid.logger.debug "auth token=#{auth_token}"
-
-            # Set the PR to 'pending'
-            GithubStatus.set_status(statuses, auth_token, 'pending', 'Preparing build')
-
-            # Get the Pull Request
-            begin
-              trees_url = URI(trees)
-              Cyclid.logger.debug "Getting root for #{trees_url}"
-
-              request = Net::HTTP::Get.new(trees_url)
-              request.add_field('Authorization', "token #{auth_token}") \
-                unless auth_token.nil?
-
-              http = Net::HTTP.new(trees_url.hostname, trees_url.port)
-              http.use_ssl = (trees_url.scheme == 'https')
-              response = http.request(request)
-
-              Cyclid.logger.debug response.inspect
-              raise "couldn't get repository root" \
-                unless response.code == '200'
-
-              root = Oj.load response.body
-            rescue StandardError => ex
-              Cyclid.logger.error "failed to retrieve Pull Request root: #{ex}"
-              return_failure(500, 'could not retrieve Pull Request root')
-            end
-
-            # See if a .cyclid.yml or .cyclid.json file exists in the project
-            # root
-            job_url = nil
-            job_type = nil
-            root['tree'].each do |file|
-              match = file['path'].match(/\A\.cyclid\.(json|yml)\z/)
-              next unless match
-
-              job_url = URI(file['url'])
-              job_type = match[1]
-            end
-
-            Cyclid.logger.debug "job_url=#{job_url}"
-
-            if job_url.nil?
-              GithubStatus.set_status(statuses, auth_token, 'error', 'No Cyclid job file found')
-              return_failure(400, 'not a Cyclid repository')
-            end
-
-            # Pull down the job file
-            begin
-              Cyclid.logger.info "Retrieving PR job from #{job_url}"
-
-              request = Net::HTTP::Get.new(job_url)
-              request.add_field('Authorization', "token #{auth_token}") \
-                unless auth_token.nil?
-
-              http = Net::HTTP.new(job_url.hostname, job_url.port)
-              http.use_ssl = (job_url.scheme == 'https')
-              response = http.request(request)
-              raise "couldn't get Cyclid job" unless response.code == '200'
-
-              job_blob = Oj.load response.body
-              case job_type
-              when 'json'
-                job_definition = Oj.load(Base64.decode64(job_blob['content']))
-              when 'yml'
-                job_definition = YAML.load(Base64.decode64(job_blob['content']))
-              end
-
-              # Insert this repository & branch into the sources
-              #
-              # XXX Could this cause collisions between the existing sources in
-              # the job definition? Not entirely sure what the workflow will
-              # look like.
-              job_sources = job_definition['sources'] || []
-              job_sources << { 'type' => 'git',
-                               'url' => html_url.to_s,
-                               'branch' => ref,
-                               'token' => auth_token }
-              job_definition['sources'] = job_sources
-
-              Cyclid.logger.debug "sources=#{job_definition['sources']}"
-            rescue StandardError => ex
-              GithubStatus.set_status(statuses,
-                                      auth_token,
-                                      'error',
-                                      "Couldn't retrieve Cyclid job file")
-              Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
-              raise
-            end
-
-            Cyclid.logger.debug "job_definition=#{job_definition}"
-
-            begin
-              callback = GithubCallback.new(statuses, auth_token)
-              job_from_definition(job_definition, callback)
-            rescue StandardError => ex
-              GithubStatus.set_status(statuses, auth_token, 'failure', ex)
-              return_failure(500, 'job failed')
-            end
           end
         end
       end
