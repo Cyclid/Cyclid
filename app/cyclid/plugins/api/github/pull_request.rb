@@ -61,7 +61,7 @@ module Cyclid
                 if auth_token.nil?
 
               # Create an Octokit client
-              @client = Octokit::Client.new(access_token: config['oauth_token'])
+              @client = Octokit::Client.new(access_token: auth_token)
 
               # Set the PR to 'pending'
               @client.create_status(repo, pr_sha, 'pending', {context: 'Cyclid',
@@ -109,7 +109,7 @@ module Cyclid
               Cyclid.logger.debug "job_definition=#{job_definition}"
 
               begin
-                callback = GithubCallback.new(pr_status_url, auth_token)
+                callback = GithubCallback.new(auth_token, repo, pr_sha)
                 job_from_definition(job_definition, callback)
               rescue StandardError => ex
                 @client.create_status(repo, pr_sha, 'error', {context: 'Cyclid',
