@@ -14,7 +14,6 @@
 # limitations under the License.
 
 require_rel 'github/methods'
-require_rel 'github/status'
 require_rel 'github/callback'
 
 # Top level module for the core Cyclid code.

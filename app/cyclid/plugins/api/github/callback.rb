@@ -26,10 +26,11 @@ module Cyclid
         # Notifier callback for Github. Updates the external Github Pull
         # Request status as the job progresses.
         class GithubCallback < Plugins::Notifier::Callback
-          def initialize(auth_token, repo, sha)
+          def initialize(auth_token, repo, sha, linkback_url)
             @auth_token = auth_token
             @repo = repo
             @sha = sha
+            @linkback_url = linkback_url
           end
 
           # Return or create an Octokit client
@@ -53,7 +54,9 @@ module Cyclid
               return false
             end
 
+            target_url = "#{@linkback_url}/job/#{job_id}"
             client.create_status(@repo, @sha, state, {context: 'Cyclid',
+                                                      target_url: target_url,
                                                       description: message})
           end
 
@@ -66,7 +69,9 @@ module Cyclid
               state = 'failure'
               message = "Job ##{job_id} failed."
             end
+            target_url = "#{@linkback_url}/job/#{job_id}"
             client.create_status(@repo, @sha, state, {context: 'Cyclid',
+                                                      target_url: target_url,
                                                       description: message})
           end
         end

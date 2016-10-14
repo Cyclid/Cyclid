@@ -109,7 +109,14 @@ module Cyclid
               Cyclid.logger.debug "job_definition=#{job_definition}"
 
               begin
-                callback = GithubCallback.new(auth_token, repo, pr_sha)
+                # Retrieve the plugin configuration
+                plugins_config = Cyclid.config.plugins
+                github_config = load_github_config(plugins_config)
+
+                ui_url = github_config[:ui_url]
+                linkback_url = "#{ui_url}/#{organization_name}"
+
+                callback = GithubCallback.new(auth_token, repo, pr_sha, linkback_url)
                 job_from_definition(job_definition, callback)
               rescue StandardError => ex
                 @client.create_status(repo, pr_sha, 'error', {context: 'Cyclid',

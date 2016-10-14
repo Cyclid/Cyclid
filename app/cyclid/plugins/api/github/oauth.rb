@@ -35,9 +35,8 @@ module Cyclid
                 plugins_config = Cyclid.config.plugins
                 github_config = load_github_config(plugins_config)
 
-                org_name = params[:name]
                 api_url = github_config[:api_url]
-                redirect_uri = "#{api_url}/organizations/#{org_name}/plugins/github/oauth/callback"
+                redirect_uri = "#{api_url}/organizations/#{organization_name}/plugins/github/oauth/callback"
                 # XXX This isn't very useful as we'd need to know what this was
                 # when the callback is called; we need something that's generated
                 # computationally, like a secure hash of the organization name.
@@ -100,7 +99,7 @@ module Cyclid
 
               # XXX Encrypt the token
               begin
-                org = retrieve_organization(params[:name])
+                org = retrieve_organization
                 controller_plugin.set_config({oauth_token: access_token}, org)
               rescue Exception => ex
                 Cyclid.logger.debug "failed to set plugin configuration: #{ex}"

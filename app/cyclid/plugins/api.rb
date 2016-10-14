@@ -155,8 +155,14 @@ module Cyclid
             return http_headers
           end
 
+          # Return the current organization name
+          def organization_name
+            params[:name]
+          end
+
           # Find & return the Organization model
-          def retrieve_organization(name)
+          def retrieve_organization(name=nil)
+            name ||= organization_name
             org = Organization.find_by(name: name)
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
               if org.nil?
