@@ -107,8 +107,14 @@ module Cyclid
                 ui_url = github_config[:ui_url]
                 linkback_url = "#{ui_url}/#{organization_name}"
 
+                # Inject some useful context data
+                ctx = { gh_event: 'pull_request',
+                        gh_user: pull_request['user']['login'],
+                        gh_ref: pr_ref,
+                        gh_comment: pull_request['body'] }
+
                 callback = GithubCallback.new(auth_token, pr_repo, pr_sha, linkback_url)
-                job_from_definition(job_definition, callback)
+                job_from_definition(job_definition, callback, ctx)
               rescue StandardError => ex
                 @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
                                                                  description: 'An unknown error occurred'})
