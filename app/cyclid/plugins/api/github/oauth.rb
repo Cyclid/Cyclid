@@ -105,7 +105,8 @@ module Cyclid
                 Cyclid.logger.debug "failed to set plugin configuration: #{ex}"
               end
 
-              # XXX Redirect?
+              # Redirect to something worth looking at
+              redirect github_config[:ui_url]
             end
           end
         end
