@@ -59,8 +59,44 @@ module Cyclid
               @pr_trees_url ||= url.gsub('{/sha}', "/#{pr_sha}")
             end
 
-            def repo
+            def pr_repo
               @repo ||= Octokit::Repository.from_url(pr_clone_url)
+            end
+
+            def push_head_commit
+              @head_commit ||= @payload['head_commit']
+            end
+
+            def push_ref
+              @payload['ref']
+            end
+
+            def push_sha
+              @push_sha ||= push_head_commit['id']
+            end
+
+            def push_clone_url
+              @push_clone_url ||= @payload['repository']['html_url']
+            end
+
+            def push_repo
+              @push_repo ||= Octokit::Repository.from_url(push_clone_url)
+            end
+
+            def find_oauth_token(config, clone_url)
+              # Get an OAuth token, if one is set for this repo
+              Cyclid.logger.debug "attempting to find auth token for #{clone_url}"
+              auth_token = nil
+              config['repository_tokens'].each do |entry|
+                entry_url = URI(entry['url'])
+                auth_token = entry['token'] if entry_url.host == clone_url.host && \
+                                               entry_url.path == clone_url.path
+              end
+              # If we didn't find a token specifically for this repository, use
+              # the organization OAuth token
+              auth_token = config['oauth_token'] if auth_token.nil?
+
+              return auth_token
             end
 
             def find_job_file(tree)
@@ -79,7 +115,7 @@ module Cyclid
               [sha, type]
             end
 
-            def load_job_file(sha, type)
+            def load_job_file(repo, sha, type)
               blob = @client.blob(repo, sha)
               case type
               when 'json'

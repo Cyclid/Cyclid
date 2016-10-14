@@ -17,6 +17,7 @@ require_relative 'helpers'
 require_relative 'config'
 require_relative 'oauth'
 require_relative 'pull_request'
+require_relative 'push'
 
 # Top level module for the core Cyclid code.
 module Cyclid
@@ -34,6 +35,7 @@ module Cyclid
           include Config
           include OAuth
           include PullRequest
+          include Push
 
           # Return a reference to the plugin that is associated with this
           # controller; used by the lower level code.
@@ -58,6 +60,8 @@ module Cyclid
             case event
             when 'pull_request'
               result = event_pull_request(config)
+            when 'push'
+              result = event_push(config)
             when 'ping'
               result = true
             when 'status'

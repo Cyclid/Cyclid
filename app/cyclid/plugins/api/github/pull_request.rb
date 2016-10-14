@@ -45,17 +45,8 @@ module Cyclid
               # Pull Request branch
               clone_url = URI(pr_clone_url)
 
-              # Get an OAuth token, if one is set for this repo
-              Cyclid.logger.debug "attempting to find auth token for #{clone_url}"
-              auth_token = nil
-              config['repository_tokens'].each do |entry|
-                entry_url = URI(entry['url'])
-                auth_token = entry['token'] if entry_url.host == clone_url.host && \
-                                               entry_url.path == clone_url.path
-              end
-              # If we didn't find a token specifically for this repository, use
-              # the organization OAuth token
-              auth_token = config['oauth_token'] if auth_token.nil?
+              # Get the authentication key
+              auth_token = find_oauth_token(config, clone_url)
 
               return_failure(400, "can not find a valid OAuth token for #{clone_url}") \
                 if auth_token.nil?
@@ -64,11 +55,11 @@ module Cyclid
               @client = Octokit::Client.new(access_token: auth_token)
 
               # Set the PR to 'pending'
-              @client.create_status(repo, pr_sha, 'pending', {context: 'Cyclid',
-                                                              description: 'Preparing build'})
+              @client.create_status(pr_repo, pr_sha, 'pending', {context: 'Cyclid',
+                                                                 description: 'Preparing build'})
 
               # Get the Pull Request
-              tree = @client.tree(repo, pr_sha, recursive: false)
+              tree = @client.tree(pr_repo, pr_sha, recursive: false)
               Cyclid.logger.debug "tree=#{tree.to_hash}"
 
               # Find the Cyclid job file (if it exists)
@@ -76,14 +67,14 @@ module Cyclid
               Cyclid.logger.debug "job_sha=#{job_sha}"
 
               if job_sha.nil?
-                @client.create_status(repo, pr_sha, 'error', {context: 'Cyclid',
-                                                              description: 'No Cyclid job file found'})
+                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
+                                                                 description: 'No Cyclid job file found'})
                 return_failure(400, 'not a Cyclid repository')
               end
 
               # Get the job file
               begin
-                job_definition = load_job_file(job_sha, job_type) 
+                job_definition = load_job_file(pr_repo, job_sha, job_type)
 
                 # Insert this repository & branch into the sources
                 #
@@ -101,8 +92,8 @@ module Cyclid
               rescue StandardError => ex
                 Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
 
-                @client.create_status(repo, pr_sha, 'error', {context: 'Cyclid',
-                                                              description: "Couldn't retrieve Cyclid job file"})
+                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
+                                                                 description: "Couldn't retrieve Cyclid job file"})
                 return_failure(400, 'not a Cyclid repository')
               end
 
@@ -116,14 +107,16 @@ module Cyclid
                 ui_url = github_config[:ui_url]
                 linkback_url = "#{ui_url}/#{organization_name}"
 
-                callback = GithubCallback.new(auth_token, repo, pr_sha, linkback_url)
+                callback = GithubCallback.new(auth_token, pr_repo, pr_sha, linkback_url)
                 job_from_definition(job_definition, callback)
               rescue StandardError => ex
-                @client.create_status(repo, pr_sha, 'error', {context: 'Cyclid',
-                                                              description: 'An unknown error occurred'})
+                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
+                                                                 description: 'An unknown error occurred'})
 
                 return_failure(500, 'job failed')
               end
+
+              return true
             end
           end
         end
