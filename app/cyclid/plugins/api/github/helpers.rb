@@ -1,4 +1,4 @@
- # frozen_string_literal: true
+# frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -123,6 +123,13 @@ module Cyclid
               when 'yml'
                 YAML.load(Base64.decode64(blob.content))
               end
+            end
+
+            # Generate a "state" key that can be passed to the OAuth endpoints
+            def oauth_state
+              org = retrieve_organization
+              state = "#{org.name}:#{org.salt}:#{org.owner_email}"
+              Base64.urlsafe_encode64(Digest::SHA256.digest(state))
             end
           end
         end

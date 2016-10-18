@@ -26,7 +26,7 @@ module Cyclid
           # OAuth related methods
           module OAuth
             # Begin the OAuth authentication flow
-            def oauth_request(_headers, _config) #, _data)
+            def oauth_request(_headers, _config)
               Cyclid.logger.debug('OAuth request')
               # authorize('get')
 
@@ -37,16 +37,12 @@ module Cyclid
 
                 api_url = github_config[:api_url]
                 redirect_uri = "#{api_url}/organizations/#{organization_name}/plugins/github/oauth/callback"
-                # XXX This isn't very useful as we'd need to know what this was
-                # when the callback is called; we need something that's generated
-                # computationally, like a secure hash of the organization name.
-                # state = SecureRandom.hex(32)
 
                 # Redirect the user to the Github OAuth authorization endpoint
                 u = URI.parse('https://github.com/login/oauth/authorize')
                 u.query = URI.encode_www_form(client_id: github_config[:client_id],
                                               scope: 'repo',
-                                              # state: state,
+                                              state: oauth_state,
                                               redirect_uri: redirect_uri)
                 redirect u
               rescue StandardError => ex
@@ -56,15 +52,19 @@ module Cyclid
             end
 
             # OAuth authentication callback
-            def oauth_callback(_headers, _config) #, _data)
+            def oauth_callback(_headers, _config)
               Cyclid.logger.debug('OAuth callback')
 
               return_failure(500, 'Github OAuth response does not provide a code') \
                 unless params.key? 'code'
 
+              state = oauth_state
+
+              return_failure(500, 'Github OAuth response does not provide a valid state') \
+                unless params.key? 'state' or params['state'] != state
+
               begin
                 # Retrieve the plugin configuration
-                # XXX Needs to be genericised/cached
                 plugins_config = Cyclid.config.plugins
                 github_config = load_github_config(plugins_config)
 
@@ -72,7 +72,7 @@ module Cyclid
                 u = URI.parse('https://github.com/login/oauth/access_token')
                 u.query = URI.encode_www_form(client_id: github_config[:client_id],
                                               client_secret: github_config[:client_secret],
-                                              # state: state,
+                                              state: state,
                                               code: params['code'])
 
                 request = Net::HTTP::Post.new(u)
