@@ -37,12 +37,12 @@ describe Cyclid::API::Plugins::ApiExtension::Methods do
 
   it 'should return a failure for the post method' do
     authorize 'admin', 'password'
-    expect(@methods.post(nil, nil, nil)).to be false
+    expect(@methods.post(nil, nil)).to be false
   end
 
   it 'should return a failure for the put method' do
     authorize 'admin', 'password'
-    expect(@methods.put(nil, nil, nil)).to be false
+    expect(@methods.put(nil, nil)).to be false
   end
 
   it 'should return a failure for the delete method' do

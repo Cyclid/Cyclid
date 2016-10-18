@@ -24,6 +24,10 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         def job_from_definition(_job_definition, _callback)
           true
         end
+
+        def parse_request_body
+          {}
+        end
       end
     end
   end
@@ -56,17 +60,17 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
   it 'responds to a PING request' do
     headers = { 'X-Github-Event' => 'ping', 'X-Github-Delivery' => '' }
-    expect(@methods.post('{}', headers, nil)).to be true
+    expect(@methods.post(headers, nil)).to be true
   end
 
   it 'responds to a STATUS request' do
     headers = { 'X-Github-Event' => 'status', 'X-Github-Delivery' => '' }
-    expect(@methods.post('{}', headers, nil)).to be true
+    expect(@methods.post(headers, nil)).to be true
   end
 
   it 'fails for unsupported requests' do
     headers = { 'X-Github-Event' => 'unsupported', 'X-Github-Delivery' => '' }
-    expect{ @methods.post('{}', headers, nil) }.to raise_error(GithubPlugin::Test::TestStop)
+    expect{ @methods.post(headers, nil) }.to raise_error(GithubPlugin::Test::TestStop)
     expect(@methods.code).to eq(400)
     expect(@methods.message).to eq("event type 'unsupported' is not supported")
   end
@@ -111,7 +115,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
 
-      expect{ @methods.post(request, headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
+      expect{ @methods.post(headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
     end
 
     it 'processes a Pull Request with a JSON Cyclid job file' do
@@ -141,7 +145,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
 
-      expect(@methods.post(request, headers, config)).to be true
+      expect(@methods.post(headers, config)).to be true
     end
 
     # Issue #20
@@ -172,7 +176,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
 
-      expect(@methods.post(request, headers, config)).to be true
+      expect(@methods.post(headers, config)).to be true
     end
   end
 end

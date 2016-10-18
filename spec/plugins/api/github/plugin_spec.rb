@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Cyclid::API::Plugins::Github do
   it 'returns the default config' do
     expect(Cyclid::API::Plugins::Github.default_config).to eq('repository_tokens' => [],
-                                                              'hmac_secret' => nil)
+                                                              'oauth_token' => nil)
   end
 
   it 'returns the config schema' do
@@ -37,7 +37,7 @@ describe Cyclid::API::Plugins::Github do
       new_config = { 'repository_tokens' => tokens }
       updated_config = nil
       expect{ updated_config = Cyclid::API::Plugins::Github.update_config(@config, new_config) }.to_not raise_error
-      expect(updated_config).to include 'hmac_secret'
+      expect(updated_config).to include 'oauth_token'
       expect(updated_config).to include 'repository_tokens'
       expect(updated_config['repository_tokens']).to match_array(tokens)
     end
@@ -58,12 +58,12 @@ describe Cyclid::API::Plugins::Github do
       expect(updated_config['repository_tokens']).to match_array([])
     end
 
-    it 'updates the HMAC secret' do
-      new_config = { 'hmac_secret' => 'abcdefguvwxyz' }
+    it 'updates the OAuth token' do
+      new_config = { 'oauth_token' => 'abcdefguvwxyz' }
       updated_config = nil
       expect{ updated_config = Cyclid::API::Plugins::Github.update_config(@config, new_config) }.to_not raise_error
-      expect(updated_config).to include 'hmac_secret'
-      expect(updated_config['hmac_secret']).to eq('abcdefguvwxyz')
+      expect(updated_config).to include 'oauth_token'
+      expect(updated_config['oauth_token']).to eq('abcdefguvwxyz')
     end
   end
 end
