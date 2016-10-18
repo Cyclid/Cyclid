@@ -72,15 +72,13 @@ module Cyclid
               config['repository_tokens'] = merged
             end
 
-            if new.key? 'hmac_secret'
-              Cyclid.logger.debug 'updating HMAC secret'
-              config['hmac_secret'] = new['hmac_secret']
-            end
-
             if new.key? 'oauth_token'
               Cyclid.logger.debug 'updating OAuth token'
               config['oauth_token'] = new['oauth_token']
             end
+
+            # Remove any old keys
+            config.delete 'hmac_secret' if config.key? 'hmac_secret'
 
             return config
           end
@@ -89,7 +87,6 @@ module Cyclid
           def default_config
             config = {}
             config['repository_tokens'] = []
-            config['hmac_secret'] = nil
             config['oauth_token'] = nil
 
             return config
@@ -102,10 +99,6 @@ module Cyclid
                         type: 'hash-list',
                         description: 'Individual repository personal OAuth tokens',
                         default: [] }
-            schema << { name: 'hmac_secret',
-                        type: 'string',
-                        description: 'Github HMAC signing secret',
-                        default: nil }
             schema << { name: 'oauth_token',
                         type: 'string',
                         description: 'Organization Github OAuth token',
