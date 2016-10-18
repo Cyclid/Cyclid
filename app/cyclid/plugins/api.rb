@@ -26,7 +26,7 @@ module Cyclid
         class Controller < Module
           attr_reader :plugin_methods
 
-          def initialize(methods = nil, custom_routes = nil)
+          def initialize(methods = nil, custom_routes = [])
             @plugin_methods = methods
 
             # Provide default routes for the four basic HTTP verbs; for most
