@@ -101,7 +101,7 @@ module Cyclid
               begin
                 org = retrieve_organization
                 controller_plugin.set_config({ oauth_token: access_token }, org)
-              rescue Exception => ex
+              rescue StandardError => ex
                 Cyclid.logger.debug "failed to set plugin configuration: #{ex}"
               end
 
