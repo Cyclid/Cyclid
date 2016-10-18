@@ -55,8 +55,8 @@ module Cyclid
               @client = Octokit::Client.new(access_token: auth_token)
 
               # Set the PR to 'pending'
-              @client.create_status(pr_repo, pr_sha, 'pending', {context: 'Cyclid',
-                                                                 description: 'Preparing build'})
+              @client.create_status(pr_repo, pr_sha, 'pending', context: 'Cyclid',
+                                                                description: 'Preparing build')
 
               # Get the Pull Request
               tree = @client.tree(pr_repo, pr_sha, recursive: false)
@@ -67,8 +67,8 @@ module Cyclid
               Cyclid.logger.debug "job_sha=#{job_sha}"
 
               if job_sha.nil?
-                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
-                                                                 description: 'No Cyclid job file found'})
+                @client.create_status(pr_repo, pr_sha, 'error', context: 'Cyclid',
+                                                                description: 'No Cyclid job file found')
                 return_failure(400, 'not a Cyclid repository')
               end
 
@@ -92,8 +92,8 @@ module Cyclid
               rescue StandardError => ex
                 Cyclid.logger.error "failed to retrieve Github Pull Request job: #{ex}"
 
-                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
-                                                                 description: "Couldn't retrieve Cyclid job file"})
+                @client.create_status(pr_repo, pr_sha, 'error', context: 'Cyclid',
+                                                                description: "Couldn't retrieve Cyclid job file")
                 return_failure(400, 'not a Cyclid repository')
               end
 
@@ -116,8 +116,8 @@ module Cyclid
                 callback = GithubCallback.new(auth_token, pr_repo, pr_sha, linkback_url)
                 job_from_definition(job_definition, callback, ctx)
               rescue StandardError => ex
-                @client.create_status(pr_repo, pr_sha, 'error', {context: 'Cyclid',
-                                                                 description: 'An unknown error occurred'})
+                @client.create_status(pr_repo, pr_sha, 'error', context: 'Cyclid',
+                                                                description: 'An unknown error occurred')
 
                 return_failure(500, 'job failed')
               end

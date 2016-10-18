@@ -55,14 +55,14 @@ module Cyclid
               Cyclid.logger.debug "job_sha=#{job_sha}"
 
               if job_sha.nil?
-                @client.create_status(push_repo, push_sha, 'error', {context: 'Cyclid',
-                                                                     description: 'No Cyclid job file found'})
+                @client.create_status(push_repo, push_sha, 'error', context: 'Cyclid',
+                                                                    description: 'No Cyclid job file found')
                 return_failure(400, 'not a Cyclid repository')
               end
 
               # Get the job file
               begin
-                job_definition = load_job_file(push_repo, job_sha, job_type) 
+                job_definition = load_job_file(push_repo, job_sha, job_type)
 
                 # Insert this repository & branch into the sources
                 #
@@ -80,8 +80,8 @@ module Cyclid
               rescue StandardError => ex
                 Cyclid.logger.error "failed to retrieve Github Push job: #{ex}"
 
-                @client.create_status(push_repo, push_sha, 'error', {context: 'Cyclid',
-                                                                     description: "Couldn't retrieve Cyclid job file"})
+                @client.create_status(push_repo, push_sha, 'error', context: 'Cyclid',
+                                                                    description: "Couldn't retrieve Cyclid job file")
                 return_failure(400, 'not a Cyclid repository')
               end
 
@@ -104,8 +104,8 @@ module Cyclid
                 callback = GithubCallback.new(auth_token, push_repo, push_sha, linkback_url)
                 job_from_definition(job_definition, callback, ctx)
               rescue StandardError => ex
-                @client.create_status(push_repo, push_sha, 'error', {context: 'Cyclid',
-                                                                     description: 'An unknown error occurred'})
+                @client.create_status(push_repo, push_sha, 'error', context: 'Cyclid',
+                                                                    description: 'An unknown error occurred')
 
                 return_failure(500, 'job failed')
               end

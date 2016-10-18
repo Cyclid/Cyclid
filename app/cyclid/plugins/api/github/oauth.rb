@@ -26,9 +26,9 @@ module Cyclid
           # OAuth related methods
           module OAuth
             # Begin the OAuth authentication flow
-            def oauth_request(_headers, config, _data)
+            def oauth_request(_headers, _config) #, _data)
               Cyclid.logger.debug('OAuth request')
-              #authorize('get')
+              # authorize('get')
 
               begin
                 # Retrieve the plugin configuration
@@ -40,14 +40,14 @@ module Cyclid
                 # XXX This isn't very useful as we'd need to know what this was
                 # when the callback is called; we need something that's generated
                 # computationally, like a secure hash of the organization name.
-                # state = SecureRandom.hex(32) 
+                # state = SecureRandom.hex(32)
 
                 # Redirect the user to the Github OAuth authorization endpoint
                 u = URI.parse('https://github.com/login/oauth/authorize')
-                u.query = URI.encode_www_form({client_id: github_config[:client_id],
-                                               scope: 'repo',
-                                               #state: state,
-                                               redirect_uri: redirect_uri})
+                u.query = URI.encode_www_form(client_id: github_config[:client_id],
+                                              scope: 'repo',
+                                              # state: state,
+                                              redirect_uri: redirect_uri)
                 redirect u
               rescue StandardError => ex
                 Cyclid.logger.debug "OAuth redirect failed: #{ex}"
@@ -56,7 +56,7 @@ module Cyclid
             end
 
             # OAuth authentication callback
-            def oauth_callback(_headers, _config, _data)
+            def oauth_callback(_headers, _config) #, _data)
               Cyclid.logger.debug('OAuth callback')
 
               return_failure(500, 'Github OAuth response does not provide a code') \
@@ -70,10 +70,10 @@ module Cyclid
 
                 # Exchange the code for a bearer token
                 u = URI.parse('https://github.com/login/oauth/access_token')
-                u.query = URI.encode_www_form({client_id: github_config[:client_id],
-                                               client_secret: github_config[:client_secret],
-                                               #state: state,
-                                               code: params['code']})
+                u.query = URI.encode_www_form(client_id: github_config[:client_id],
+                                              client_secret: github_config[:client_secret],
+                                              # state: state,
+                                              code: params['code'])
 
                 request = Net::HTTP::Post.new(u)
                 request['Accept'] = 'application/json'
@@ -90,7 +90,7 @@ module Cyclid
 
               # Parse the response and extract the OAuth token
               begin
-                token = JSON.parse(response.body, {symbolize_names: true})
+                token = JSON.parse(response.body, symbolize_names: true)
                 access_token = token[:access_token]
               rescue StandardError => ex
                 Cyclid.logger.debug "failed to parse OAuth response: #{ex}"
@@ -100,7 +100,7 @@ module Cyclid
               # XXX Encrypt the token
               begin
                 org = retrieve_organization
-                controller_plugin.set_config({oauth_token: access_token}, org)
+                controller_plugin.set_config({ oauth_token: access_token }, org)
               rescue Exception => ex
                 Cyclid.logger.debug "failed to set plugin configuration: #{ex}"
               end
@@ -113,4 +113,4 @@ module Cyclid
       end
     end
   end
-end 
+end

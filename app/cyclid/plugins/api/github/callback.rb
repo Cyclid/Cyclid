@@ -55,9 +55,9 @@ module Cyclid
             end
 
             target_url = "#{@linkback_url}/job/#{job_id}"
-            client.create_status(@repo, @sha, state, {context: 'Cyclid',
-                                                      target_url: target_url,
-                                                      description: message})
+            client.create_status(@repo, @sha, state, context: 'Cyclid',
+                                                     target_url: target_url,
+                                                     description: message)
           end
 
           # Job has completed
@@ -70,9 +70,9 @@ module Cyclid
               message = "Job ##{job_id} failed."
             end
             target_url = "#{@linkback_url}/job/#{job_id}"
-            client.create_status(@repo, @sha, state, {context: 'Cyclid',
-                                                      target_url: target_url,
-                                                      description: message})
+            client.create_status(@repo, @sha, state, context: 'Cyclid',
+                                                     target_url: target_url,
+                                                     description: message)
           end
         end
       end

@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+ # frozen_string_literal: true
 # Copyright 2016 Liqwyd Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,4 +129,4 @@ module Cyclid
       end
     end
   end
-end 
+end

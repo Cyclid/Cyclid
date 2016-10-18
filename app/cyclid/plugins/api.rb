@@ -32,10 +32,10 @@ module Cyclid
             # Provide default routes for the four basic HTTP verbs; for most
             # plugins they only need to implement the matching method for the
             # verb(s) they'll respond too.
-            default_routes = [{verb: :get, path: nil, func: 'get'},
-                              {verb: :post, path: nil, func: 'post'},
-                              {verb: :put, path: nil, func: 'put'},
-                              {verb: :delete, path: nil, func: 'delete'}]
+            default_routes = [{ verb: :get, path: nil, func: 'get' },
+                              { verb: :post, path: nil, func: 'post' },
+                              { verb: :put, path: nil, func: 'put' },
+                              { verb: :delete, path: nil, func: 'delete' }]
 
             # ...but more complex plugins can add additional routes with their
             # own paths & methods, if required.
@@ -47,7 +47,7 @@ module Cyclid
             include Errors::HTTPErrors
 
             @routes.each do |route|
-              Cyclid.logger.debug "#{route.inspect}"
+              Cyclid.logger.debug route.inspect.to_s
 
               verb = route[:verb]
               path = route[:path]
@@ -62,7 +62,7 @@ module Cyclid
 
                 config = controller_plugin.get_config(org)
 
-                meth = self.method(func)
+                meth = method(func)
                 meth.call(http_headers(request.env), config['config'])
               end
             end
@@ -81,7 +81,7 @@ module Cyclid
         # to indicate which methods we do support, but that'd be all four of
         # them...
         module Methods
-         # GET callback
+          # GET callback
           def get(_headers, _config)
             authorize('get')
             return_failure(405, 'not implemented')
@@ -161,7 +161,7 @@ module Cyclid
           end
 
           # Find & return the Organization model
-          def retrieve_organization(name=nil)
+          def retrieve_organization(name = nil)
             name ||= organization_name
             org = Organization.find_by(name: name)
             halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
