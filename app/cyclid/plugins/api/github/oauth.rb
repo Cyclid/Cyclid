@@ -36,7 +36,8 @@ module Cyclid
                 github_config = load_github_config(plugins_config)
 
                 api_url = github_config[:api_url]
-                redirect_uri = "#{api_url}/organizations/#{organization_name}/plugins/github/oauth/callback"
+                redirect_uri = "#{api_url}/organizations/#{organization_name}" \
+                               '/plugins/github/oauth/callback'
 
                 # Redirect the user to the Github OAuth authorization endpoint
                 u = URI.parse('https://github.com/login/oauth/authorize')

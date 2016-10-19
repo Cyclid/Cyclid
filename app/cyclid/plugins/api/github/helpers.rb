@@ -59,7 +59,7 @@ module Cyclid
               @pr_trees_url ||= url.gsub('{/sha}', "/#{pr_sha}")
             end
 
-            def pr_repo
+            def pr_repository
               @repo ||= Octokit::Repository.from_url(pr_clone_url)
             end
 
@@ -79,7 +79,7 @@ module Cyclid
               @push_clone_url ||= @payload['repository']['html_url']
             end
 
-            def push_repo
+            def push_repository
               @push_repo ||= Octokit::Repository.from_url(push_clone_url)
             end
 
