@@ -47,8 +47,6 @@ module Cyclid
             include Errors::HTTPErrors
 
             @routes.each do |route|
-              Cyclid.logger.debug route.inspect.to_s
-
               verb = route[:verb]
               path = route[:path]
               func = route[:func]
