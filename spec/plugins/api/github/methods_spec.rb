@@ -56,17 +56,17 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
   it 'responds to a PING request' do
     headers = { 'X-Github-Event' => 'ping', 'X-Github-Delivery' => '' }
-    expect(@methods.post('{}', headers, nil)).to be true
+    expect(@methods.post(headers, nil)).to be true
   end
 
   it 'responds to a STATUS request' do
     headers = { 'X-Github-Event' => 'status', 'X-Github-Delivery' => '' }
-    expect(@methods.post('{}', headers, nil)).to be true
+    expect(@methods.post(headers, nil)).to be true
   end
 
   it 'fails for unsupported requests' do
     headers = { 'X-Github-Event' => 'unsupported', 'X-Github-Delivery' => '' }
-    expect{ @methods.post('{}', headers, nil) }.to raise_error(GithubPlugin::Test::TestStop)
+    expect{ @methods.post(headers, nil) }.to raise_error(GithubPlugin::Test::TestStop)
     expect(@methods.code).to eq(400)
     expect(@methods.message).to eq("event type 'unsupported' is not supported")
   end
@@ -78,40 +78,35 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
     before :each do
       # Status: preparing
-      stub_request(:post, 'http://example.com/example/test/status/1234567890')
-        .with(body: '{"state":"pending","target_url":"http://cyclid.io","description":"Preparing build","context":"continuous-integration/cyclid"}',
-              headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Content-Type' => 'application/json', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
+      stub_request(:post, 'https://api.github.com/repos/example/test/statuses/1234567890')
+        .with(body: '{"context":"Cyclid","description":"Preparing build","state":"pending"}',
+              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
         .to_return(status: 200, body: '', headers: {})
 
       # Status: error
-      stub_request(:post, 'http://example.com/example/test/status/1234567890')
-        .with(body: '{"state":"error","target_url":"http://cyclid.io","description":"No Cyclid job file found","context":"continuous-integration/cyclid"}',
-              headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Content-Type' => 'application/json', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
-        .to_return(status: 200, body: '', headers: {})
-
-      stub_request(:post, 'http://example.com/example/test/status/1234567890')
-        .with(body: '{"state":"error","target_url":"http://cyclid.io","description":"Couldn\'t retrieve Cyclid job file","context":"continuous-integration/cyclid"}',
-              headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Content-Type' => 'application/json', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
+      stub_request(:post, 'https://api.github.com/repos/example/test/statuses/1234567890')
+        .with(body: '{"context":"Cyclid","description":"No Cyclid job file found","state":"error"}',
+              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
         .to_return(status: 200, body: '', headers: {})
     end
 
     it 'processes a Pull Request with no Cyclid job file' do
       # Return a tree without a Cyclid job file.
       tree = '{"tree":[{"path":"dummy"},{"path":"file"},{"path":"tree"}]}'
-      stub_request(:get, 'http://example.com/example/test/tree/1234567890')
-        .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
-        .to_return(status: 200, body: tree, headers: {})
+      stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
-      config = { 'repository_tokens' => [] }
+      config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
       pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
              'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
-      request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
+      expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
 
-      expect{ @methods.post(request, headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
+      expect{ @methods.post(headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
     end
 
     it 'processes a Pull Request with a JSON Cyclid job file' do
@@ -121,9 +116,9 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
       # Return a tree with a JSON Cyclid job file.
       tree = '{"tree":[{"path":".cyclid.json", "url": "http://example.com/example/test/cyclid"}]}'
-      stub_request(:get, 'http://example.com/example/test/tree/1234567890')
-        .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
-        .to_return(status: 200, body: tree, headers: {})
+      stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       # Return the Cyclid job file
       job = { sources: [], sequence: [] }
@@ -132,16 +127,16 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
         .to_return(status: 200, body: job_blob.to_json, headers: {})
 
-      config = { 'repository_tokens' => [] }
+      config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
       pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
              'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
-      request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
+      expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
 
-      expect(@methods.post(request, headers, config)).to be true
+      expect{ @methods.post(headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
     end
 
     # Issue #20
@@ -152,9 +147,9 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
 
       # Return a tree with a YAML Cyclid job file.
       tree = '{"tree":[{"path":".cyclid.yml", "url": "http://example.com/example/test/cyclid"}]}'
-      stub_request(:get, 'http://example.com/example/test/tree/1234567890')
-        .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
-        .to_return(status: 200, body: tree, headers: {})
+      stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       # Return the Cyclid job file
       job = { sources: [], sequence: [] }
@@ -163,16 +158,16 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host' => 'example.com', 'User-Agent' => 'Ruby' })
         .to_return(status: 200, body: job_blob.to_json, headers: {})
 
-      config = { 'repository_tokens' => [] }
+      config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
       pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
              'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
-      request = { 'action' => 'opened', 'pull_request' => pr }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
+      expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
 
-      expect(@methods.post(request, headers, config)).to be true
+      expect{ @methods.post(headers, config) }.to raise_error(GithubPlugin::Test::TestStop)
     end
   end
 end

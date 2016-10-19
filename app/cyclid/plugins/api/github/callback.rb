@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'octokit'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -24,9 +26,16 @@ module Cyclid
         # Notifier callback for Github. Updates the external Github Pull
         # Request status as the job progresses.
         class GithubCallback < Plugins::Notifier::Callback
-          def initialize(statuses, auth_token)
-            @statuses = statuses
+          def initialize(auth_token, repo, sha, linkback_url)
             @auth_token = auth_token
+            @repo = repo
+            @sha = sha
+            @linkback_url = linkback_url
+          end
+
+          # Return or create an Octokit client
+          def client
+            @client ||= Octokit::Client.new(access_token: @auth_token)
           end
 
           # Job status has changed
@@ -45,7 +54,10 @@ module Cyclid
               return false
             end
 
-            GithubStatus.set_status(@statuses, @auth_token, state, message)
+            target_url = "#{@linkback_url}/job/#{job_id}"
+            client.create_status(@repo, @sha, state, context: 'Cyclid',
+                                                     target_url: target_url,
+                                                     description: message)
           end
 
           # Job has completed
@@ -57,7 +69,10 @@ module Cyclid
               state = 'failure'
               message = "Job ##{job_id} failed."
             end
-            GithubStatus.set_status(@statuses, @auth_token, state, message)
+            target_url = "#{@linkback_url}/job/#{job_id}"
+            client.create_status(@repo, @sha, state, context: 'Cyclid',
+                                                     target_url: target_url,
+                                                     description: message)
           end
         end
       end

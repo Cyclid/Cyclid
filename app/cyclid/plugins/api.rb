@@ -26,64 +26,43 @@ module Cyclid
         class Controller < Module
           attr_reader :plugin_methods
 
-          def initialize(methods = nil)
+          def initialize(methods = nil, custom_routes = [])
             @plugin_methods = methods
+
+            # Provide default routes for the four basic HTTP verbs; for most
+            # plugins they only need to implement the matching method for the
+            # verb(s) they'll respond too.
+            default_routes = [{ verb: :get, path: nil, func: 'get' },
+                              { verb: :post, path: nil, func: 'post' },
+                              { verb: :put, path: nil, func: 'put' },
+                              { verb: :delete, path: nil, func: 'delete' }]
+
+            # ...but more complex plugins can add additional routes with their
+            # own paths & methods, if required.
+            @routes = default_routes.concat custom_routes
           end
 
           # Sinatra callback
           def registered(app)
             include Errors::HTTPErrors
 
-            app.get do
-              Cyclid.logger.debug 'ApiExtension::Controller::get'
+            @routes.each do |route|
+              verb = route[:verb]
+              path = route[:path]
+              func = route[:func]
 
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
+              app.send(verb, path) do
+                Cyclid.logger.debug "ApiExtension::Controller::#{verb} #{path}"
 
-              config = controller_plugin.get_config(org)
+                org = Organization.find_by(name: params[:name])
+                halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+                  if org.nil?
 
-              get(http_headers(request.env), config['config'])
-            end
+                config = controller_plugin.get_config(org)
 
-            app.post do
-              Cyclid.logger.debug 'ApiExtension::Controller::post'
-
-              payload = parse_request_body
-
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              post(payload, http_headers(request.env), config['config'])
-            end
-
-            app.put do
-              Cyclid.logger.debug 'ApiExtension::Controller::put'
-
-              payload = parse_request_body
-
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              put(payload, http_headers(request.env), config['config'])
-            end
-
-            app.delete do
-              Cyclid.logger.debug 'ApiExtension::Controller::delete'
-
-              org = Organization.find_by(name: params[:name])
-              halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
-                if org.nil?
-
-              config = controller_plugin.get_config(org)
-
-              delete(http_headers(request.env), config['config'])
+                meth = method(func)
+                meth.call(http_headers(request.env), config['config'])
+              end
             end
 
             app.helpers do
@@ -107,13 +86,13 @@ module Cyclid
           end
 
           # POST callback
-          def post(_data, _headers, _config)
+          def post(_headers, _config)
             authorize('post')
             return_failure(405, 'not implemented')
           end
 
           # PUT callback
-          def put(_data, _headers, _config)
+          def put(_headers, _config)
             authorize('put')
             return_failure(405, 'not implemented')
           end
@@ -172,6 +151,20 @@ module Cyclid
             end
 
             return http_headers
+          end
+
+          # Return the current organization name
+          def organization_name
+            params[:name]
+          end
+
+          # Find & return the Organization model
+          def retrieve_organization(name = nil)
+            name ||= organization_name
+            org = Organization.find_by(name: name)
+            halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+              if org.nil?
+            return org
           end
         end
       end
