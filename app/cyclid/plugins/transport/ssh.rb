@@ -52,8 +52,10 @@ module Cyclid
                                         keys: keys,
                                         timeout: 5)
               break unless @session.nil?
-            rescue Net::SSH::AuthenticationFailed
+            rescue Net::SSH::Exception
               Cyclid.logger.debug 'SSH authentication failed'
+            rescue StandardError => ex
+              Cyclid.logger.debug "SSH connection failed: #{ex}"
             end
 
             sleep 5
