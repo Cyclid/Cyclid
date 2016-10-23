@@ -40,6 +40,11 @@ module Cyclid
             Cyclid.plugins.register(self)
           end
 
+          # Does this plugin support configuration data?
+          def config?
+            false
+          end
+
           # Get the configuration for the given org
           def get_config(org)
             # If the organization was passed by name, convert it into an Organization object

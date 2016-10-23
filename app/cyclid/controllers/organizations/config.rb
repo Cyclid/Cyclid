@@ -63,8 +63,21 @@ module Cyclid
           include Errors::HTTPErrors
           include Constants::JobStatus
 
+          # Return a list of plugins which have configs
+          app.get do
+            authorized_for!(params[:name], Operations::READ)
+
+            configs = []
+            Cyclid.plugins.all.each do |plugin|
+              configs << { type: plugin.human_name, name: plugin.name } \
+                if plugin.has_config?
+            end
+
+            return configs.to_json
+          end
+
           # Get the current configuration for the given plugin.
-          app.get '/:plugin' do
+          app.get '/:type/:plugin' do
             authorized_for!(params[:name], Operations::READ)
 
             org = Organization.find_by(name: params[:name])
@@ -96,7 +109,7 @@ module Cyclid
           end
 
           # Update the plugin configuration
-          app.put '/:plugin' do
+          app.put '/:type/:plugin' do
             authorized_for!(params[:name], Operations::ADMIN)
 
             payload = parse_request_body

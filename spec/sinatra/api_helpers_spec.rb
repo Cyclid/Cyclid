@@ -37,7 +37,7 @@ describe Cyclid::API::APIHelpers do
   end
 
   def halt(code, message)
-    json = JSON.load(message)
+    json = JSON.parse(message)
     raise "#{code}:#{json['description']}"
   end
 

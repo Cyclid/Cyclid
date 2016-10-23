@@ -99,6 +99,11 @@ module Cyclid
 
         # Static methods for handling plugin config data
         class << self
+          # This plugin has configuration data
+          def config?
+            true
+          end
+
           # Update the plugin configuration
           def update_config(current, new)
             current.merge! new

@@ -157,6 +157,11 @@ module Cyclid
 
         # Static methods for handling plugin config data
         class << self
+          # This plugin has configuration data
+          def config?
+            true
+          end
+
           # Update the plugin configuration
           def update_config(current, new)
             current.merge! new
@@ -194,7 +199,7 @@ module Cyclid
                         description: 'SMTP server username',
                         default: nil }
             schema << { name: 'password',
-                        type: 'string',
+                        type: 'password',
                         description: 'SMTP server password',
                         default: nil }
 

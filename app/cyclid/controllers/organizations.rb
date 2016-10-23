@@ -80,7 +80,7 @@ module Cyclid
             register Organizations::Jobs
           end
 
-          namespace '/configs/:type' do
+          namespace '/configs' do
             register Organizations::Configs
           end
 

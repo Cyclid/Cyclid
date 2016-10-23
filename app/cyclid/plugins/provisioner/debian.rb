@@ -69,18 +69,18 @@ module Cyclid
             "echo '#{fragment}' | sudo tee -a /etc/apt/sources.list.d/cyclid.list"
           raise "failed to add repository #{url}" unless success
 
-          if repo.key? :key_id
-            # Import the signing key
-            key_id = repo[:key_id]
+          return unless repo.key? :key_id
 
-            success = transport.exec \
-              "gpg --keyserver keyserver.ubuntu.com --recv-keys #{key_id}"
-            raise "failed to import key #{key_id}" unless success
+          # Import the signing key
+          key_id = repo[:key_id]
 
-            success = transport.exec \
-              "gpg -a --export #{key_id} | sudo apt-key add -"
-            raise "failed to add repository key #{key_id}" unless success
-          end
+          success = transport.exec \
+            "gpg --keyserver keyserver.ubuntu.com --recv-keys #{key_id}"
+          raise "failed to import key #{key_id}" unless success
+
+          success = transport.exec \
+            "gpg -a --export #{key_id} | sudo apt-key add -"
+          raise "failed to add repository key #{key_id}" unless success
         end
 
         # Register this plugin

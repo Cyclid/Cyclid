@@ -33,6 +33,11 @@ module Cyclid
             return ApiExtension::Controller.new(ApiExtension::GithubMethods, routes)
           end
 
+          # This plugin has configuration data
+          def config?
+            true
+          end
+
           # Merge the given config into the current config & validate
           def update_config(config, new)
             Cyclid.logger.debug "config=#{config} new=#{new}"
@@ -100,10 +105,13 @@ module Cyclid
                         description: 'Individual repository personal OAuth tokens',
                         default: [] }
             schema << { name: 'oauth_token',
-                        type: 'string',
+                        type: 'password',
                         description: 'Organization Github OAuth token',
                         default: nil }
-
+            schema << { name: 'oauth_request',
+                        type: 'link-relative',
+                        description: 'Authorize with Github',
+                        default: '/oauth/request' }
             return schema
           end
         end
