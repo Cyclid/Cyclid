@@ -69,7 +69,7 @@ module Cyclid
 
             configs = []
             Cyclid.plugins.all.each do |plugin|
-              configs << {type: plugin.human_name, name: plugin.name } \
+              configs << { type: plugin.human_name, name: plugin.name } \
                 if plugin.has_config?
             end
 

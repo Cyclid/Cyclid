@@ -34,7 +34,7 @@ module Cyclid
           end
 
           # This plugin has configuration data
-          def has_config?
+          def config?
             true
           end
 

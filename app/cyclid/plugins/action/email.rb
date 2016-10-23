@@ -158,7 +158,7 @@ module Cyclid
         # Static methods for handling plugin config data
         class << self
           # This plugin has configuration data
-          def has_config?
+          def config?
             true
           end
 

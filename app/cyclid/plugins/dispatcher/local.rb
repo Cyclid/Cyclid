@@ -103,7 +103,7 @@ module Cyclid
             @job_record.save!
 
             # Ping the callback status_changed hook, if required
-            @callback.status_changed(@job_id, status) if @callback
+            @callback&.status_changed(@job_id, status)
           end
 
           # Set the JobRecord ended
@@ -114,7 +114,7 @@ module Cyclid
 
           # Ping the callback completion hook, if required
           def completion(success)
-            @callback.completion(@job_id, success) if @callback
+            @callback&.completion(@job_id, success)
           end
 
           # Write data to the log buffer
@@ -122,7 +122,7 @@ module Cyclid
             @log_buffer.write data
 
             # Ping the callback log_write hook, if required
-            @callback.log_write(@job_id, data) if @callback
+            @callback&.log_write(@job_id, data)
           end
         end
       end

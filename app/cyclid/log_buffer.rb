@@ -87,7 +87,7 @@ module Cyclid
         end
 
         # Write to web socket
-        @websocket.write data if @websocket
+        @websocket&.write data
       end
 
       # Non-destructively read any new data from the buffer

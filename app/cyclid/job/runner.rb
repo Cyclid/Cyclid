@@ -89,7 +89,7 @@ module Cyclid
 
             begin
               @builder.release(@transport, @build_host) if @build_host
-              @transport.close if @transport
+              @transport&.close
             rescue ::Net::SSH::Disconnect # rubocop:disable Lint/HandleExceptions
               # Ignored
             end
