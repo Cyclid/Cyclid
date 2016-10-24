@@ -25,6 +25,14 @@ module Cyclid
         # rubocop:disable Metrics/LineLength
         # @!group Organizations
 
+        # @!method get_organizations_organization_configs
+        # @overload GET /organizations/:organization/configs
+        # @macro rest
+        # @param [String] organization Name of the organization.
+        # Get the list of plugins which support per-organization configurations.
+        # @return The list of plugins.
+        # @return [404] The organization or plugin does not exist.
+
         # @!method get_organizations_organization_configs_type_plugin
         # @overload GET /organizations/:organization/configs/:type/:plugin
         # @macro rest
@@ -70,7 +78,7 @@ module Cyclid
             configs = []
             Cyclid.plugins.all.each do |plugin|
               configs << { type: plugin.human_name, name: plugin.name } \
-                if plugin.has_config?
+                if plugin.config?
             end
 
             return configs.to_json
