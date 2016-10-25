@@ -80,13 +80,13 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       # Status: preparing
       stub_request(:post, 'https://api.github.com/repos/example/test/statuses/1234567890')
         .with(body: '{"context":"Cyclid","description":"Preparing build","state":"pending"}',
-              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => /Octokit Ruby Gem/ })
         .to_return(status: 200, body: '', headers: {})
 
       # Status: error
       stub_request(:post, 'https://api.github.com/repos/example/test/statuses/1234567890')
         .with(body: '{"context":"Cyclid","description":"No Cyclid job file found","state":"error"}',
-              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+              headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => /Octokit Ruby Gem/ })
         .to_return(status: 200, body: '', headers: {})
     end
 
@@ -94,7 +94,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       # Return a tree without a Cyclid job file.
       tree = '{"tree":[{"path":"dummy"},{"path":"file"},{"path":"tree"}]}'
       stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
-        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => /Octokit Ruby Gem/ })
         .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
@@ -117,7 +117,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       # Return a tree with a JSON Cyclid job file.
       tree = '{"tree":[{"path":".cyclid.json", "url": "http://example.com/example/test/cyclid"}]}'
       stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
-        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => /Octokit Ruby Gem/ })
         .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       # Return the Cyclid job file
@@ -148,7 +148,7 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
       # Return a tree with a YAML Cyclid job file.
       tree = '{"tree":[{"path":".cyclid.yml", "url": "http://example.com/example/test/cyclid"}]}'
       stub_request(:get, 'https://api.github.com/repos/example/test/git/trees/1234567890?recursive=false')
-        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => 'Octokit Ruby Gem 4.3.0' })
+        .with(headers: { 'Accept' => 'application/vnd.github.v3+json', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'token 123456789', 'Content-Type' => 'application/json', 'User-Agent' => /Octokit Ruby Gem/ })
         .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       # Return the Cyclid job file
