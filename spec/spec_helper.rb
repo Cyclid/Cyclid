@@ -114,3 +114,6 @@ end
 def put_json(endpoint, json)
   put(endpoint, json, 'CONTENT_TYPE' => 'text/json')
 end
+
+# Include some simple stub classes
+require_relative 'spec_stubs'
