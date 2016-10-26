@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Stub LogBuffer analogue
 class TestLog
   attr_reader :data
