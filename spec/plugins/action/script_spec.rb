@@ -28,13 +28,6 @@ describe Cyclid::API::Plugins::Script do
     register_plugin 'test'
   end
 
-  # Stub LogBuffer analogue
-  class TestLog
-    def write(_data)
-      true
-    end
-  end
-
   before :all do
     @transport = TestTransport.new
     @log = TestLog.new

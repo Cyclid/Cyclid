@@ -4,13 +4,6 @@ require 'spec_helper'
 require 'mail'
 
 describe Cyclid::API::Plugins::Email do
-  # Stub LogBuffer analogue
-  class TestLog
-    def write(_data)
-      true
-    end
-  end
-
   before :all do
     new_database
 
