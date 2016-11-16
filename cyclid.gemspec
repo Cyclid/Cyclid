@@ -46,4 +46,9 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency('cyclid-core', '~> 0')
   s.add_runtime_dependency('mist-client', '~> 0')
+
+  # Google builder
+  s.add_runtime_dependency('fog-core', '~> 1.43')
+  s.add_runtime_dependency('fog-google', '~> 0.4')
+  s.add_runtime_dependency('google-api-client', '~> 0.8.6')
 end
