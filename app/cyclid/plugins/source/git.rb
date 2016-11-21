@@ -40,7 +40,7 @@ module Cyclid
             # username
             url.user = source[:token] if source.key? :token
 
-            success = transport.exec "git clone #{url}"
+            success = transport.exec("git clone #{url}", ctx[:workspace])
             return false unless success
 
             # If a branch was given, check it out
