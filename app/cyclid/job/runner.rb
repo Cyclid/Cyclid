@@ -68,7 +68,7 @@ module Cyclid
 
             # Connect a transport to the build host; the notifier is a proxy
             # to the log buffer
-            @transport = create_transport(@build_host, @notifier)
+            @transport = create_transport(@build_host, @notifier, @ctx)
 
             # Prepare the host
             provisioner = create_provisioner(@build_host)
@@ -190,7 +190,7 @@ module Cyclid
 
         # Find a transport that can be used with the build host, create one and
         # connect them together
-        def create_transport(build_host, log_buffer)
+        def create_transport(build_host, log_buffer, ctx)
           # Create a Transport & connect it to the build host
           host, username, password, key = build_host.connect_info
           Cyclid.logger.debug "create_transport: host: #{host} " \
@@ -213,7 +213,8 @@ module Cyclid
                                            user: username,
                                            password: password,
                                            key: key,
-                                           log: log_buffer)
+                                           log: log_buffer,
+                                           ctx: ctx)
           raise 'failed to connect the transport' unless transport
 
           return transport
