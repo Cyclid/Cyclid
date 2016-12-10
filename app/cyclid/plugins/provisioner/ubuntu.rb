@@ -26,6 +26,9 @@ module Cyclid
           transport.export_env('DEBIAN_FRONTEND' => 'noninteractive')
 
           if env.key? :repos
+            # Ensure apt-get-repository is available
+            transport.exec 'sudo apt-get install -y software-properties-common'
+
             env[:repos].each do |repo|
               next unless repo.key? :url
 
