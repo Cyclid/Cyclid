@@ -17,7 +17,7 @@ describe Cyclid::API::Plugins::Git do
   end
 
   let :ctx do
-    {workspace: '/test'}
+    { workspace: '/test' }
   end
 
   context 'with a single source' do
