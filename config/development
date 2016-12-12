@@ -3,3 +3,8 @@ server:
   log: stderr
   dispatcher: local
   builder: mist
+  plugins:
+    google:
+      project: test
+      client_email: 123456789-compute@developer.gserviceaccount.com
+      json_key_location: config/gcp.json
