@@ -1,4 +1,0 @@
-client:
-  ssh_private_key: ~/.ssh/id_rsa_build
-  servers:
-    - localhost:18800

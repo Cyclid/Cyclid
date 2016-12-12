@@ -35,7 +35,6 @@ require_relative 'app/db'
 require 'sinatra/activerecord/rake'
 
 ENV['CYCLID_CONFIG'] = File.join(%w(config development))
-ENV['MIST_CONFIG'] = File.join(%w(config mist))
 
 task :db_init do
   Rake::Task['db:migrate'].invoke

@@ -2,7 +2,7 @@ server:
   database: sqlite3:development.db
   log: stderr
   dispatcher: local
-  builder: mist
+  builder: google
   plugins:
     google:
       project: test

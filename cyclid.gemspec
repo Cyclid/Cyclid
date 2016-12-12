@@ -43,9 +43,7 @@ Gem::Specification.new do |s|
 
   # Pin to 2.3 until droplet_kit (the Digitalocean plugin) is updated
   s.add_runtime_dependency('addressable', '< 2.4')
-
   s.add_runtime_dependency('cyclid-core', '~> 0')
-  s.add_runtime_dependency('mist-client', '~> 0')
 
   # Google builder
   s.add_runtime_dependency('fog-core', '~> 1.43')
