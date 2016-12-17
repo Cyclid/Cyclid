@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20160715161156) do
     t.datetime "started"
     t.datetime "ended"
     t.integer  "status"
-    t.text     "log"
+    t.text     "log", :limit => 16.megabytes - 1
     t.text     "job"
     t.integer  "organization_id"
     t.integer  "user_id"
