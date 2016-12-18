@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'mist-client', path: '../Mist/'
 gem 'cyclid-core', path: '../Cyclid-core/'
 
 group :development, :test do

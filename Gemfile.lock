@@ -21,12 +21,6 @@ PATH
       rack (~> 1.6)
 
 PATH
-  remote: ../Mist/
-  specs:
-    mist-client (0.2.1)
-      msgpack-rpc (~> 0.5)
-
-PATH
   remote: .
   specs:
     cyclid (0.2.4)
@@ -84,7 +78,6 @@ GEM
     coderay (1.1.1)
     concurrent-ruby (1.0.2)
     connection_pool (2.2.0)
-    cool.io (1.4.5)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     css_parser (1.4.7)
@@ -166,10 +159,6 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    msgpack (0.5.12)
-    msgpack-rpc (0.5.4)
-      cool.io (~> 1.4.3)
-      msgpack (~> 0.5.10)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
@@ -295,7 +284,6 @@ DEPENDENCIES
   guard
   guard-rack!
   guard-sidekiq
-  mist-client!
   rack-test
   rake
   rb-inotify (~> 0.9.7)
