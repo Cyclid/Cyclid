@@ -21,12 +21,6 @@ PATH
       rack (~> 1.6)
 
 PATH
-  remote: ../Mist/
-  specs:
-    mist-client (0.2.1)
-      msgpack-rpc (~> 0.5)
-
-PATH
   remote: .
   specs:
     cyclid (0.2.4)
@@ -39,7 +33,6 @@ PATH
       google-api-client (~> 0.8.6)
       jwt (~> 1.5)
       mail (~> 2.6)
-      mysql (~> 2.9)
       net-scp (~> 1.2)
       net-ssh (~> 3.1)
       nokogiri (~> 1.6)
@@ -85,10 +78,9 @@ GEM
     coderay (1.1.1)
     concurrent-ruby (1.0.2)
     connection_pool (2.2.0)
-    cool.io (1.4.5)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    css_parser (1.4.6)
+    css_parser (1.4.7)
       addressable
     diff-lcs (1.2.5)
     docile (1.1.5)
@@ -166,14 +158,9 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
-    minitest (5.9.1)
-    msgpack (0.5.12)
-    msgpack-rpc (0.5.4)
-      cool.io (~> 1.4.3)
-      msgpack (~> 0.5.10)
+    minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
-    mysql (2.9.1)
     nenv (0.3.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -183,9 +170,9 @@ GEM
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    octokit (4.6.1)
+    octokit (4.6.2)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (2.17.5)
+    oj (2.18.0)
     os (0.9.6)
     parser (2.3.1.4)
       ast (~> 2.2)
@@ -297,7 +284,6 @@ DEPENDENCIES
   guard
   guard-rack!
   guard-sidekiq
-  mist-client!
   rack-test
   rake
   rb-inotify (~> 0.9.7)

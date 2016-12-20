@@ -41,7 +41,7 @@ describe Cyclid::API::Plugins::Debian do
       provisioner = nil
       expect{ provisioner = Cyclid::API::Plugins::Debian.new }.to_not raise_error
       expect{ provisioner.prepare(@transport, @buildhost, env) }.to_not raise_error
-      expect(@transport.cmd).to eq('sudo apt-get update')
+      expect(@transport.cmd).to eq('apt-get update')
     end
 
     it 'should add a valid HTTPS repository' do
@@ -51,7 +51,7 @@ describe Cyclid::API::Plugins::Debian do
       provisioner = nil
       expect{ provisioner = Cyclid::API::Plugins::Debian.new }.to_not raise_error
       expect{ provisioner.prepare(@transport, @buildhost, env) }.to_not raise_error
-      expect(@transport.cmd).to eq('sudo apt-get update')
+      expect(@transport.cmd).to eq('apt-get update')
     end
 
     it 'should add a valid repository with a GPG key' do
@@ -62,7 +62,7 @@ describe Cyclid::API::Plugins::Debian do
       provisioner = nil
       expect{ provisioner = Cyclid::API::Plugins::Debian.new }.to_not raise_error
       expect{ provisioner.prepare(@transport, @buildhost, env) }.to_not raise_error
-      expect(@transport.cmd).to eq('sudo apt-get update')
+      expect(@transport.cmd).to eq('apt-get update')
     end
 
     it "should fail if the repository doesn't specify any components" do
@@ -80,6 +80,6 @@ describe Cyclid::API::Plugins::Debian do
     provisioner = nil
     expect{ provisioner = Cyclid::API::Plugins::Debian.new }.to_not raise_error
     expect{ provisioner.prepare(@transport, @buildhost, env) }.to_not raise_error
-    expect(@transport.cmd).to eq('sudo -E apt-get install -y package')
+    expect(@transport.cmd).to eq('apt-get install -y package')
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160715161156) do
+ActiveRecord::Schema.define(version: 20161218133843) do
 
   create_table "job_records", force: :cascade do |t|
     t.string   "job_name"
@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20160715161156) do
     t.datetime "started"
     t.datetime "ended"
     t.integer  "status"
-    t.text     "log"
+    t.text     "log",             limit: 16777215
     t.text     "job"
     t.integer  "organization_id"
     t.integer  "user_id"

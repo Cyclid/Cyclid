@@ -27,7 +27,7 @@ module Cyclid
 
           if env.key? :repos
             # Ensure apt-get-repository is available
-            transport.exec 'sudo apt-get install -y software-properties-common'
+            transport.exec 'apt-get install -y software-properties-common'
 
             env[:repos].each do |repo|
               next unless repo.key? :url
@@ -45,13 +45,13 @@ module Cyclid
               end
             end
 
-            success = transport.exec 'sudo apt-get update'
+            success = transport.exec 'apt-get update'
             raise 'failed to update repositories' unless success
           end
 
           if env.key? :packages
             success = transport.exec \
-              "sudo -E apt-get install -y #{env[:packages].join(' ')}" \
+              "apt-get install -y #{env[:packages].join(' ')}" \
 
             raise "failed to install packages #{env[:packages].join(' ')}" unless success
           end
@@ -63,7 +63,7 @@ module Cyclid
         private
 
         def add_ppa_repository(transport, url)
-          success = transport.exec "sudo apt-add-repository -y #{url}"
+          success = transport.exec "apt-add-repository -y #{url}"
           raise "failed to add repository #{url}" unless success
         end
 
@@ -77,7 +77,7 @@ module Cyclid
           fragment = "deb #{url} #{release} #{components}"
 
           success = transport.exec \
-            "echo '#{fragment}' | sudo tee -a /etc/apt/sources.list.d/cyclid.list"
+            "sh -c \"echo '#{fragment}' | tee -a /etc/apt/sources.list.d/cyclid.list\""
           raise "failed to add repository #{url}" unless success
 
           return unless repo.key? :key_id
@@ -90,7 +90,7 @@ module Cyclid
           raise "failed to import key #{key_id}" unless success
 
           success = transport.exec \
-            "gpg -a --export #{key_id} | sudo apt-key add -"
+            "sh -c 'gpg -a --export #{key_id} | apt-key add -'"
           raise "failed to add repository key #{key_id}" unless success
         end
 

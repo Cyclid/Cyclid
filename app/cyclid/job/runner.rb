@@ -83,6 +83,7 @@ module Cyclid
             end
           rescue StandardError => ex
             Cyclid.logger.error "job runner failed: #{ex}"
+            Cyclid.logger.error ex.backtrace.join("\n")
 
             @notifier.status = FAILED
             @notifier.ended = Time.now.to_s
