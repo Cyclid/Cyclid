@@ -145,7 +145,11 @@ module Cyclid
           end
 
           command << "cd #{path}" if path
-          command << cmd
+          command << if @username == 'root'
+                       cmd
+                     else
+                       "sudo -E #{cmd}"
+                     end
           command.join(';')
         end
 
