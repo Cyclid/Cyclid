@@ -16,9 +16,10 @@ Gem::Specification.new do |s|
   s.files       = Dir.glob('app/**/*') +
                   Dir.glob('lib/**/*') +
                   Dir.glob('bin/*') +
+                  Dir.glob('db/migrate/*') +
                   %w(db/schema.rb LICENSE README.md)
   s.bindir      = 'bin'
-  s.executables << 'cyclid-db-init'
+  s.executables += ['cyclid-db-init', 'cyclid-db-migrate']
 
   s.add_runtime_dependency('oj', '~> 2.14')
   s.add_runtime_dependency('require_all', '~> 1.3')
