@@ -25,6 +25,10 @@ module Cyclid
         def prepare(transport, buildhost, env = {})
           transport.export_env('DEBIAN_FRONTEND' => 'noninteractive')
 
+          # Build hosts may require an update before anything can be installed
+          success = transport.exec 'apt-get update'
+          raise 'failed to update repositories' unless success
+
           if env.key? :repos
             # Ensure apt-get-repository is available
             transport.exec 'apt-get install -y software-properties-common'
@@ -45,6 +49,7 @@ module Cyclid
               end
             end
 
+            # We must update again to cache the new repositories
             success = transport.exec 'apt-get update'
             raise 'failed to update repositories' unless success
           end
