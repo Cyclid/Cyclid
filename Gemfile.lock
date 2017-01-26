@@ -15,7 +15,7 @@ GIT
       spoon
 
 PATH
-  remote: ../Cyclid-core/
+  remote: ../Cyclid-core
   specs:
     cyclid-core (0.1.1)
       rack (~> 1.6)
@@ -298,4 +298,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.11.2
+   1.14.3
