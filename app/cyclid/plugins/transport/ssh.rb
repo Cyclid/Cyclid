@@ -122,16 +122,10 @@ module Cyclid
 
         # Close the SSH connection
         def close
-          logout
-
           @session.close
         end
 
         private
-
-        def logout
-          exec 'exit'
-        end
 
         def build_command(cmd, path = nil, env = {})
           command = []

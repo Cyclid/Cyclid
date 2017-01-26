@@ -15,7 +15,7 @@ GIT
       spoon
 
 PATH
-  remote: ../Cyclid-core/
+  remote: ../Cyclid-core
   specs:
     cyclid-core (0.1.1)
       rack (~> 1.6)
@@ -161,6 +161,7 @@ GEM
     minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
+    mysql2 (0.4.5)
     nenv (0.3.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -284,6 +285,7 @@ DEPENDENCIES
   guard
   guard-rack!
   guard-sidekiq
+  mysql2
   rack-test
   rake
   rb-inotify (~> 0.9.7)
@@ -296,4 +298,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.11.2
+   1.14.3

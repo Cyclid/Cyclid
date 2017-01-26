@@ -18,6 +18,7 @@ group :development, :test do
   gem 'rack-test'
   gem 'yard'
   gem 'sqlite3'
+  gem 'mysql2'
   gem 'webmock'
   gem 'rubygems-tasks'
 end

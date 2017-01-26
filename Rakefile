@@ -60,7 +60,7 @@ task :redis do
 end
 
 task :sidekiq do
-  exec 'sidekiq -r ./init.rb'
+  exec 'sidekiq -r ./lib/cyclid/app.rb'
 end
 
 task :default do
