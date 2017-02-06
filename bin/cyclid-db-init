@@ -59,9 +59,10 @@ def generate_password
         %w($ % ^ & * _)).sample(8).join
 end
 
-def create_admin_user
-  secret = SecureRandom.hex(32)
-  password = generate_password
+def create_admin_user(initial_secret, initial_password)
+  secret = initial_secret || SecureRandom.hex(32)
+  password = initial_password || generate_password
+
   user = User.new
   user.username = 'admin'
   user.email = 'admin@example.com'
@@ -97,7 +98,10 @@ def update_user_perms
   permissions.save!
 end
 
-secret, password = create_admin_user
+initial_secret = ARGV[0]
+initial_password = ARGV[1]
+
+secret, password = create_admin_user(initial_secret, initial_password)
 create_admin_organization
 
 update_user_perms
