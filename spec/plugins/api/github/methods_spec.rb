@@ -98,10 +98,10 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         .to_return(status: 200, body: tree, headers: { 'Content-Type' => 'application/vnd.github.v3+json' })
 
       config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
-      pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
-             'head' => { 'sha' => '1234567890',
+      pr = { 'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
+                                     'html_url' => 'http://example.com/example/test',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
       expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
@@ -128,10 +128,10 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         .to_return(status: 200, body: job_blob.to_json, headers: {})
 
       config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
-      pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
-             'head' => { 'sha' => '1234567890',
+      pr = { 'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
+                                     'html_url' => 'http://example.com/example/test',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
       expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
@@ -159,10 +159,10 @@ describe Cyclid::API::Plugins::ApiExtension::GithubMethods do
         .to_return(status: 200, body: job_blob.to_json, headers: {})
 
       config = { 'repository_tokens' => [], 'oauth_token' => '123456789' }
-      pr = { 'base' => { 'repo' => { 'html_url' => 'http://example.com/example/test' } },
-             'head' => { 'sha' => '1234567890',
+      pr = { 'head' => { 'sha' => '1234567890',
                          'ref' => 'abcdefg',
                          'repo' => { 'statuses_url' => 'http://example.com/example/test/status/{sha}',
+                                     'html_url' => 'http://example.com/example/test',
                                      'trees_url' => 'http://example.com/example/test/tree{/sha}' } } }
       headers = { 'X-Github-Event' => 'pull_request', 'X-Github-Delivery' => '' }
       expect(@methods).to receive(:parse_request_body).and_return('action' => 'opened', 'pull_request' => pr)
