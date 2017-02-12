@@ -147,9 +147,9 @@ module Cyclid
                 # If the "humanish" components match, use the new definition.
                 if humanish(uri) == humanish(new_uri)
                   updated = true
-                  new_uri
-                else
                   new_source
+                else
+                  source
                 end
               end
 
