@@ -33,8 +33,8 @@ module Cyclid
               @pr_head ||= pull_request['head']
             end
 
-            def pr_clone_url
-              pr_head['repo']['html_url']
+            def pr_base
+              @pr_base ||= pull_request['base']
             end
 
             def pr_sha
@@ -45,22 +45,29 @@ module Cyclid
               pr_head['ref']
             end
 
-            def pr_repo
-              @pr_repo ||= pr_head['repo']
+            def pr_base_repo
+              @pr_base_repo ||= pr_base['repo']
             end
 
-            def pr_status_url
-              url = pr_repo['statuses_url']
-              @pr_status_url ||= url.gsub('{sha}', pr_sha)
+            def pr_base_url
+              pr_base_repo['html_url']
+            end
+
+            def pr_head_repo
+              @pr_head_repo ||= pr_head['repo']
+            end
+
+            def pr_head_url
+              pr_head_repo['html_url']
             end
 
             def pr_trees_url
-              url = pr_repo['trees_url']
+              url = pr_head_repo['trees_url']
               @pr_trees_url ||= url.gsub('{/sha}', "/#{pr_sha}")
             end
 
             def pr_repository
-              @repo ||= Octokit::Repository.from_url(pr_clone_url)
+              @repo ||= Octokit::Repository.from_url(pr_base_url)
             end
 
             def push_head_commit
@@ -130,6 +137,23 @@ module Cyclid
               org = retrieve_organization
               state = "#{org.name}:#{org.salt}:#{org.owner_email}"
               Base64.urlsafe_encode64(Digest::SHA256.digest(state))
+            end
+
+            # Normalize a Github URL into a Cyclid style source definition
+            def normalize(url)
+              uri = URI.parse(url)
+
+              source = {}
+              source['url'] = "#{uri.scheme}://#{uri.host}#{uri.path.gsub(/.git$/, '')}"
+              source['token'] = uri.user if uri.user
+              source['branch'] = uri.fragment if uri.fragment
+
+              source
+            end
+
+            # Extract the "humanish" part from a Git repository URL
+            def humanish(uri)
+              uri.path.split('/').last.gsub('.git', '')
             end
           end
         end
