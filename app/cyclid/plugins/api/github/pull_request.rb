@@ -43,7 +43,7 @@ module Cyclid
 
               # Get the list of files in the root of the repository in the
               # Pull Request branch
-              clone_url = URI(pr_clone_url)
+              clone_url = URI(pr_head_url)
 
               # Get the authentication key
               auth_token = find_oauth_token(config, clone_url)
@@ -78,15 +78,19 @@ module Cyclid
                 job_definition = load_job_file(pr_repository, job_sha, job_type)
 
                 # Insert this repository & branch into the sources
+                clone_source = normalize(clone_url.to_s)
+                clone_source['type'] = 'git'
+                clone_source['branch'] = pr_ref
+                clone_source['token'] = auth_token
+
+                # We need to avoid causing a collision between the PR source
+                # (which may be from a forked repo) and any source definitions
+                # which may exist in the job file (which may be the "base"
+                # repository.
                 #
-                # XXX Could this cause collisions between the existing sources in
-                # the job definition? Not entirely sure what the workflow will
-                # look like.
-                job_sources = job_definition['sources'] || []
-                job_sources << { 'type' => 'git',
-                                 'url' => clone_url.to_s,
-                                 'branch' => pr_ref,
-                                 'token' => auth_token }
+                # Compare everything and try to match any duplicates, and
+                # flatten the sources.
+                job_sources = insert_or_update_source(job_definition['sources'] || [], clone_source)
                 job_definition['sources'] = job_sources
 
                 Cyclid.logger.debug "sources=#{job_definition['sources']}"
@@ -125,6 +129,34 @@ module Cyclid
               end
 
               return true
+            end
+
+            # Either insert (append) the Pull Request head repository, or
+            # replace an existing definition; for example if the job contains
+            # a source definition for "https://github.com/foo/bar" and the PR
+            # head is "https://github.com/baz/bar", replace "foo/bar" with
+            # "baz/bar"
+            def insert_or_update_source(sources, new)
+              updated = false
+              new_uri = URI.parse(new['url'])
+
+              normalized = sources.map do |source|
+                uri = URI.parse(source['url'])
+                next unless uri.scheme =~ /\Ahttps?\z/
+
+                # If the "humanish" components match, use the new definition.
+                if humanish(uri) == humanish(new_uri)
+                  updated = true
+                  new
+                else
+                  source
+                end
+              end
+
+              # If we didn't update an existing source definition, insert the new one
+              normalized << new unless updated
+
+              normalized.compact
             end
           end
         end
