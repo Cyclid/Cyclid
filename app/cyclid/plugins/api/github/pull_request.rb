@@ -136,9 +136,9 @@ module Cyclid
             # a source definition for "https://github.com/foo/bar" and the PR
             # head is "https://github.com/baz/bar", replace "foo/bar" with
             # "baz/bar"
-            def insert_or_update_source(sources, new)
+            def insert_or_update_source(sources, new_source)
               updated = false
-              new_uri = URI.parse(new['url'])
+              new_uri = URI.parse(new_source['url'])
 
               normalized = sources.map do |source|
                 uri = URI.parse(source['url'])
@@ -149,7 +149,7 @@ module Cyclid
                   updated = true
                   new_uri
                 else
-                  source
+                  new_source
                 end
               end
 
