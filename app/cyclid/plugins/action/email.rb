@@ -51,9 +51,9 @@ module Cyclid
                                 "as #{email_config[:from]}"
 
             # Add the job context
-            to = @to % @ctx
-            subject = @subject % @ctx
-            message = @message % @ctx
+            to = @to ** @ctx
+            subject = @subject ** @ctx
+            message = @message ** @ctx
 
             # Create a binding for the text & HTML ERB templates
             info = { color: @color, title: subject }

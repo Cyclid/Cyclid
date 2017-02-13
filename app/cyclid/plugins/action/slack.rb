@@ -43,15 +43,15 @@ module Cyclid
             Cyclid.logger.debug "using plugin config #{plugin_data}"
             config = plugin_data['config']
 
-            subject = @subject % @ctx
+            subject = @subject ** @ctx
 
             url = @url || config['webhook_url']
             raise 'no webhook URL given' if url.nil?
 
-            url = url % @ctx
+            url = url ** @ctx
             Cyclid.logger.debug "sending notification to #{url}"
 
-            message_text = @message % @ctx if @message
+            message_text = @message ** @ctx if @message
 
             # Create a binding for the template
             bind = binding

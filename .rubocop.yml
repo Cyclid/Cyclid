@@ -11,6 +11,10 @@ Style/SpaceBeforeBlockBraces:
   Enabled: false
 Style/AndOr:
   Enabled: false
+Style/SpaceAroundOperators:
+  Enabled: false
+Style/SelfAssignment:
+  Enabled: false
 Metrics/ClassLength:
   Enabled: false
 Metrics/MethodLength:

@@ -32,7 +32,7 @@ module Cyclid
               unless source.key? :url
 
             # Add any context data (which could include secrets)
-            source = source.interpolate(ctx)
+            source = source % ctx
 
             url = URI(source[:url])
 

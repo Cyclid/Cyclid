@@ -142,6 +142,10 @@ module Cyclid
                      stage?(job_sequence, job_stage[:on_failure])
             stage_view.on_failure = job_stage[:on_failure]
 
+            # Merge in any modifiers
+            stage_view.only_if = job_stage[:only_if]
+            stage_view.not_if = job_stage[:not_if]
+
             # Store the modified StageView
             stages[stage_view.name.to_sym] = stage_view
           end

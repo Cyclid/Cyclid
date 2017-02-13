@@ -32,7 +32,7 @@ module Cyclid
 
         # Write the log message, with the context data interpolated
         def perform(log)
-          log.write(@message % @ctx)
+          log.write("#{@message ** @ctx}\n")
           true
         end
 
