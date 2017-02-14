@@ -34,7 +34,7 @@ describe Cyclid::API::Plugins::Log do
       end.to_not raise_error
       expect{ plugin.prepare(transport: nil, ctx: nil) }.to_not raise_error
       expect(plugin.perform(log)).to be true
-      expect(log.data).to eq('this is a message')
+      expect(log.data).to eq("this is a message\n")
     end
 
     it 'logs a message with context data' do
@@ -44,7 +44,7 @@ describe Cyclid::API::Plugins::Log do
       end.to_not raise_error
       expect{ plugin.prepare(transport: nil, ctx: { data: 'message' }) }.to_not raise_error
       expect(plugin.perform(log)).to be true
-      expect(log.data).to eq('this is a message')
+      expect(log.data).to eq("this is a message\n")
     end
   end
 end
