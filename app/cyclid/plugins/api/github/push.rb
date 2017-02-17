@@ -97,10 +97,10 @@ module Cyclid
                 linkback_url = "#{ui_url}/#{organization_name}"
 
                 # Inject some useful context data
-                ctx = { gh_event: 'push',
-                        gh_user: @payload['sender']['login'],
-                        gh_ref: push_ref,
-                        gh_comment: push_head_commit['message'] }
+                ctx = { github_event: 'push',
+                        github_user: @payload['sender']['login'],
+                        github_ref: push_ref,
+                        github_comment: push_head_commit['message'] }
 
                 callback = GithubCallback.new(auth_token, push_repository, push_sha, linkback_url)
                 job_from_definition(job_definition, callback, ctx)
