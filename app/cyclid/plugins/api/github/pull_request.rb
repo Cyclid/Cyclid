@@ -117,7 +117,7 @@ module Cyclid
                 ctx = { github_event: 'pull_request',
                         github_user: pull_request['user']['login'],
                         github_ref: pr_ref,
-                        github_comment: pull_request['body'] }
+                        github_comment: pull_request['title'] }
 
                 callback = GithubCallback.new(auth_token, pr_repository, pr_sha, linkback_url)
                 job_from_definition(job_definition, callback, ctx)
