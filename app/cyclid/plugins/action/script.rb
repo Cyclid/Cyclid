@@ -56,12 +56,12 @@ module Cyclid
         def perform(log)
           begin
             # Export the environment data to the build host, if necesary
-            env = @env.interpolate(@ctx) if @env
+            env = @env % @ctx if @env
             @transport.export_env(env)
 
             # Add context data
-            script = @script % @ctx
-            path = @path % @ctx
+            script = @script ** @ctx
+            path = @path ** @ctx
 
             # Create an IO object containing the script and upload it to the
             # build host

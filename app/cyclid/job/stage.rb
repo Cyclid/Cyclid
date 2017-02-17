@@ -25,7 +25,7 @@ module Cyclid
       # the database object.
       class StageView
         attr_reader :name, :version, :steps
-        attr_accessor :on_success, :on_failure
+        attr_accessor :on_success, :on_failure, :only_if, :not_if
 
         def initialize(arg)
           if arg.is_a? Cyclid::API::Stage

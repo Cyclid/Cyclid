@@ -124,13 +124,37 @@ module Cyclid
             stage_definition = stages[sequence.to_sym]
             stage = Oj.load(stage_definition, symbol_keys: true)
 
-            @notifier.write "#{'-' * 79}\n#{Time.now} : " \
-                            "Running stage #{stage.name} v#{stage.version}\n"
+            # Evaluate any only_if/not_if expressions. Always run the stage if there are no
+            # modifiers.
+            do_run = if stage.only_if
+                       Evaluator.only_if(stage.only_if, @ctx)
+                     elsif stage.not_if
+                       Evaluator.not_if(stage.not_if, @ctx)
+                     else
+                       true
+                     end
 
-            # Run the stage
-            success, rc = run_stage(stage)
+            if do_run
+              @notifier.write "#{'-' * 79}\n#{Time.now} : " \
+                              "Running stage #{stage.name} v#{stage.version}\n"
 
-            Cyclid.logger.info "stage #{(success ? 'succeeded' : 'failed')} and returned #{rc}"
+              # Run the stage
+              success, rc = run_stage(stage)
+
+              Cyclid.logger.info "stage #{(success ? 'succeeded' : 'failed')} and returned #{rc}"
+            else
+              @notifier.write "#{'-' * 79}\n#{Time.now} : " \
+                              "Skipping stage #{stage.name} v#{stage.version}\n"
+
+              # Skip this stage; assume success
+              success = true
+              rc = 0
+
+              # rubocop:disable Style/MultilineTernaryOperator
+              Cyclid.logger.info "stage skipped due to #{stage.only_if ? \
+                                 "only_if #{stage.only_if}" : "not_if #{stage.not_if}"}"
+              # rubocop:enable Style/MultilineTernaryOperator
+            end
 
             # Decide which stage to run next depending on the outcome of this
             # one

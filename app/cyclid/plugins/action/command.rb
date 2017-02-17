@@ -55,7 +55,7 @@ module Cyclid
         def perform(log)
           begin
             # Export the environment data to the build host, if necesary
-            env = @env.interpolate(@ctx) if @env
+            env = @env % @ctx if @env
             @transport.export_env(env)
 
             # Log the command being run (and the working directory, if one is
@@ -64,11 +64,11 @@ module Cyclid
             log.write(@path.nil? ? "$ #{cmd_args}\n" : "$ #{@path} : #{cmd_args}\n")
 
             # Interpolate any data from the job context
-            cmd_args = cmd_args % @ctx
+            cmd_args = cmd_args ** @ctx
 
             # Interpolate the path if one is set
             path = @path
-            path = path % @ctx unless path.nil?
+            path = path ** @ctx unless path.nil?
 
             # Run the command
             success = @transport.exec(cmd_args, path)
