@@ -78,7 +78,8 @@ module Cyclid
             user_hash = user.serializable_hash
             user_hash['organizations'] = user.organizations.map(&:name)
 
-            user_hash = sanitize_user(user_hash)
+            # DO provide the users HMAC secret, in this instance
+            user_hash = sanitize_user(user_hash, ['password'])
 
             return user_hash.to_json
           end

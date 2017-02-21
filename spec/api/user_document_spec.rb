@@ -25,6 +25,7 @@ describe 'a user document' do
                              'username' => 'admin',
                              'email' => 'admin@example.com',
                              'name' => 'Admin Test',
+                             'secret' => 'aasecret55',
                              'organizations' => ['admins'])
     end
 
@@ -67,6 +68,7 @@ describe 'a user document' do
                              'username' => 'test',
                              'email' => 'testuser@example.com',
                              'name' => 'Test Test',
+                             'secret' => nil,
                              'organizations' => [])
     end
 
@@ -87,6 +89,7 @@ describe 'a user document' do
                              'username' => 'test',
                              'email' => 'testuser@example.com',
                              'name' => 'Bob Dobbs',
+                             'secret' => nil,
                              'organizations' => [])
     end
 
