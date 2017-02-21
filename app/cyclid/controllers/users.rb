@@ -23,9 +23,9 @@ module Cyclid
     class UserController < ControllerBase
       helpers do
         # Remove sensitive data from the users data
-        def sanitize_user(user)
+        def sanitize_user(user, keys = %w(password secret))
           user.delete_if do |key, _value|
-            key == 'password' || key == 'secret'
+            keys.include? key
           end
         end
       end
