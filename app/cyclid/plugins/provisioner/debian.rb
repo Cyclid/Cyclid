@@ -26,7 +26,7 @@ module Cyclid
           transport.export_env('DEBIAN_FRONTEND' => 'noninteractive')
 
           # Build hosts may require an update before anything can be installed
-          success = transport.exec 'apt-get update'
+          success = transport.exec 'apt-get update -qq'
           raise 'failed to update repositories' unless success
 
           if env.key? :repos
@@ -44,13 +44,13 @@ module Cyclid
             end
 
             # We must update again to cache the new repositories
-            success = transport.exec 'apt-get update'
+            success = transport.exec 'apt-get update -q'
             raise 'failed to update repositories' unless success
           end
 
           if env.key? :packages
             success = transport.exec \
-              "apt-get install -y #{env[:packages].join(' ')}" \
+              "apt-get install -q -y #{env[:packages].join(' ')}" \
 
             raise "failed to install packages #{env[:packages].join(' ')}" unless success
           end
