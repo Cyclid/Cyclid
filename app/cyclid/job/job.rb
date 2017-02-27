@@ -134,8 +134,17 @@ module Cyclid
             job_sequence << stage_success \
               unless job_stage[:on_success].nil? or \
                      stage?(job_sequence, job_stage[:on_success])
-            stage_view.on_success = job_stage[:on_success]
 
+            # Set the on_success handler; if no explicit hander is defined, use
+            # the next stage in the sequence
+            success_stage = if job_stage[:on_success]
+                              job_stage[:on_success]
+                            else
+                              next_stage(job_sequence, job_stage)
+                            end
+            stage_view.on_success = success_stage
+
+            # Now set the on_failure failure
             stage_failure = { stage: job_stage[:on_failure] }
             job_sequence << stage_failure \
               unless job_stage[:on_failure].nil? or \
@@ -161,6 +170,14 @@ module Cyclid
             break if found
           end
           return found
+        end
+
+        # Get the directly proceeding stage in the sequence
+        def next_stage(sequence, stage)
+          idx = sequence.index stage
+
+          next_stage = sequence.at(idx + 1)
+          next_stage.nil? ? nil : next_stage['stage']
         end
       end
     end
