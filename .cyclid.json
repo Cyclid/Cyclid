@@ -22,10 +22,6 @@
    "sources": [
       {
         "type": "git",
-        "url": "https://github.com/Cyclid/Mist"
-      },
-      {
-        "type": "git",
         "url": "https://github.com/Cyclid/Cyclid-core"
       },
       {
@@ -39,7 +35,7 @@
         "steps" : [
           {
             "action" : "command", 
-            "cmd" : "sudo gem install bundler --no-ri --no-doc"
+            "cmd" : "sudo gem install bundler --no-ri --no-doc --quiet"
           },
           {
             "action" : "command",
@@ -113,22 +109,18 @@
    "sequence" : [
       {
          "stage" : "bundle-install",
-         "on_success" : "lint",
          "on_failure" : "failure"
       },
       {
         "stage" : "lint",
-        "on_success" : "rspec",
         "on_failure" : "failure"
       },
       {
         "stage" : "rspec",
-        "on_success" : "docs",
         "on_failure" : "failure"
       },
       {
         "stage" : "docs",
-        "on_success" : "build",
         "on_failure" : "failure"
       },
       {
