@@ -15,6 +15,7 @@ group :development, :test do
   gem 'rspec'
   gem 'rubocop'
   gem 'simplecov'
+  gem 'simplecov-json'
   gem 'rack-test'
   gem 'yard'
   gem 'sqlite3'
