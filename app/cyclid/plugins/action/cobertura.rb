@@ -40,8 +40,8 @@ module Cyclid
           # Parse the report and extract the line & branch coverage.
           xml = Nokogiri.parse(report.string)
           coverage = xml.xpath('//coverage')
-          line_rate = coverage.attr('line-rate').value.to_i
-          branch_rate = coverage.attr('branch-rate').value.to_i
+          line_rate = coverage.attr('line-rate').value.to_f
+          branch_rate = coverage.attr('branch-rate').value.to_f
 
           # Coverage is given as a fraction, so convert it to a percentage.
           #
