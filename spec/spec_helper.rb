@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'bundler/setup'
 require 'simplecov'
+require 'simplecov-json'
 
 SimpleCov.start do
   add_filter '/spec/'
@@ -12,5 +13,10 @@ SimpleCov.start do
   add_group 'Job', 'app/cyclid/job'
   add_group 'Plugins', 'app/cyclid/plugins'
 end
+
+SimpleCov.formatters = [
+  SimpleCov::Formatter::HTMLFormatter,
+  SimpleCov::Formatter::JSONFormatter
+]
 
 require 'spec_setup'
