@@ -33,8 +33,7 @@ module Cyclid
         def perform(log)
           # Retrieve the Simplecov JSON report
           report = StringIO.new
-          path = "#{@path ** @ctx}/coverage/coverage.json"
-          @transport.download(report, path)
+          @transport.download(report, @path ** @ctx)
 
           # Parse the report and extract the total coverage percentage;
           # Simplecov can produce oddly specific coverage metrics, so round it
