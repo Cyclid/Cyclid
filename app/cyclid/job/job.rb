@@ -133,26 +133,27 @@ module Cyclid
             # Merge in the options specified in this job stage. If the
             # on_success or on_failure stages are not already in the sequence,
             # append them to the end.
-            stage_success = { stage: job_stage[:on_success] }
-            job_sequence << stage_success \
-              unless job_stage[:on_success].nil? or \
-                     stage?(job_sequence, job_stage[:on_success])
 
             # Set the on_success handler; if no explicit hander is defined, use
             # the next stage in the sequence
-            success_stage = if job_stage[:on_success]
-                              job_stage[:on_success]
-                            else
-                              next_stage(job_sequence, job_stage)
-                            end
-            stage_view.on_success = success_stage
+            success = job_stage[:on_success] || next_stage(job_sequence, job_stage)
+
+            stage_success = { stage: success }
+            job_sequence << stage_success \
+              unless success.nil? or \
+                     stage?(job_sequence, success)
+
+            stage_view.on_success = success
 
             # Now set the on_failure failure
-            stage_failure = { stage: job_stage[:on_failure] }
+            failure = @options[:on_failure] || job_stage[:on_failure]
+
+            stage_failure = { stage: failure }
             job_sequence << stage_failure \
-              unless job_stage[:on_failure].nil? or \
-                     stage?(job_sequence, job_stage[:on_failure])
-            stage_view.on_failure = @options[:on_failure] || job_stage[:on_failure]
+              unless failure.nil? or \
+                     stage?(job_sequence, failure)
+
+            stage_view.on_failure = failure
 
             # Merge in any modifiers
             stage_view.only_if = job_stage[:only_if]
