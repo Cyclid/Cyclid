@@ -36,6 +36,8 @@ module Cyclid
           @environment = job[:environment]
           @sources = job[:sources] || []
           @secrets = setec_astronomy(org, (job[:secrets] || {}))
+          @options = job[:options] || {}
+          @options.symbolize_keys!
 
           # Build a single unified list of StageViews
           @stages, @sequence = build_stage_collection(job, org)
@@ -51,6 +53,7 @@ module Cyclid
           hash[:environment] = @environment
           hash[:sources] = @sources
           hash[:secrets] = @secrets
+          hash[:options] = @options
           hash[:stages] = @stages.each_with_object({}) do |(name, stage), h|
             h[name.to_sym] = Oj.dump(stage)
           end
@@ -149,7 +152,7 @@ module Cyclid
             job_sequence << stage_failure \
               unless job_stage[:on_failure].nil? or \
                      stage?(job_sequence, job_stage[:on_failure])
-            stage_view.on_failure = job_stage[:on_failure]
+            stage_view.on_failure = @options[:on_failure] || job_stage[:on_failure]
 
             # Merge in any modifiers
             stage_view.only_if = job_stage[:only_if]
