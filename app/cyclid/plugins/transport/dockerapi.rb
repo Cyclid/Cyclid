@@ -50,7 +50,7 @@ module Cyclid
 
         # Execute a command via the Docker API
         def exec(cmd, path = nil)
-          command = build_command(cmd, path)
+          command = build_command(cmd, path, @env)
           Cyclid.logger.debug "command=#{command}"
           result = @container.exec(command, wait: 300) do |_stream, chunk|
             @log.write chunk
@@ -74,8 +74,17 @@ module Cyclid
 
         private
 
-        def build_command(cmd, path = nil)
+        def build_command(cmd, path = nil, env = {})
           command = []
+          if env
+            vars = env.map do |k, value|
+              key = k.upcase
+              key.gsub!(/\s/, '_')
+              "export #{key}=\"#{value}\""
+            end
+            command << vars.join(';')
+          end
+
           command << "cd #{path}" if path
           command << if @username == 'root'
                        cmd
