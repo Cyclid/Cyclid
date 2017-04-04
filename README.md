@@ -4,7 +4,7 @@ Cyclid
 
 See http://docs.cyclid.io/en/latest/ for full documentation, including [installation instructions](http://docs.cyclid.io/en/latest/server.html#installation).
 
-# Developement
+# Development
 
 Cyclid is an Open Source project and we welcome contributions. These instructions will help you get your development environment set up to develop & test Cyclid.
 
