@@ -1,0 +1,5 @@
+server:
+  database: mysql2://MYSQL_USER:MYSQL_PASSWORD@MYSQL_HOST/MYSQL_DATABASE
+  log: /var/log/cyclid/cyclid.log
+  dispatcher: local
+  builder: docker
