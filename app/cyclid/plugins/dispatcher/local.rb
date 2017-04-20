@@ -159,6 +159,8 @@ module Cyclid
             notifier.completion(success)
 
             return success
+          ensure
+            ::ActiveRecord::Base.clear_active_connections!
           end
         end
       end
