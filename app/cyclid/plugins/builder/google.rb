@@ -59,11 +59,15 @@ module Cyclid
             release = 'trusty'
           end
 
+          # Get the instance size, or a default if there isn't one
+          size = args[:size] || 'micro'
+          machine_type = map_machine_type(size)
+
           name = create_name
 
-          source_image, size = find_source_image(distro, release)
-          disk = create_disk(name, size, source_image)
-          instance = create_instance(name, disk)
+          source_image, disk_size = find_source_image(distro, release)
+          disk = create_disk(name, disk_size, source_image)
+          instance = create_instance(name, disk, machine_type)
 
           Cyclid.logger.debug "instance=#{instance.inspect}"
 
@@ -132,6 +136,18 @@ module Cyclid
           "#{base}-#{SecureRandom.hex(16)}"
         end
 
+        # Map the generic size to a machine type
+        def map_machine_type(size)
+          map = { 'default' => @config[:machine_type],
+                  'micro' => 'f1-micro',
+                  'mini' => 'g1-small',
+                  'small' => 'n1-standard-1',
+                  'medium' => 'n1-standard-2',
+                  'large' => 'n1-standard-4' }
+
+          map[size]
+        end
+
         # Map the distro & release to a source image
         def find_source_image(distro, release)
           Cyclid.logger.debug 'attempting to find source image'
@@ -177,11 +193,11 @@ module Cyclid
         end
 
         # Create a compute instance
-        def create_instance(name, disk)
+        def create_instance(name, disk, machine_type)
           Cyclid.logger.info "creating instance #{name}"
           instance = @api.servers.bootstrap(name: name,
                                             disks: [disk],
-                                            machine_type: @config[:machine_type],
+                                            machine_type: machine_type,
                                             zone_name: @config[:zone],
                                             network: @config[:network],
                                             username: @config[:username],

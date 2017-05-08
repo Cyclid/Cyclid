@@ -32,7 +32,7 @@ describe Cyclid::API::Plugins::Google do
           .with(/.*/, 9999, 'ubuntu-trusty-test')
           .and_return('test-disk')
         expect(subject).to receive(:create_instance)
-          .with(/.*/, 'test-disk')
+          .with(/.*/, 'test-disk', 'f1-micro')
           .and_return(server_double)
 
         buildhost = subject.get
@@ -53,10 +53,10 @@ describe Cyclid::API::Plugins::Google do
           .with(/.*/, 9999, 'debian-7-test')
           .and_return('test-disk')
         expect(subject).to receive(:create_instance)
-          .with(/.*/, 'test-disk')
+          .with(/.*/, 'test-disk', 'n1-standard-1')
           .and_return(server_double)
 
-        buildhost = subject.get(os: 'debian_7')
+        buildhost = subject.get(os: 'debian_7', size: 'small')
         expect(buildhost.transports).to match_array(['ssh'])
         expect(buildhost[:username]).to match('build')
         expect(buildhost[:workspace]).to match('/home/build')
