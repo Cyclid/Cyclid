@@ -144,7 +144,7 @@ module Cyclid
                             end
             stage_view.on_success = success_stage
 
-            # Now set the on_failure failure
+            # Now set the on_failure handler
             stage_failure = { stage: job_stage[:on_failure] }
             job_sequence << stage_failure \
               unless job_stage[:on_failure].nil? or \
@@ -154,6 +154,7 @@ module Cyclid
             # Merge in any modifiers
             stage_view.only_if = job_stage[:only_if]
             stage_view.not_if = job_stage[:not_if]
+            stage_view.fail_if = job_stage[:fail_if]
 
             # Store the modified StageView
             stages[stage_view.name.to_sym] = stage_view

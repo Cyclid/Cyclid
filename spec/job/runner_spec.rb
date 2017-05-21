@@ -209,9 +209,51 @@ describe Cyclid::API::Job::Runner do
       expect{ job.run }.to_not raise_error
     end
 
-    it 'runs a job when the expression evaluates as false' do
+    it 'the stage succeeds when the expression evaluates as false' do
       stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
       sequence = [{ stage: 'test', not_if: '1 eq 0' }]
+      job_def = { name: 'test',
+                  environment: {},
+                  sources: [],
+                  stages: stages,
+                  sequence: sequence }
+
+      job_view = nil
+      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
+
+      job_json = nil
+      expect{ job_json = job_view.to_hash.to_json }.to_not raise_error
+
+      job = nil
+      expect{ job = Cyclid::API::Job::Runner.new(5, job_json, @notifier) }.to_not raise_error
+      expect{ job.run }.to_not raise_error
+    end
+  end
+
+  context 'with a fail_if modifier' do
+    it 'the stage fails when the expression evaluates as true' do
+      stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
+      sequence = [{ stage: 'test', fail_if: '1 eq 1' }]
+      job_def = { name: 'test',
+                  environment: {},
+                  sources: [],
+                  stages: stages,
+                  sequence: sequence }
+
+      job_view = nil
+      expect{ job_view = Cyclid::API::Job::JobView.new(job_def, {}, @org) }.to_not raise_error
+
+      job_json = nil
+      expect{ job_json = job_view.to_hash.to_json }.to_not raise_error
+
+      job = nil
+      expect{ job = Cyclid::API::Job::Runner.new(5, job_json, @notifier) }.to_not raise_error
+      expect{ job.run }.to_not raise_error
+    end
+
+    it 'runs a job when the expression evaluates as false' do
+      stages = [{ name: 'test', steps: [{ 'action' => 'command', 'cmd' => '/bin/true' }] }]
+      sequence = [{ stage: 'test', fail_if: '1 eq 0' }]
       job_def = { name: 'test',
                   environment: {},
                   sources: [],

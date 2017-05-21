@@ -156,6 +156,15 @@ module Cyclid
               # rubocop:enable Style/MultilineTernaryOperator
             end
 
+            # Fail the stage if fail_if applies
+            if stage.fail_if && Evaluator.fail_if(stage.fail_if, @ctx)
+              @notifier.write "Stage #{stage.name} v#{stage.version} failed: #{stage.fail_if}\n"
+
+              success = false
+
+              Cyclid.logger.info "stage failed due to #{stage.fail_if}"
+            end
+
             # Decide which stage to run next depending on the outcome of this
             # one
             if success

@@ -23,12 +23,13 @@ module Cyclid
       class EvalException < RuntimeError
       end
 
-      # Evalute an expression for "only_if" & "not_if"
+      # Evalute an expression for "only_if", "not_if" & "fail_if"
       class Evaluator
         class << self
           def only_if(statement, vars)
             evaluate(statement, vars)
           end
+          alias fail_if only_if
 
           def not_if(statement, vars)
             not evaluate(statement, vars) # rubocop:disable Style/Not
