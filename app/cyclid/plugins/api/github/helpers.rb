@@ -29,6 +29,10 @@ module Cyclid
               @pr ||= @payload['pull_request']
             end
 
+            def pr_number
+              @pr_number ||= pull_request['number']
+            end
+
             def pr_head
               @pr_head ||= pull_request['head']
             end
