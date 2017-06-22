@@ -112,7 +112,7 @@ module Cyclid
               sha = nil
               type = nil
               tree['tree'].each do |file|
-                match = file['path'].match(/\A\.cyclid\.(json|yml)\z/)
+                match = file['path'].match(/\A\.cyclid\.(json|yml|yaml)\z/)
                 next unless match
 
                 sha = file['sha']
@@ -128,6 +128,7 @@ module Cyclid
               when 'json'
                 Oj.load(Base64.decode64(blob.content))
               when 'yml'
+              when 'yaml'
                 YAML.load(Base64.decode64(blob.content))
               end
             end
