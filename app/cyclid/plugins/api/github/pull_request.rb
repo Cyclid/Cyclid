@@ -157,7 +157,7 @@ module Cyclid
               end
 
               # If we didn't update an existing source definition, insert the new one
-              normalized << new unless updated
+              normalized << new_source unless updated
 
               normalized.compact
             end
