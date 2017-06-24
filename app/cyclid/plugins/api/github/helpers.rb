@@ -131,8 +131,7 @@ module Cyclid
               case type
               when 'json'
                 Oj.load(Base64.decode64(blob.content))
-              when 'yml'
-              when 'yaml'
+              when 'yml', 'yaml'
                 YAML.load(Base64.decode64(blob.content))
               end
             end
