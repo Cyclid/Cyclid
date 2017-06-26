@@ -92,6 +92,14 @@ module Cyclid
           raise 'failed to destroy instance' unless instance.destroy
         end
 
+        # Plugin metadata
+        def self.metadata
+          super.merge!(version: Cyclid::Api::VERSION,
+                       license: 'Apache-2.0',
+                       author: 'Liqwyd Ltd.',
+                       homepage: 'http://docs.cyclid.io')
+        end
+
         # Register this plugin
         register_plugin 'google'
 
