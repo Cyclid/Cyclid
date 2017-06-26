@@ -40,6 +40,36 @@ module Cyclid
             Cyclid.plugins.register(self)
           end
 
+          # Return the plugin version
+          def version
+            @version || '1.0.0'
+          end
+
+          # Return the plugin author
+          def author
+            @author || 'Unknown'
+          end
+
+          # Return the plugin license
+          def license
+            @license || 'Unknown'
+          end
+
+          # Return a URL to the plugin homepage
+          def homepage
+            @homepage || 'https://cyclid.io'
+          end
+
+          # Return plugin metadata
+          def metadata
+            { name: @name,
+              type: human_name,
+              version: version,
+              author: author,
+              license: license,
+              homepage: homepage }
+          end
+
           # Does this plugin support configuration data?
           def config?
             false

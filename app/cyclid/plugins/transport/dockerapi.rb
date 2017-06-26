@@ -70,6 +70,14 @@ module Cyclid
           io.write(result)
         end
 
+        # Plugin metadata
+        def self.metadata
+          super.merge!(version: Cyclid::Api::VERSION,
+                       license: 'Apache-2.0',
+                       author: 'Liqwyd Ltd.',
+                       homepage: 'http://docs.cyclid.io')
+        end
+
         register_plugin('dockerapi')
 
         private

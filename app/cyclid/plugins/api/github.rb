@@ -33,6 +33,14 @@ module Cyclid
             return ApiExtension::Controller.new(ApiExtension::GithubMethods, routes)
           end
 
+          # Plugin metadata
+          def metadata
+            super.merge!(version: Cyclid::Api::VERSION,
+                         license: 'Apache-2.0',
+                         author: 'Liqwyd Ltd.',
+                         homepage: 'http://docs.cyclid.io')
+          end
+
           # This plugin has configuration data
           def config?
             true

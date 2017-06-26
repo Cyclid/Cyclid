@@ -61,6 +61,14 @@ module Cyclid
           return true
         end
 
+        # Plugin metadata
+        def self.metadata
+          super.merge!(version: Cyclid::Api::VERSION,
+                       license: 'Apache-2.0',
+                       author: 'Liqwyd Ltd.',
+                       homepage: 'http://docs.cyclid.io')
+        end
+
         # Register this plugin
         register_plugin 'git'
 

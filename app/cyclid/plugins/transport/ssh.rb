@@ -125,6 +125,14 @@ module Cyclid
           @session.close
         end
 
+        # Plugin metadata
+        def self.metadata
+          super.merge!(version: Cyclid::Api::VERSION,
+                       license: 'Apache-2.0',
+                       author: 'Liqwyd Ltd.',
+                       homepage: 'http://docs.cyclid.io')
+        end
+
         private
 
         def build_command(cmd, path = nil, env = {})
