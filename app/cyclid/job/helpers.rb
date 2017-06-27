@@ -50,6 +50,7 @@ module Cyclid
             job_id = Cyclid.dispatcher.dispatch(job, job_record, callback)
           rescue StandardError => ex
             Cyclid.logger.error "job dispatch failed: #{ex}"
+            Cyclid.logger.debug ex.backtrace.join "\n"
 
             # We couldn't dispatch the job; record the failure
             job_record.status = Constants::JobStatus::FAILED
