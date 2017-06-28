@@ -47,7 +47,6 @@ describe 'an organization job' do
       expect(last_response.status).to eq(400)
     end
 
-
     it 'fails to create a job with an invalid sequence' do
       sequence = [{ stage: 'test' }]
       new_job = { name: 'test', environment: {}, sequence: sequence }
