@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'cyclid/linter'
+
 # Top level module for the core Cyclid code.
 module Cyclid
   # Module for the Cyclid API
@@ -21,15 +23,29 @@ module Cyclid
     module Job
       # Useful methods for dealing with Jobs
       module Helpers
+        include Cyclid::API::Exceptions
+
         # Create & dispatch a Job from the job definition
         def job_from_definition(definition, callback = nil, context = {})
+          # Job definition is a hash (converted from JSON or YAML)
+          definition.symbolize_keys!
+
           # This function will only ever be called from a Sinatra context
           org = Organization.find_by(name: params[:name])
-          halt_with_json_response(404, INVALID_ORG, 'organization does not exist') \
+          raise NotFoundError, 'organization does not exist' \
             if org.nil?
+
+          # Lint the job and reject if there are errors
+          verifier = Cyclid::Linter::Verifier.new
+          verifier.verify(definition)
+
+          raise InvalidObjectError, 'job definition has errors' \
+            unless verifier.status.errors.zero?
 
           # Create a new JobRecord
           job_record = JobRecord.new
+          job_record.job_name = definition[:name]
+          job_record.job_version = definition[:version] || '1.0.0'
           job_record.started = Time.now.to_s
           job_record.status = Constants::JobStatus::NEW
           job_record.save!
@@ -50,13 +66,15 @@ module Cyclid
             job_id = Cyclid.dispatcher.dispatch(job, job_record, callback)
           rescue StandardError => ex
             Cyclid.logger.error "job dispatch failed: #{ex}"
+            Cyclid.logger.debug ex.backtrace.join "\n"
 
             # We couldn't dispatch the job; record the failure
             job_record.status = Constants::JobStatus::FAILED
             job_record.ended = Time.now.to_s
             job_record.save!
 
-            raise
+            # Re-raise something useful
+            raise InternalError, "job dispatch failed: #{ex}"
           end
 
           return job_id

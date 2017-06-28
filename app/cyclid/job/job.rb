@@ -25,9 +25,6 @@ module Cyclid
         attr_reader :name, :version
 
         def initialize(job, context, org)
-          # Job is a hash (converted from JSON or YAML)
-          job.symbolize_keys!
-
           @name = job[:name]
           @version = job[:version] || '1.0.0'
 
