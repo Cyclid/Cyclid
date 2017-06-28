@@ -104,6 +104,23 @@ module Cyclid
 
                 callback = GithubCallback.new(auth_token, push_repository, push_sha, linkback_url)
                 job_from_definition(job_definition, callback, ctx)
+              rescue NotFoundError
+                @client.create_status(pr_repository, pr_sha, 'error',
+                                      context: 'Cyclid',
+                                      description: 'The Organization does not exist')
+
+                return_failure(404, 'organization does not exist')
+              rescue InvalidObjectError
+                @client.create_status(pr_repository, pr_sha, 'error',
+                                      context: 'Cyclid',
+                                      description: 'The Job definition contains errors')
+
+                return_failure(400, 'job definition contains errors')
+              rescue InternalError
+                @client.create_status(pr_repository, pr_sha, 'error',
+                                      context: 'Cyclid', description: 'An Internal Error occurred')
+
+                return_failure(4500, "internal error: #{ex}")
               rescue StandardError
                 @client.create_status(push_repository, push_sha, 'error',
                                       context: 'Cyclid', description: 'An unknown error occurred')

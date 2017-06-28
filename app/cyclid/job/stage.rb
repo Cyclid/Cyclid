@@ -48,7 +48,7 @@ module Cyclid
               action_name = step['action']
               plugin = Cyclid.plugins.find(action_name, Cyclid::API::Plugins::Action)
 
-              raise NameError.new "unknown action #{action_name}" if plugin.nil?
+              raise NameError, "unknown action #{action_name}" if plugin.nil?
 
               step_action = plugin.new(step)
               raise ArgumentError if step_action.nil?

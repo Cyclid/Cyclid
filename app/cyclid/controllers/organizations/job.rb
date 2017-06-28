@@ -104,6 +104,7 @@ module Cyclid
         # @private
         def self.registered(app)
           include Errors::HTTPErrors
+          include Exceptions
           include Constants::JobStatus
 
           # Return a list of jobs
@@ -180,12 +181,12 @@ module Cyclid
             payload = parse_request_body
             Cyclid.logger.debug payload
 
-            halt_with_json_response(400, INVALID_JOB, 'invalid job definition') \
-              unless payload.key? 'sequence' and \
-                     payload.key? 'environment'
-
             begin
               job_id = job_from_definition(payload)
+            rescue NotFoundError => ex
+              halt_with_json_response(404, INVALID_ORG, ex.to_s)
+            rescue InvalidObjectError => ex
+              halt_with_json_response(400, INVALID_JOB, ex.to_s)
             rescue StandardError => ex
               halt_with_json_response(500, INVALID_JOB, "job failed: #{ex}")
             end

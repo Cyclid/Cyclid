@@ -26,17 +26,6 @@ describe 'an organization job' do
   end
 
   context 'creating a new job' do
-    it 'creates a valid job with an empty sequence' do
-      new_job = { name: 'test', environment: {}, sequence: {} }
-
-      authorize 'admin', 'password'
-      post_json '/organizations/admins/jobs', new_job.to_json
-      expect(last_response.status).to eq(200)
-
-      res_json = JSON.parse(last_response.body)
-      expect(res_json).to eq('job_id' => 1)
-    end
-
     it 'creates a valid job with stages and a sequence' do
       stages = [{ name: 'test', steps: [{ action: 'command', cmd: '/bin/true' }] }]
       sequence = [{ stage: 'test' }]
@@ -47,8 +36,17 @@ describe 'an organization job' do
       expect(last_response.status).to eq(200)
 
       res_json = JSON.parse(last_response.body)
-      expect(res_json).to eq('job_id' => 2)
+      expect(res_json).to eq('job_id' => 1)
     end
+
+    it 'failed to create a job with an empty sequence' do
+      new_job = { name: 'test', environment: {}, sequence: {} }
+
+      authorize 'admin', 'password'
+      post_json '/organizations/admins/jobs', new_job.to_json
+      expect(last_response.status).to eq(400)
+    end
+
 
     it 'fails to create a job with an invalid sequence' do
       sequence = [{ stage: 'test' }]
@@ -56,7 +54,7 @@ describe 'an organization job' do
 
       authorize 'admin', 'password'
       post_json '/organizations/admins/jobs', new_job.to_json
-      expect(last_response.status).to eq(500)
+      expect(last_response.status).to eq(400)
     end
 
     it 'returns a job record of a submitted job' do
