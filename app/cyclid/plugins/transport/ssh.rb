@@ -66,8 +66,11 @@ module Cyclid
         end
 
         # Execute a command via. SSH
-        def exec(cmd, path = nil)
-          command = build_command(cmd, path, @env)
+        def exec(cmd, args = {})
+          sudo = args[:sudo] || false
+          path = args[:path]
+
+          command = build_command(cmd, sudo, path, @env)
           Cyclid.logger.debug "command=#{command}"
 
           @session.open_channel do |channel|
@@ -135,7 +138,7 @@ module Cyclid
 
         private
 
-        def build_command(cmd, path = nil, env = {})
+        def build_command(cmd, sudo, path = nil, env = {})
           command = []
           if env
             vars = env.map do |k, value|
@@ -149,8 +152,10 @@ module Cyclid
           command << "cd #{path}" if path
           command << if @username == 'root'
                        cmd
+                     elsif sudo
+                       "sudo -E -n $SHELL -l -c '#{cmd}'"
                      else
-                       "sudo -E #{cmd}"
+                       cmd
                      end
           command.join(';')
         end

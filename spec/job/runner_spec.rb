@@ -25,7 +25,7 @@ describe Cyclid::API::Job::Runner do
       @exit_code = 0
     end
 
-    def exec(_cmd, _path = nil)
+    def exec(_cmd, _args = {})
       true
     end
 

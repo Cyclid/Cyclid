@@ -33,9 +33,11 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should configure the host to use the repositories' do
-        expect(transport).to receive(:exec).with('yum install -q -y yum-utils')
-        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key')
-        expect(transport).to receive(:exec).with('yum-config-manager -q --add-repo http://example.com/repository.repo')
+        expect(transport).to receive(:exec).with('yum install -q -y yum-utils', sudo: true)
+        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key',
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('yum-config-manager -q --add-repo http://example.com/repository.repo',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -50,9 +52,11 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should configure the host to use the repositories' do
-        expect(transport).to receive(:exec).with('yum install -q -y yum-utils')
-        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key')
-        expect(transport).to receive(:exec).with('yum install -q -y --nogpgcheck http://example.com/repository.rpm')
+        expect(transport).to receive(:exec).with('yum install -q -y yum-utils', sudo: true)
+        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key',
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('yum install -q -y --nogpgcheck http://example.com/repository.rpm',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -66,7 +70,8 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should install the package groups' do
-        expect(transport).to receive(:exec).with('yum groupinstall -q -y "group1" "group2"')
+        expect(transport).to receive(:exec).with('yum groupinstall -q -y "group1" "group2"',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -80,7 +85,7 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should install the packages' do
-        expect(transport).to receive(:exec).with('yum install -q -y package1 package2')
+        expect(transport).to receive(:exec).with('yum install -q -y package1 package2', sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -110,9 +115,12 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should configure the host to use the repositories' do
-        expect(transport).to receive(:exec).with("dnf install -q -y 'dnf-command(config-manager)'")
-        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key')
-        expect(transport).to receive(:exec).with('dnf config-manager -q --add-repo http://example.com/repository.repo')
+        expect(transport).to receive(:exec).with("dnf install -q -y 'dnf-command(config-manager)'",
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key',
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('dnf config-manager -q --add-repo http://example.com/repository.repo',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -127,9 +135,12 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should configure the host to use the repositories' do
-        expect(transport).to receive(:exec).with("dnf install -q -y 'dnf-command(config-manager)'")
-        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key')
-        expect(transport).to receive(:exec).with('dnf install -q -y http://example.com/repository.rpm')
+        expect(transport).to receive(:exec).with("dnf install -q -y 'dnf-command(config-manager)'",
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('rpm -q --import http://example.com/repository.key',
+                                                 sudo: true)
+        expect(transport).to receive(:exec).with('dnf install -q -y http://example.com/repository.rpm',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -143,7 +154,8 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should install the package groups' do
-        expect(transport).to receive(:exec).with('dnf groups install -q -y "group1" "group2"')
+        expect(transport).to receive(:exec).with('dnf groups install -q -y "group1" "group2"',
+                                                 sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error
@@ -157,7 +169,7 @@ describe Cyclid::API::Plugins::Fedora do
       end
 
       it 'should install the packages' do
-        expect(transport).to receive(:exec).with('dnf install -q -y package1 package2')
+        expect(transport).to receive(:exec).with('dnf install -q -y package1 package2', sudo: true)
 
         provisioner = nil
         expect{ provisioner = Cyclid::API::Plugins::Fedora.new }.to_not raise_error

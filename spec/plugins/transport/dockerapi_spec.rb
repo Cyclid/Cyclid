@@ -41,7 +41,7 @@ describe Cyclid::API::Plugins::DockerApi do
 
       context 'with no environment variables' do
         it 'should execute a command that exits successfully' do
-          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'sudo -E /bin/true'],
+          expect(container).to receive(:exec).with(['sh', '-l', '-c', '/bin/true'],
                                                    wait: 300).and_return(success)
 
           t = nil
@@ -50,7 +50,7 @@ describe Cyclid::API::Plugins::DockerApi do
         end
 
         it 'should execute a command that exits unsuccessfully' do
-          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'sudo -E /bin/false'],
+          expect(container).to receive(:exec).with(['sh', '-l', '-c', '/bin/false'],
                                                    wait: 300).and_return(failure)
 
           t = nil
@@ -66,7 +66,7 @@ describe Cyclid::API::Plugins::DockerApi do
 
         # rubocop:disable LineLength
         it 'should execute a command that exits successfully' do
-          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'export TEST="example";sudo -E /bin/true'],
+          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'export TEST="example";/bin/true'],
                                                    wait: 300).and_return(success)
 
           t = nil
@@ -76,7 +76,7 @@ describe Cyclid::API::Plugins::DockerApi do
         end
 
         it 'should execute a command that exits unsuccessfully' do
-          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'export TEST="example";sudo -E /bin/false'],
+          expect(container).to receive(:exec).with(['sh', '-l', '-c', 'export TEST="example";/bin/false'],
                                                    wait: 300).and_return(failure)
 
           t = nil

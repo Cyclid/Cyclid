@@ -30,28 +30,28 @@ module Cyclid
 
           # Install the yum-utils package
           def install_yum_utils(transport)
-            transport.exec 'yum install -q -y yum-utils'
+            transport.exec('yum install -q -y yum-utils', sudo: true)
           end
 
           # Import a signing key with RPM
           def import_signing_key(transport, key_url)
-            transport.exec("rpm #{quiet} --import #{key_url}") \
+            transport.exec("rpm #{quiet} --import #{key_url}", sudo: true)
           end
 
           # Install a package group with yum
           def yum_groupinstall(transport, groups)
             grouplist = groups.map{ |g| "\"#{g}\"" }.join(' ')
-            transport.exec "yum groupinstall #{quiet} -y #{grouplist}"
+            transport.exec("yum groupinstall #{quiet} -y #{grouplist}", sudo: true)
           end
 
           # Install a list of packages with yum
           def yum_install(transport, packages)
-            transport.exec "yum install #{quiet} -y #{packages.join(' ')}"
+            transport.exec("yum install #{quiet} -y #{packages.join(' ')}", sudo: true)
           end
 
           # Add a repository with yum-config-manager
           def yum_add_repo(transport, url)
-            transport.exec("yum-config-manager #{quiet} --add-repo #{url}")
+            transport.exec("yum-config-manager #{quiet} --add-repo #{url}", sudo: true)
           end
 
           # Use DNF to configure & install Fedora
@@ -60,7 +60,7 @@ module Cyclid
 
             if env.key? :repos
               # We need the config-manager plugin
-              transport.exec("dnf install #{quiet} -y 'dnf-command(config-manager)'")
+              transport.exec("dnf install #{quiet} -y 'dnf-command(config-manager)'", sudo: true)
 
               env[:repos].each do |repo|
                 next unless repo.key? :url
@@ -71,20 +71,20 @@ module Cyclid
 
                 if repo[:url] =~ /\.rpm$/
                   # If the URL is an RPM just install it
-                  transport.exec("dnf install #{quiet} -y #{repo[:url]}")
+                  transport.exec("dnf install #{quiet} -y #{repo[:url]}", sudo: true)
                 else
                   # Not an RPM? Let's hope it's a repo file
-                  transport.exec("dnf config-manager #{quiet} --add-repo #{repo[:url]}")
+                  transport.exec("dnf config-manager #{quiet} --add-repo #{repo[:url]}", sudo: true)
                 end
               end
             end
 
             if env.key? :groups
               groups = env[:groups].map{ |g| "\"#{g}\"" }.join(' ')
-              transport.exec "dnf groups install #{quiet} -y #{groups}"
+              transport.exec("dnf groups install #{quiet} -y #{groups}", sudo: true)
             end
 
-            transport.exec "dnf install #{quiet} -y #{env[:packages].join(' ')}" \
+            transport.exec("dnf install #{quiet} -y #{env[:packages].join(' ')}", sudo: true) \
               if env.key? :packages
           end
 
@@ -105,7 +105,7 @@ module Cyclid
 
                 if repo[:url] =~ /\.rpm$/
                   # If the URL is an RPM just install it
-                  transport.exec("yum install #{quiet} -y --nogpgcheck #{repo[:url]}")
+                  transport.exec("yum install #{quiet} -y --nogpgcheck #{repo[:url]}", sudo: true)
                 else
                   # Not an RPM? Let's hope it's a repo file
                   yum_add_repo(transport, repo[:url])
@@ -137,7 +137,8 @@ module Cyclid
 
                 if repo[:url] =~ /\.rpm$/
                   # If the URL is an RPM just install it
-                  transport.exec("yum localinstall #{quiet} -y --nogpgcheck #{repo[:url]}")
+                  transport.exec("yum localinstall #{quiet} -y --nogpgcheck #{repo[:url]}", \
+                                 sudo: true)
                 else
                   # Not an RPM? Let's hope it's a repo file
                   yum_add_repo(transport, repo[:url])
@@ -163,7 +164,7 @@ module Cyclid
                   if repo.key? :key_url
 
                 # Assume the URL is an RPM
-                transport.exec("rpm -U #{quiet} #{repo[:url]}")
+                transport.exec("rpm -U #{quiet} #{repo[:url]}", sudo: true)
               end
             end
 
