@@ -71,7 +71,7 @@ module Cyclid
             path = path ** @ctx unless path.nil?
 
             # Run the command
-            success = @transport.exec(cmd_args, path)
+            success = @transport.exec(cmd_args, path: path)
           rescue KeyError => ex
             # Interpolation failed
             log.write "#{ex.message}\n"

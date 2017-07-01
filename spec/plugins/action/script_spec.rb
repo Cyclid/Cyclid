@@ -11,9 +11,9 @@ describe Cyclid::API::Plugins::Script do
       @exit_code = 0
     end
 
-    def exec(cmd, path = nil)
+    def exec(cmd, args = {})
       @cmd = cmd
-      @path = path
+      @path = args[:path]
       true
     end
 

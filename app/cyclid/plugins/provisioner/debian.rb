@@ -26,7 +26,7 @@ module Cyclid
           transport.export_env('DEBIAN_FRONTEND' => 'noninteractive')
 
           # Build hosts may require an update before anything can be installed
-          success = transport.exec 'apt-get update -qq'
+          success = transport.exec('apt-get update -qq', sudo: true)
           raise 'failed to update repositories' unless success
 
           if env.key? :repos
@@ -44,13 +44,15 @@ module Cyclid
             end
 
             # We must update again to cache the new repositories
-            success = transport.exec 'apt-get update -q'
+            success = transport.exec('apt-get update -q', sudo: true)
             raise 'failed to update repositories' unless success
           end
 
           if env.key? :packages
-            success = transport.exec \
-              "apt-get install -q -y #{env[:packages].join(' ')}" \
+            success = transport.exec( \
+              "apt-get install -q -y #{env[:packages].join(' ')}", \
+              sudo: true
+            )
 
             raise "failed to install packages #{env[:packages].join(' ')}" unless success
           end
@@ -78,8 +80,10 @@ module Cyclid
           components = repo[:components]
           fragment = "deb #{url} #{release} #{components}"
 
-          success = transport.exec \
-            "sh -c \"echo '#{fragment}' | tee -a /etc/apt/sources.list.d/cyclid.list\""
+          success = transport.exec( \
+            "sh -c \"echo '#{fragment}' | tee -a /etc/apt/sources.list.d/cyclid.list\"", \
+            sudo: true
+          )
           raise "failed to add repository #{url}" unless success
 
           return unless repo.key? :key_id
@@ -87,12 +91,16 @@ module Cyclid
           # Import the signing key
           key_id = repo[:key_id]
 
-          success = transport.exec \
-            "gpg --keyserver keyserver.ubuntu.com --recv-keys #{key_id}"
+          success = transport.exec( \
+            "gpg --keyserver keyserver.ubuntu.com --recv-keys #{key_id}", \
+            sudo: true
+          )
           raise "failed to import key #{key_id}" unless success
 
-          success = transport.exec \
-            "sh -c 'gpg -a --export #{key_id} | apt-key add -'"
+          success = transport.exec( \
+            "sh -c 'gpg -a --export #{key_id} | apt-key add -'", \
+            sudo: true
+          )
           raise "failed to add repository key #{key_id}" unless success
         end
 

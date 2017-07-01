@@ -10,8 +10,9 @@ describe Cyclid::API::Plugins::Debian do
       @exit_code = 0
     end
 
-    def exec(cmd, _path = nil)
+    def exec(cmd, args = {})
       @cmd = cmd
+      @path = args[:path]
       true
     end
 

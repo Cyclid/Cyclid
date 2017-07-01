@@ -40,7 +40,7 @@ module Cyclid
             # username
             url.user = source[:token] if source.key? :token
 
-            success = transport.exec("git clone #{url}", ctx[:workspace])
+            success = transport.exec("git clone #{url}", path: ctx[:workspace])
             return false unless success
 
             # If a branch was given, check it out
@@ -51,10 +51,10 @@ module Cyclid
             match = url.path.match(%r{^.*\/([^\.]*)})
             source_dir = "#{ctx[:workspace]}/#{match[1]}"
 
-            success = transport.exec("git fetch origin #{branch}:#{branch}", source_dir)
+            success = transport.exec("git fetch origin #{branch}:#{branch}", path: source_dir)
             return false unless success
 
-            success = transport.exec("git checkout #{branch}", source_dir)
+            success = transport.exec("git checkout #{branch}", path: source_dir)
             return false unless success
           end
 

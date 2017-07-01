@@ -38,7 +38,7 @@ module Cyclid
         end
 
         # Run a command on the remote host.
-        def exec(_cmd, _path = nil)
+        def exec(_cmd, _args = {})
           false
         end
 

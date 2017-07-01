@@ -49,8 +49,11 @@ module Cyclid
         end
 
         # Execute a command via the Docker API
-        def exec(cmd, path = nil)
-          command = build_command(cmd, path, @env)
+        def exec(cmd, args = {})
+          sudo = args[:sudo] || false
+          path = args[:path]
+
+          command = build_command(cmd, sudo, path, @env)
           Cyclid.logger.debug "command=#{command}"
           result = @container.exec(command, wait: 300) do |_stream, chunk|
             @log.write chunk
@@ -82,7 +85,7 @@ module Cyclid
 
         private
 
-        def build_command(cmd, path = nil, env = {})
+        def build_command(cmd, sudo, path = nil, env = {})
           command = []
           if env
             vars = env.map do |k, value|
@@ -96,8 +99,10 @@ module Cyclid
           command << "cd #{path}" if path
           command << if @username == 'root'
                        cmd
+                     elsif sudo
+                       "sudo -E -n $SHELL -l -c '#{cmd}'"
                      else
-                       "sudo -E #{cmd}"
+                       cmd
                      end
           ['sh', '-l', '-c', command.join(';')]
         end

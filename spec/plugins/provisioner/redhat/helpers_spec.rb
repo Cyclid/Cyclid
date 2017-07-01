@@ -12,7 +12,7 @@ describe Cyclid::API::Plugins::Helpers::Redhat do
 
   describe '#install_yum_utils' do
     it 'uses YUM to install the yum-utils package' do
-      expect(transport).to receive(:exec).with('yum install -q -y yum-utils')
+      expect(transport).to receive(:exec).with('yum install -q -y yum-utils', sudo: true)
       expect{ dummy_class.install_yum_utils(transport) }.to_not raise_error
     end
   end
@@ -23,7 +23,7 @@ describe Cyclid::API::Plugins::Helpers::Redhat do
     end
 
     it 'uses RPM to install the signing key' do
-      expect(transport).to receive(:exec).with("rpm  --import #{key}")
+      expect(transport).to receive(:exec).with("rpm  --import #{key}", sudo: true)
       expect{ dummy_class.import_signing_key(transport, key) }.to_not raise_error
     end
   end
@@ -34,7 +34,7 @@ describe Cyclid::API::Plugins::Helpers::Redhat do
     end
 
     it 'uses YUM to install the list of groups' do
-      expect(transport).to receive(:exec).with('yum groupinstall  -y "group1" "group2"')
+      expect(transport).to receive(:exec).with('yum groupinstall  -y "group1" "group2"', sudo: true)
       expect{ dummy_class.yum_groupinstall(transport, groups) }.to_not raise_error
     end
   end
@@ -45,7 +45,7 @@ describe Cyclid::API::Plugins::Helpers::Redhat do
     end
 
     it 'uses YUM to install the list of packages' do
-      expect(transport).to receive(:exec).with("yum install  -y #{packages.join(' ')}")
+      expect(transport).to receive(:exec).with("yum install  -y #{packages.join(' ')}", sudo: true)
       expect{ dummy_class.yum_install(transport, packages) }.to_not raise_error
     end
   end
@@ -56,7 +56,7 @@ describe Cyclid::API::Plugins::Helpers::Redhat do
     end
 
     it 'uses YUM to add the repository' do
-      expect(transport).to receive(:exec).with("yum-config-manager  --add-repo #{url}")
+      expect(transport).to receive(:exec).with("yum-config-manager  --add-repo #{url}", sudo: true)
       expect{ dummy_class.yum_add_repo(transport, url) }.to_not raise_error
     end
   end
