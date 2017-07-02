@@ -47,9 +47,8 @@ module Cyclid
                     File.join('/', 'tmp', file)
                   end
 
-          @env = args[:env] if args.include? :env
-
-          Cyclid.logger.debug "script: '#{@script}' path: #{@path}"
+          @env = args[:env]
+          @sudo = args[:sudo]
         end
 
         # Run the script action
@@ -72,7 +71,7 @@ module Cyclid
 
             # Execute the script
             log.write("Running script from #{path}...\n")
-            success = @transport.exec("chmod +x #{path} && #{path}")
+            success = @transport.exec("chmod +x #{path} && #{path}", sudo: @sudo)
           rescue KeyError => ex
             # Interpolation failed
             log.write "#{ex.message}\n"

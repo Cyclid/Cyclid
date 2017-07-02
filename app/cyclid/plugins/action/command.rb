@@ -43,8 +43,9 @@ module Cyclid
 
           Cyclid.logger.debug "cmd: '#{@cmd}' args: #{@args}"
 
-          @env = args[:env] if args.include? :env
-          @path = args[:path] if args.include? :path
+          @env = args[:env]
+          @path = args[:path]
+          @sudo = args[:sudo]
         end
 
         # Note that we don't need to explicitly use the log for transport
@@ -71,7 +72,7 @@ module Cyclid
             path = path ** @ctx unless path.nil?
 
             # Run the command
-            success = @transport.exec(cmd_args, path: path)
+            success = @transport.exec(cmd_args, path: path, sudo: @sudo)
           rescue KeyError => ex
             # Interpolation failed
             log.write "#{ex.message}\n"
