@@ -83,7 +83,7 @@ module Cyclid
 
         # Destroy the build host
         def release(_transport, buildhost)
-          name = buildhost['name']
+          name = buildhost[:name]
 
           instance = @api.servers.get(name)
           raise "instance #{name} does not exist" unless instance

@@ -36,6 +36,12 @@ module Cyclid
                       else
                         Logger.new(Cyclid.config.log)
                       end
+
+      original_formatter = Logger::Formatter.new
+      Cyclid.logger.formatter = proc { |severity, datetime, progname, msg|
+        original_formatter.call(severity, datetime, progname, "#{Thread.current.object_id}: #{msg}")
+      }
+
     rescue StandardError => ex
       abort "Failed to initialize: #{ex}"
     end

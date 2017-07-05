@@ -21,6 +21,7 @@ guard 'rack' do
   watch(%r{^(config|lib|app)/.*})
 end
 
-guard 'sidekiq', require: File.expand_path('../lib/cyclid/app.rb', __FILE__) do
-  watch(%r{^app/cyclid/plugins/dispatcher/.*})
+guard 'sidekiq', require: File.expand_path('../lib/cyclid/app.rb', __FILE__), concurrency: 5 do
+  watch('Gemfile.lock')
+  watch(%r{^(config|lib|app)/.*})
 end
