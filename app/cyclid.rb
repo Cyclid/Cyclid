@@ -38,7 +38,7 @@ module Cyclid
                       end
 
       original_formatter = Logger::Formatter.new
-        Cyclid.logger.formatter = proc { |severity, datetime, progname, msg|
+      Cyclid.logger.formatter = proc { |severity, datetime, progname, msg|
         original_formatter.call(severity, datetime, progname, "#{Thread.current.object_id}: #{msg}")
       }
 
