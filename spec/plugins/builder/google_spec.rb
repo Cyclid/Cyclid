@@ -81,7 +81,7 @@ describe Cyclid::API::Plugins::Google do
 
     it 'releases a build host' do
       buildhost = double(Cyclid::API::Plugins::GoogleHost)
-      expect(buildhost).to receive(:[]).with('name').and_return('test')
+      expect(buildhost).to receive(:[]).with(:name).and_return('test')
 
       expect{ subject.release(nil, buildhost) }.to_not raise_error
     end
