@@ -141,7 +141,8 @@ module Cyclid
         class Local
           include Sidekiq::Worker
 
-          sidekiq_options retry: false
+          sidekiq_options retry: false,
+                          queue: 'cyclid_jobs'
 
           # Run a job Runner asynchronously
           def perform(job, job_id, callback_object)
