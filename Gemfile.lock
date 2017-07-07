@@ -24,7 +24,7 @@ PATH
 PATH
   remote: .
   specs:
-    cyclid (0.3.3)
+    cyclid (0.4.0)
       activerecord (~> 4.2)
       addressable (< 2.4)
       bcrypt (~> 3.1)
