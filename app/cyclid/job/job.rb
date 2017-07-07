@@ -30,7 +30,7 @@ module Cyclid
 
           @context = context
           @organization = org.name
-          @environment = job[:environment]
+          @environment = job[:environment] || {}
           @sources = job[:sources] || []
           @secrets = setec_astronomy(org, (job[:secrets] || {}))
 
