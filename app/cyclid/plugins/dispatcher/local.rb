@@ -160,7 +160,9 @@ module Cyclid
               runner = Cyclid::API::Job::Runner.new(job_id, job, notifier)
               success = runner.run
             rescue StandardError => ex
-              Cyclid.logger.error "job runner failed: #{ex}"
+              Cyclid.logger.error "local Sidekiq Worker failed: #{ex}"
+              Cyclid.logger.debug ex.backtrace.join("\n")
+
               success = false
             end
 
