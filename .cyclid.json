@@ -1,132 +1,137 @@
 {
-   "name" : "Cyclid",
-   "environment":
+  "name":"Cyclid",
+  "environment":{
+    "os":"ubuntu_trusty",
+    "repos":[
       {
-        "os": "ubuntu_trusty",
-        "repos": [
-          {
-            "url": "ppa:brightbox/ruby-ng"
-          }
-        ],
-        "packages": [
-          "ruby2.3",
-          "ruby2.3-dev",
-          "build-essential",
-          "git",
-          "zlib1g-dev",
-          "libsqlite3-dev",
-          "mysql-client",
-          "libmysqlclient-dev"
-        ]
-      },
-   "sources": [
-      {
-        "type": "git",
-        "url": "https://github.com/Cyclid/Cyclid-core"
-      },
-      {
-        "type": "git",
-        "url": "https://github.com/Cyclid/Cyclid"
+        "url":"ppa:brightbox/ruby-ng"
       }
-   ],
-   "stages" : [
-      {
-        "name" : "bundle-install",
-        "steps" : [
-          {
-            "action" : "command", 
-            "cmd" : "sudo gem install bundler --no-ri --no-doc --quiet"
-          },
-          {
-            "action" : "command",
-            "cmd": "bundle install --path vendor/bundle",
-            "path" : "%{workspace}/Cyclid"
-          }
-        ]
-      },
-      {
-        "name" : "lint",
-        "steps" : [
-          {
-            "action" : "command",
-            "cmd" : "bundle exec rake rubocop",
-            "path" : "%{workspace}/Cyclid"
-          }
-        ]
-      },
-      {
-        "name": "rspec",
-        "steps": [
-          {
-            "action" : "command",
-            "cmd" : "bundle exec rake spec",
-            "path" : "%{workspace}/Cyclid"
-          }
-        ]
-      },
-      {
-        "name": "docs",
-        "steps": [
-          {
-            "action" : "command",
-            "cmd" : "bundle exec rake doc",
-            "path" : "%{workspace}/Cyclid"
-          }
-        ]
-      },
-      {
-        "name": "build",
-        "steps": [
-          {
-            "action" : "command",
-            "cmd" : "bundle exec rake build",
-            "path" : "%{workspace}/Cyclid"
-          }
-        ]
-      },
-      {
-        "name": "success",
-        "steps": [
-          {
-            "action" : "slack",
-            "subject" : "%{job_name} succeeded",
-            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) completed successfully."
-          }
-        ]
-      },
-      {
-        "name": "failure",
-        "steps": [
-          {
-            "action" : "slack",
-            "subject" : "%{job_name} failed",
-            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) failed.",
-            "color" : "danger"
-          }
-        ]
-      }
-   ],
-   "sequence" : [
-      {
-         "stage" : "bundle-install",
-         "on_failure" : "failure"
-      },
-      {
-        "stage" : "lint",
-        "on_failure" : "failure"
-      },
-      {
-        "stage" : "rspec",
-        "on_failure" : "failure"
-      },
-      {
-        "stage" : "docs",
-        "on_failure" : "failure"
-      },
-      {
-        "stage" : "build",
-        "on_success" : "success",
-        "on_failure" : "failure"
-      }
-   ]
+    ],
+    "packages":[
+      "ruby2.3",
+      "ruby2.3-dev",
+      "build-essential",
+      "git",
+      "zlib1g-dev",
+      "libsqlite3-dev",
+      "mysql-client",
+      "libmysqlclient-dev"
+    ]
+  },
+  "sources":[
+    {
+      "type":"git",
+      "url":"https://github.com/Cyclid/Cyclid-core"
+    },
+    {
+      "type":"git",
+      "url":"https://github.com/Cyclid/Cyclid"
+    }
+  ],
+  "stages":[
+    {
+      "name":"bundle-install",
+      "steps":[
+        {
+          "action":"command",
+          "cmd":"gem install bundler --no-ri --no-doc --quiet",
+          "sudo":"true"
+        },
+        {
+          "action":"command",
+          "cmd":"bundle install --path vendor/bundle",
+          "path":"%{workspace}/Cyclid"
+        }
+      ]
+    },
+    {
+      "name":"lint",
+      "steps":[
+        {
+          "action":"command",
+          "cmd":"bundle exec rake rubocop",
+          "path":"%{workspace}/Cyclid"
+        }
+      ]
+    },
+    {
+      "name":"rspec",
+      "steps":[
+        {
+          "action":"command",
+          "cmd":"bundle exec rake spec",
+          "path":"%{workspace}/Cyclid"
+        },
+        {
+          "action":"simplecov",
+          "path":"%{workspace}/Cyclid/coverage/coverage.json"
+        }
+      ]
+    },
+    {
+      "name":"docs",
+      "steps":[
+        {
+          "action":"command",
+          "cmd":"bundle exec rake doc",
+          "path":"%{workspace}/Cyclid"
+        }
+      ]
+    },
+    {
+      "name":"build",
+      "steps":[
+        {
+          "action":"command",
+          "cmd":"bundle exec rake build",
+          "path":"%{workspace}/Cyclid"
+        }
+      ]
+    },
+    {
+      "name":"success",
+      "steps":[
+        {
+          "action":"slack",
+          "subject":"%{job_name} succeeded",
+          "message":"Build %{organization}/%{job_name} (job #%{job_id}) completed successfully."
+        }
+      ]
+    },
+    {
+      "name":"failure",
+      "steps":[
+        {
+          "action":"slack",
+          "subject":"%{job_name} failed",
+          "message":"Build %{organization}/%{job_name} (job #%{job_id}) failed.",
+          "color":"danger"
+        }
+      ]
+    }
+  ],
+  "sequence":[
+    {
+      "stage":"bundle-install",
+      "on_failure":"failure"
+    },
+    {
+      "stage":"lint",
+      "on_failure":"failure"
+    },
+    {
+      "stage":"rspec",
+      "fail_if":"%{simplecov_coverage} < 85%",
+      "on_failure":"failure"
+    },
+    {
+      "stage":"docs",
+      "on_failure":"failure"
+    },
+    {
+      "stage":"build",
+      "on_success":"success",
+      "on_failure":"failure"
+    }
+  ]
 }
